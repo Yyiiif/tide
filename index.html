@@ -1788,7 +1788,6 @@ let balanceSnapshots=[];
   balanceSnapshots.forEach(ensureBalanceSnapshotMeta);
 })();
 let balanceEditIdx=-1;
-// Force Vercel to redeploy without cache 2026
 let budget=17000;
 let catBudgets=JSON.parse(localStorage.getItem('cat_budgets_v1')||'{}');
 let catBuffers={};
