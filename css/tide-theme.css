@@ -1,0 +1,1908 @@
+/* TIDE UI — all screens, English nav (Tide / Pulse / Drops / Me) */
+body.tide-ui {
+  --tide-bg: #FAFAFB;
+  --tide-ink: #101113;
+  --tide-ash: #9CA0A8;
+  --tide-surf: #FFFFFF;
+  --tide-hair: rgba(14, 15, 18, 0.06);
+  --tide-water: #3E6E8E;
+  --tide-water-lite: #A6C4D6;
+  --tide-wave-back: #eceef2;
+  --tide-wave-lite: #d4d6da;
+  --tide-wave-deep: #101113;
+  --tide-nav-bg: rgba(250, 250, 251, 0.92);
+  --tide-chip: rgba(14, 15, 18, 0.04);
+  /* Fixed bottom nav is taller than legacy --nav-bar-block (52px tabs + padding) */
+  --nav-bar-block: calc(10px + 52px + max(16px, env(safe-area-inset-bottom, 0px)) + 12px);
+  --tide-scroll-bottom: calc(var(--nav-bar-block) + 24px);
+
+  --bg: var(--tide-bg);
+  --bg2: #F4F5F7;
+  --bg3: #ECEEF2;
+  --card: var(--tide-surf);
+  --border: var(--tide-hair);
+  --t1: var(--tide-ink);
+  --t2: var(--tide-ash);
+  --t3: #B8BCC4;
+  --accent: var(--tide-water);
+  --nav-on: var(--tide-ink);
+  --nav-off: var(--tide-ash);
+  background: var(--tide-bg);
+  color: var(--tide-ink);
+}
+
+body.tide-ui .app,
+body.tide-ui .content {
+  background: var(--tide-bg);
+  color: var(--tide-ink);
+}
+body.tide-ui .content {
+  padding-bottom: var(--tide-scroll-bottom) !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* Hide legacy Chinese page headers */
+body.tide-ui #s-home > .simple-hdr,
+body.tide-ui #s-rec > .simple-hdr,
+body.tide-ui #s-stat > .simple-hdr,
+body.tide-ui #s-set > .simple-hdr {
+  display: none !important;
+}
+
+/* Unified screen header — same position on Tide / Pulse / Drops / Me */
+body.tide-ui .tide-screen-header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 110 !important;
+  background: var(--tide-bg) !important;
+  padding: max(12px, env(safe-area-inset-top)) 22px 4px;
+  box-sizing: border-box;
+}
+body.tide-ui .tide-screen-header--stacked {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+body.tide-ui .tide-screen-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 0 4px;
+  box-sizing: border-box;
+  width: 100%;
+}
+body.tide-ui #s-home .tide-home-eyebrow,
+body.tide-ui #s-stat .tide-screen-header-top .tide-screen-eyebrow,
+body.tide-ui #s-rec .tide-screen-header-top .tide-screen-eyebrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 36px;
+  flex: 1;
+  min-width: 0;
+}
+body.tide-ui .tide-screen-header-month {
+  width: calc(100% + 44px);
+  max-width: 100vw;
+  margin-left: -22px;
+  margin-right: -22px;
+  padding-left: max(22px, env(safe-area-inset-left, 0px));
+  padding-right: max(22px, env(safe-area-inset-right, 0px));
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+body.tide-ui .tide-screen-header .tide-screen-eyebrow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  padding: 0 !important;
+  margin: 0;
+  box-sizing: border-box;
+}
+body.tide-ui .tide-eyebrow-tag {
+  font-size: 10px;
+  letter-spacing: 2.2px;
+  color: var(--tide-ash);
+  font-weight: 600;
+}
+body.tide-ui .tide-screen-eyebrow:not(.tide-me-eyebrow) {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+body.tide-ui .page-month-nav {
+  background: transparent !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  padding-top: 0 !important;
+}
+body.tide-ui .home-summary {
+  background: transparent !important;
+  border-bottom: none !important;
+  padding: 0 0 8px !important;
+}
+body.tide-ui #s-home .home-summary > .tide-screen-header {
+  padding-left: 22px;
+  padding-right: 22px;
+}
+body.tide-ui .home-header-month-label,
+body.tide-ui .home-summary-month {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 2.2px !important;
+  color: var(--tide-ash) !important;
+  text-transform: uppercase;
+}
+body.tide-ui .page-month-nav .home-header-nav-btn {
+  color: var(--tide-ash);
+}
+
+/* Month nav — same on Tide / Pulse / Drops */
+body.tide-ui .tide-month-nav {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  width: 100%;
+  box-sizing: border-box;
+}
+body.tide-ui .tide-month-nav .home-header-month-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  min-height: 40px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  box-sizing: border-box;
+}
+body.tide-ui .tide-month-nav .home-header-nav-btn {
+  flex: 0 0 auto !important;
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  border-radius: 11px !important;
+  color: var(--tide-ash) !important;
+  border: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  -webkit-tap-highlight-color: transparent;
+}
+body.tide-ui .tide-month-nav .home-header-nav-btn svg {
+  display: block;
+  flex-shrink: 0;
+}
+body.tide-ui .tide-month-nav .home-header-nav-btn:active {
+  background: var(--tide-chip) !important;
+}
+body.tide-ui .sticky-month-navigator,
+body.tide-ui .homepage-sticky-navigator,
+body.tide-ui #s-home .home-summary .sticky-month-navigator,
+body.tide-ui #s-home .home-summary .homepage-sticky-navigator,
+body.tide-ui #s-rec .scr-pad .sticky-month-navigator,
+body.tide-ui #s-stat .scr-pad .sticky-month-navigator,
+body.tide-ui #s-rec #rec-monthly .sticky-month-navigator {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 110 !important;
+  background: var(--tide-bg) !important;
+  background-color: var(--tide-bg) !important;
+  box-shadow: none !important;
+}
+/* Month row lives inside sticky .tide-screen-header — avoid nested sticky */
+body.tide-ui .tide-screen-header .page-month-nav,
+body.tide-ui .tide-screen-header-month .page-month-nav {
+  position: static !important;
+  top: auto !important;
+  z-index: auto !important;
+  background: transparent !important;
+}
+body.tide-ui .tide-month-nav .home-header-month-label,
+body.tide-ui .tide-month-nav .home-summary-month,
+body.tide-ui .tide-month-nav #home-summary-month,
+body.tide-ui .tide-month-nav #stat-month-lbl,
+body.tide-ui .tide-month-nav #rec-month-lbl {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  text-align: center !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 2.2px !important;
+  color: var(--tide-ash) !important;
+  text-transform: uppercase !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  line-height: 1.2 !important;
+}
+body.tide-ui .tide-screen-header-month .page-month-nav.tide-month-nav {
+  padding: 0 !important;
+}
+
+body.tide-ui #s-home .scr-pad,
+body.tide-ui #s-stat .scr-pad,
+body.tide-ui #s-rec .scr-pad,
+body.tide-ui #s-set .scr-pad {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* ── Tide hero (home) — matches prototype tank ── */
+body.tide-ui .home-donut-section {
+  display: none !important;
+}
+body.tide-ui #home-eye-icon,
+body.tide-ui .home-donut-label-row button {
+  display: none !important;
+}
+body.tide-ui .tide-stream-alert-slot {
+  display: none !important;
+}
+body.tide-ui .tide-home-month-nav {
+  width: 100%;
+  flex-shrink: 0;
+}
+body.tide-ui #s-home .home-summary > .page-month-nav:not(.tide-home-month-nav) {
+  display: none !important;
+}
+
+body.tide-ui #s-home {
+  /* stacked REFLOW + month row (approx.) */
+  --tide-home-header-block: calc(22px + 40px + 22px + env(safe-area-inset-top, 0px));
+}
+body.tide-ui #s-home .tide-hero-wrap {
+  padding: 8px 22px 12px;
+}
+body.tide-ui #s-home .tide-hero-card,
+.tide-hero-card {
+  position: relative;
+  width: 100%;
+  border-radius: 22px;
+  overflow: hidden;
+  background: var(--tide-surf);
+  border: none;
+  box-shadow: 0 12px 32px -16px rgba(14, 15, 18, 0.18);
+}
+body.tide-ui .tide-hero-card--dry .tide-hero-wave-a,
+body.tide-ui .tide-hero-card--dry .tide-hero-wave-b {
+  display: none;
+}
+/* Home REMAINING tank — at most ~⅓ of screen below header & above nav */
+body.tide-ui #s-home .tide-hero-card {
+  aspect-ratio: auto;
+  height: calc(
+    (100dvh - var(--nav-bar-block) - var(--tide-home-header-block)) / 3
+  );
+  max-height: calc(
+    (100svh - var(--nav-bar-block) - var(--tide-home-header-block)) / 3
+  );
+  min-height: 128px;
+}
+.tide-hero-wave-layer {
+  position: absolute;
+  inset: 0;
+  color: var(--tide-ink);
+}
+.tide-hero-tank-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.tide-hero-wave-loop {
+  visibility: hidden;
+  pointer-events: none;
+}
+.tide-hero-wave-a {
+  animation: tideDriftA 7s linear infinite;
+  will-change: transform;
+}
+.tide-hero-wave-b {
+  animation: tideDriftB 5.2s linear infinite;
+  will-change: transform;
+}
+.tide-hero-overlay {
+  position: absolute;
+  inset: 0;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 2;
+}
+.tide-hero-eyebrow,
+.tide-hero-foot-lbl {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--tide-ink);
+  opacity: 0.55;
+  font-weight: 600;
+}
+.tide-hero-amt {
+  font-size: clamp(22px, 7vw, 28px);
+  font-weight: 500;
+  letter-spacing: -1.2px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  margin-top: 4px;
+}
+body.tide-ui #s-home .tide-hero-foot-val {
+  font-size: 13px;
+}
+.tide-hero-sub {
+  font-size: 10.5px;
+  color: var(--tide-ink);
+  opacity: 0.6;
+  margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.tide-hero-foot {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+.tide-hero-foot-right {
+  text-align: right;
+}
+.tide-hero-foot-val {
+  font-size: 15px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.4px;
+  margin-top: 2px;
+}
+.tide-hero-foot-val span {
+  font-size: 11px;
+  color: var(--tide-ash);
+  margin-left: 4px;
+  font-weight: 500;
+}
+
+/* STREAMS list (home) — gap below hero card (prototype: 22px; extra padding avoids margin collapse) */
+body.tide-ui #s-home #home-cat-donut-card.tide-streams-card {
+  margin: 22px 22px 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+body.tide-ui #s-home .tide-hero-wrap + #home-cat-donut-card.tide-streams-card {
+  margin-top: 16px;
+}
+body.tide-ui #s-home .tide-hero-wrap + #home-balance-snapshot-wrap + #home-cat-donut-card.tide-streams-card {
+  margin-top: 28px;
+}
+body.tide-ui #s-home #home-balance-snapshot-wrap:not(:empty) {
+  margin: 0 22px 0;
+  padding: 0;
+}
+body.tide-ui .tide-streams-lbl {
+  font-size: 10px;
+  letter-spacing: 2px;
+  font-weight: 600;
+  color: var(--tide-ash);
+}
+body.tide-ui .tide-streams-meta {
+  font-size: 10px;
+  color: var(--tide-ash);
+  font-variant-numeric: tabular-nums;
+}
+body.tide-ui .tide-stream-row {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0 !important;
+  border-bottom: 0.5px solid var(--tide-hair) !important;
+  grid-template-columns: unset !important;
+  cursor: pointer;
+}
+body.tide-ui .tide-stream-row:last-child {
+  border-bottom: none !important;
+}
+body.tide-ui .tide-stream-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+body.tide-ui .tide-stream-main {
+  flex: 1;
+  min-width: 0;
+}
+body.tide-ui .tide-stream-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tide-ink);
+  letter-spacing: -0.1px;
+}
+body.tide-ui .tide-stream-bar-track {
+  position: relative;
+  height: 4px;
+  background: var(--tide-hair);
+  border-radius: 2px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+body.tide-ui .tide-stream-bar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  max-width: 100%;
+  height: 100%;
+  border-radius: 2px;
+  min-width: 0;
+  transition: width 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: width;
+}
+
+/* Category overlay bar — same track/fill as home STREAMS */
+body.tide-ui .cat-ov-bar {
+  margin-top: 10px;
+  margin-bottom: 16px;
+}
+body.tide-ui .cat-ov-bar .tide-cat-ov-bar-track,
+body.tide-ui .tide-cat-ov-bar-track {
+  width: 100%;
+  margin-top: 0;
+}
+body.tide-ui .tide-stream-amt-col {
+  text-align: right;
+  min-width: 78px;
+  flex-shrink: 0;
+}
+body.tide-ui .tide-stream-amt {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tide-ink);
+  font-variant-numeric: tabular-nums;
+}
+body.tide-ui .tide-stream-budget {
+  font-size: 9.5px;
+  color: var(--tide-ash);
+  margin-top: 1px;
+  font-variant-numeric: tabular-nums;
+}
+body.tide-ui .tide-stream-alert-slot {
+  width: 16px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+}
+body.tide-ui .tide-stream-row .home-cat-dot-slot,
+body.tide-ui .tide-stream-row .home-cat-icon {
+  display: none;
+}
+
+/* FAB — match manual-entry (white circle) for all stack buttons */
+body.tide-ui .fab-sub,
+body.tide-ui .fab-sub.fab-main {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 22px !important;
+  border: 0.5px solid var(--tide-hair) !important;
+  background: var(--tide-surf) !important;
+  color: var(--tide-ink) !important;
+  box-shadow: none !important;
+}
+body.tide-ui .fab-sub i,
+body.tide-ui .fab-sub.fab-main i {
+  font-size: 18px !important;
+  line-height: 1 !important;
+}
+
+/* ── Pulse (stat) — matches prototype DirectionTidePulse ── */
+body.tide-ui #s-stat .scr-pad {
+  padding-top: 0;
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: 8px;
+}
+body.tide-ui #s-stat .donut-card.tide-pulse-section:last-of-type {
+  margin-bottom: 4px;
+}
+body.tide-ui #s-stat .donut-card.tide-pulse-hidden {
+  display: none !important;
+}
+.tide-pulse-hero-wrap {
+  padding: 8px 22px 22px;
+}
+.tide-pulse-hero-card--card {
+  position: relative;
+  width: 100%;
+  border-radius: 22px;
+  background: var(--tide-surf);
+  padding: 16px;
+  box-sizing: border-box;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7), 0 12px 32px -16px rgba(14, 15, 18, 0.18);
+}
+.tide-pulse-hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.tide-pulse-hero-lbl {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--tide-ink);
+  opacity: 0.55;
+  font-weight: 600;
+}
+.tide-pulse-hero-amt {
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -1.4px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  margin-top: 4px;
+  color: var(--tide-ink);
+}
+.tide-pulse-hero-avg {
+  font-size: 11px;
+  color: var(--tide-ink);
+  opacity: 0.6;
+  margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+}
+.tide-pulse-hero-avg span {
+  color: var(--tide-ash);
+}
+.tide-pulse-hero-badge-col {
+  text-align: right;
+  flex-shrink: 0;
+}
+.tide-pulse-pace-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--tide-water);
+  background: var(--tide-chip, rgba(14, 15, 18, 0.04));
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+.tide-pulse-pace-badge--warn {
+  color: #c4554d;
+}
+.tide-pulse-pace-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 3px;
+  background: currentColor;
+  flex-shrink: 0;
+}
+.tide-pulse-vs-lbl {
+  font-size: 9px;
+  color: var(--tide-ash);
+  margin-top: 6px;
+  letter-spacing: 1.3px;
+  font-weight: 600;
+}
+.tide-pulse-vs-val {
+  font-size: 13px;
+  color: var(--tide-ink);
+  margin-top: 1px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+body.tide-ui .tide-pulse-chart-wrap {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  margin-top: 14px;
+}
+body.tide-ui .tide-pulse-chart-wrap canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+body.tide-ui #s-stat .tide-pulse-hero-wrap #cumulative-popup {
+  z-index: 5;
+}
+.tide-pulse-axis {
+  display: none;
+}
+.tide-pulse-axis--legacy {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--tide-ash);
+  font-variant-numeric: tabular-nums;
+  margin-top: 4px;
+}
+
+body.tide-ui #s-stat .donut-card.tide-pulse-section {
+  margin: 0 22px 22px;
+  border-radius: 22px;
+  padding: 16px;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+body.tide-ui #s-stat .donut-card.tide-pulse-section .donut-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+body.tide-ui .tide-pulse-sec-lbl {
+  font-size: 10px;
+  letter-spacing: 2px;
+  font-weight: 600;
+  color: var(--tide-ash);
+}
+body.tide-ui .tide-pulse-sec-meta {
+  font-size: 10px;
+  color: var(--tide-ash);
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* BY STREAM */
+body.tide-ui .tide-pulse-stream-host {
+  height: auto !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  display: block !important;
+  overflow: visible !important;
+}
+body.tide-ui #analysis-cat-legend {
+  display: none !important;
+}
+body.tide-ui .tide-pulse-stack-bar {
+  display: flex;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  background: var(--tide-hair);
+}
+body.tide-ui .tide-pulse-stack-seg {
+  min-width: 0;
+  height: 100%;
+  cursor: pointer;
+}
+body.tide-ui .tide-pulse-stream-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: 12px;
+}
+body.tide-ui .tide-pulse-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+body.tide-ui .tide-pulse-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+body.tide-ui .tide-pulse-legend-name {
+  font-size: 12px;
+  color: var(--tide-ash);
+  font-weight: 500;
+  letter-spacing: 0;
+}
+body.tide-ui .tide-pulse-stream-list {
+  display: none !important;
+}
+body.tide-ui .tide-pulse-stream-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+body.tide-ui .tide-pulse-stream-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+body.tide-ui .tide-pulse-stream-name {
+  flex: 1;
+  font-size: 12px;
+  color: var(--tide-ink);
+  font-weight: 500;
+  min-width: 0;
+}
+body.tide-ui .tide-pulse-stream-pct {
+  font-size: 11px;
+  color: var(--tide-ash);
+  font-variant-numeric: tabular-nums;
+  min-width: 36px;
+  text-align: right;
+}
+body.tide-ui .tide-pulse-stream-amt {
+  font-size: 12px;
+  color: var(--tide-ink);
+  font-variant-numeric: tabular-nums;
+  min-width: 56px;
+  text-align: right;
+  font-weight: 500;
+}
+
+/* DAILY PULSE — thin bar heatmap (Mon–Sun columns) */
+body.tide-ui .tide-pulse-heat-host {
+  margin: 0 !important;
+}
+body.tide-ui .tide-pulse-heat-bars {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+  padding: 12px;
+  background: var(--tide-surf);
+  border-radius: 12px;
+  border: 1px solid var(--tide-hair);
+  box-sizing: border-box;
+}
+body.tide-ui .tide-pulse-heat-col {
+  min-width: 0;
+}
+body.tide-ui .tide-pulse-heat-col-lbl {
+  font-size: 9px;
+  color: var(--tide-ash);
+  text-align: center;
+  margin-bottom: 4px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+body.tide-ui .tide-pulse-heat-col-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: stretch;
+}
+body.tide-ui .tide-pulse-heat-bar {
+  width: 100%;
+  border-radius: 2px;
+  min-height: 4px;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+body.tide-ui .tide-pulse-heat-bar--pad {
+  visibility: hidden;
+  pointer-events: none;
+}
+body.tide-ui .tide-pulse-heat-bar--future {
+  opacity: 0.5;
+}
+body.tide-ui .tide-pulse-heat-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 9px;
+  color: var(--tide-ash);
+  letter-spacing: 1.2px;
+}
+body.tide-ui .tide-pulse-heat-leg-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+body.tide-ui .tide-card-meta {
+  font-size: 10px;
+  color: var(--tide-ash);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 8px;
+}
+
+/* ── Drops (rec) ── */
+body.tide-ui #s-rec .scr-pad,
+body.tide-ui #s-rec #rec-monthly {
+  padding-bottom: 8px;
+}
+body.tide-ui #s-rec .scr-pad {
+  padding-top: 0;
+}
+body.tide-ui .tide-drops-range {
+  display: none !important;
+}
+
+/* Drops range — TideRangeFlow (prototype default) */
+.tide-range-flow {
+  position: relative;
+  overflow: hidden;
+  background: var(--tide-surf);
+  border-radius: 16px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7), 0 6px 18px -12px rgba(14, 15, 18, 0.12);
+}
+.tide-range-flow-svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 110px;
+}
+.tide-range-flow-cols {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  padding: 14px 0 16px;
+}
+.tide-flow-col {
+  flex: 1;
+  text-align: center;
+  padding: 0 8px;
+  border-right: 0.5px solid var(--tide-hair);
+}
+.tide-flow-lbl {
+  font-size: 9px;
+  letter-spacing: 1.6px;
+  color: var(--tide-ash);
+  font-weight: 600;
+}
+.tide-flow-val {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.5px;
+  color: var(--tide-ink);
+  margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.tide-flow-sub {
+  font-size: 10px;
+  color: var(--tide-ash);
+  margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tide-range-streams {
+  display: flex;
+  background: var(--tide-surf);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7), 0 6px 18px -12px rgba(14, 15, 18, 0.12);
+}
+.tide-range-col {
+  flex: 1;
+  text-align: center;
+  padding: 14px 8px 16px;
+  border-right: 0.5px solid var(--tide-hair);
+}
+.tide-range-col:last-child {
+  border-right: none;
+}
+.tide-range-mini {
+  height: 70px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+.tide-range-fill {
+  width: 72%;
+  border-radius: 6px 6px 2px 2px;
+  background: linear-gradient(180deg, var(--tide-wave-lite), var(--tide-wave-deep));
+  min-height: 12px;
+  transition: height 0.35s ease;
+}
+.tide-range-lbl {
+  font-size: 9px;
+  letter-spacing: 1.6px;
+  color: var(--tide-ash);
+  font-weight: 600;
+}
+.tide-range-val {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.5px;
+  margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+  color: var(--tide-ink);
+}
+.tide-range-sub {
+  font-size: 10px;
+  color: var(--tide-ash);
+  margin-top: 6px;
+  font-variant-numeric: tabular-nums;
+}
+
+body.tide-ui #rec-monthly .rec-list-view-toggle-row {
+  padding: 18px 22px 8px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+body.tide-ui #rec-monthly .rec-type-seg {
+  width: auto;
+  max-width: 100%;
+  flex: 0 1 auto;
+  min-width: 240px;
+}
+body.tide-ui #rec-monthly .rec-list-view-hdr {
+  display: none !important;
+}
+body.tide-ui #rec-sec-lbl {
+  display: none !important;
+}
+body.tide-ui .rec-type-seg {
+  background: var(--tide-chip);
+  border-radius: 999px;
+}
+body.tide-ui .rec-type-seg-btn.on {
+  background: var(--tide-surf);
+  color: var(--tide-ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+body.tide-ui .tide-drops-entries-meta {
+  display: none !important;
+}
+body.tide-ui #rec-monthly .rec-list-view-hdr {
+  padding: 0 22px 8px;
+}
+body.tide-ui #rec-list {
+  padding: 0 22px;
+}
+body.tide-ui .rec-item,
+body.tide-ui .rec-day-hdr .rec-day-date {
+  font-family: inherit;
+}
+body.tide-ui .rec-day-hdr .rec-day-date {
+  font-size: 10px;
+  letter-spacing: 1.6px;
+  font-weight: 600;
+  color: var(--tide-ash);
+  text-transform: uppercase;
+}
+body.tide-ui .rec-item {
+  border-radius: 0;
+  margin-bottom: 0;
+  border: none;
+  border-bottom: 0.5px solid var(--tide-hair);
+  background: transparent;
+  padding: 12px 4px;
+  gap: 12px;
+}
+body.tide-ui .tide-drops-list .rec-day-group {
+  margin-bottom: 6px;
+}
+body.tide-ui .tide-drop-group-hdr {
+  display: flex !important;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 10px 4px 4px !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: none !important;
+}
+body.tide-ui .tide-drop-group-hdr .rec-day-date,
+body.tide-ui .tide-drop-group-hdr .tag {
+  font-size: 10px !important;
+  letter-spacing: 1.6px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  color: var(--tide-ash) !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+body.tide-ui .tide-drop-group-hdr .rec-day-total {
+  font-size: 10px;
+  color: var(--tide-ash);
+  font-variant-numeric: tabular-nums;
+}
+body.tide-ui .tide-drop-glyph {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+body.tide-ui .tide-drop-core {
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  background: var(--tide-accent, var(--tide-water));
+}
+body.tide-ui .tide-drop-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid var(--tide-accent, var(--tide-water));
+  box-sizing: border-box;
+}
+body.tide-ui .tide-drop-ring--mid {
+  inset: 3px;
+  opacity: 0.45;
+}
+body.tide-ui .tide-drop-ring--outer {
+  inset: 0;
+  opacity: 0.18;
+}
+body.tide-ui .tide-drop-row .li-name {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.1px;
+  color: var(--tide-ink);
+}
+body.tide-ui .tide-drop-row .li-meta {
+  font-size: 10px;
+  color: var(--tide-ash);
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+body.tide-ui .tide-drop-sep {
+  width: 2px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--tide-ash);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+body.tide-ui .tide-drop-row .tag.tide-drop-cat,
+body.tide-ui .tide-drop-row .tag.tide-drop-pay {
+  background: transparent !important;
+  color: var(--tide-ash) !important;
+  padding: 0 !important;
+  font-size: 10px;
+}
+body.tide-ui .tide-drop-row .li-amt {
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+  color: var(--tide-ink);
+}
+body.tide-ui #rec-input-hub-open,
+body.tide-ui #stat-cal-open {
+  color: var(--tide-ash);
+  border-radius: 11px;
+}
+
+/* ── Me (set) — matches prototype DirectionTideMe ── */
+body.tide-ui #s-set .scr-pad {
+  padding-top: 0;
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: 16px;
+}
+body.tide-ui #s-set.scr.active {
+  min-height: 0;
+}
+body.tide-ui .tide-screen-header .tide-me-month-lbl,
+body.tide-ui .tide-me-month-lbl {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 2.2px;
+  color: var(--tide-ash);
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+.tide-me-profile-wrap {
+  padding: 8px 22px 4px;
+}
+.tide-me-profile-card {
+  background: var(--tide-surf);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6), 0 6px 18px -12px rgba(14, 15, 18, 0.1);
+}
+.tide-me-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--tide-water-lite), var(--tide-water));
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.tide-me-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tide-ink);
+  letter-spacing: -0.1px;
+}
+.tide-me-sub {
+  font-size: 11px;
+  color: var(--tide-ash);
+  margin-top: 2px;
+}
+.tide-me-chevron {
+  margin-left: auto;
+  flex-shrink: 0;
+  color: var(--tide-ash);
+}
+
+body.tide-ui .tide-me-block {
+  padding: 0 22px 4px;
+  margin: 14px 0 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+body.tide-ui .tide-me-sec-hdr {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 4px 4px 8px;
+}
+body.tide-ui .tide-me-sec-lbl {
+  font-size: 10px;
+  letter-spacing: 2px;
+  font-weight: 600;
+  color: var(--tide-ash);
+}
+body.tide-ui .tide-me-sec-meta {
+  font-size: 10px;
+  color: var(--tide-ash);
+  font-variant-numeric: tabular-nums;
+}
+body.tide-ui .tide-me-card {
+  background: var(--tide-surf);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6), 0 6px 18px -12px rgba(14, 15, 18, 0.1);
+}
+body.tide-ui .tide-me-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 14px;
+  border-bottom: 0.5px solid var(--tide-hair);
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+body.tide-ui .tide-me-row--last {
+  border-bottom: none;
+}
+body.tide-ui .tide-me-row[role='button'] {
+  cursor: pointer;
+}
+body.tide-ui .tide-me-row-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+body.tide-ui .tide-me-row-main {
+  flex: 1;
+  min-width: 0;
+}
+body.tide-ui .tide-me-row-lbl {
+  font-size: 13px;
+  color: var(--tide-ink);
+  font-weight: 500;
+  letter-spacing: -0.1px;
+}
+body.tide-ui .tide-me-row-sub {
+  font-size: 11px;
+  color: var(--tide-ash);
+  margin-top: 2px;
+}
+body.tide-ui .tide-me-row-val {
+  font-size: 13px;
+  color: var(--tide-ink);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+body.tide-ui .tide-me-row-chev {
+  flex-shrink: 0;
+  color: var(--tide-ash);
+}
+body.tide-ui .tide-me-row--field {
+  align-items: flex-start;
+}
+body.tide-ui .tide-me-budget-inp--sr {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+body.tide-ui .tide-me-budget-inp {
+  width: 96px;
+  max-width: 42%;
+  padding: 8px 10px !important;
+  border: none !important;
+  border-radius: 8px !important;
+  background: var(--tide-chip) !important;
+  color: var(--tide-ink) !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  box-shadow: none !important;
+}
+body.tide-ui .tide-me-row--toggle {
+  cursor: default;
+}
+body.tide-ui .tide-me-toggle-wrap {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+}
+body.tide-ui .tide-me-toggle-wrap input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+body.tide-ui .tide-me-toggle {
+  display: block;
+  width: 36px;
+  height: 22px;
+  border-radius: 11px;
+  background: var(--tide-hair);
+  position: relative;
+  transition: background 0.2s ease;
+}
+body.tide-ui .tide-me-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  transition: left 0.2s ease;
+}
+body.tide-ui .tide-me-toggle-wrap input:checked + .tide-me-toggle {
+  background: var(--tide-water);
+}
+body.tide-ui .tide-me-toggle-wrap input:checked + .tide-me-toggle::after {
+  left: 16px;
+}
+body.tide-ui #cb-unalloc {
+  display: none !important;
+}
+body.tide-ui .tide-me-data-block {
+  padding: 0 22px 4px;
+  margin-top: 14px;
+}
+body.tide-ui .tide-me-data-btns {
+  display: flex;
+  gap: 8px;
+}
+body.tide-ui .tide-me-data-btn {
+  flex: 1;
+  padding: 13px 14px;
+  border-radius: 12px;
+  border: none;
+  background: var(--tide-surf);
+  color: var(--tide-ink);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.1px;
+  cursor: pointer;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6), 0 6px 18px -12px rgba(14, 15, 18, 0.1);
+  -webkit-tap-highlight-color: transparent;
+}
+body.tide-ui .set-export-wrap {
+  display: none !important;
+}
+
+/* Shared typography */
+body.tide-ui .sec-lbl,
+body.tide-ui .category-section-title,
+body.tide-ui .donut-title {
+  font-size: 10px !important;
+  letter-spacing: 2px !important;
+  text-transform: uppercase !important;
+  color: var(--tide-ash) !important;
+  font-weight: 600 !important;
+}
+body.tide-ui .donut-card,
+body.tide-ui .card,
+body.tide-ui .stat-card {
+  border-radius: 22px;
+  border-color: var(--tide-hair);
+}
+body.tide-ui .home-cat-bar-fill {
+  background: var(--tide-water);
+}
+body.tide-ui .stat-card {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6), 0 6px 18px -12px rgba(14, 15, 18, 0.12);
+}
+body.tide-ui .sc-label {
+  font-size: 9px;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+}
+
+@keyframes tideDriftA {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes tideDriftB {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
+/* Bottom nav */
+body.tide-ui .bnav,
+body.tide-ui .global-bottom-nav-bar {
+  background: var(--tide-nav-bg) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-top: 0.5px solid var(--tide-hair) !important;
+  padding-top: 10px !important;
+  padding-bottom: max(16px, env(safe-area-inset-bottom)) !important;
+}
+body.tide-ui .bnav .ni {
+  flex-direction: column;
+  gap: 0;
+  min-height: 44px;
+  opacity: 1;
+  color: var(--nav-off) !important;
+}
+body.tide-ui .bnav .ni.on {
+  color: var(--nav-on) !important;
+}
+body.tide-ui .bnav .ni svg {
+  display: block;
+  width: 24px;
+  height: 24px;
+  margin: 0 auto;
+  color: currentColor;
+}
+body.tide-ui .bnav .ni#n-home svg {
+  width: 20px;
+  height: 20px;
+}
+body.tide-ui .tide-nav-dot,
+body.tide-ui .tide-nav-lbl {
+  display: none !important;
+}
+
+/* FAB position (styles unified above with manual-entry look) */
+body.tide-ui .fab-stack {
+  right: 16px;
+  bottom: calc(var(--nav-bar-block) + 12px) !important;
+  gap: 10px;
+}
+
+body.tide-ui .save-btn,
+body.tide-ui .ph-save-btn,
+body.tide-ui .import-done-save-primary,
+body.tide-ui #fine-tune-event-overlay .fine-tune-save-btn {
+  background: var(--tide-ink) !important;
+  border-color: var(--tide-ink) !important;
+  color: #fff !important;
+}
+body.tide-ui .save-btn:hover,
+body.tide-ui .ph-save-btn:hover,
+body.tide-ui .import-done-save-primary:hover,
+body.tide-ui #fine-tune-event-overlay .fine-tune-save-btn:hover:not(:disabled) {
+  opacity: 0.88;
+}
+
+/* Hide legacy chrome not in TIDE prototype */
+body.tide-ui .rec-page-toolbar,
+body.tide-ui #rec-daily .stat-grid {
+  display: none !important;
+}
+body.tide-ui #rec-daily {
+  display: none !important;
+}
+body.tide-ui #rec-monthly {
+  display: block !important;
+}
+
+body.tide-ui .tide-screen-eyebrow {
+  align-items: center;
+  gap: 8px;
+}
+body.tide-ui .tide-eyebrow-action {
+  margin-left: auto;
+  flex-shrink: 0;
+  border: none !important;
+  background: var(--tide-chip) !important;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Overlays / sheets — TIDE typography */
+body.tide-ui .full-ov,
+body.tide-ui .modal-wrap,
+body.tide-ui .import-sheet,
+body.tide-ui #csv-overlay {
+  background: var(--tide-bg);
+  color: var(--tide-ink);
+}
+
+/* Import sheet — TideScanCircle (prototype) */
+body.tide-ui .tide-import-sheet .import-sheet-panel {
+  border-radius: 22px 22px 0 0 !important;
+  padding: 10px 22px calc(28px + env(safe-area-inset-bottom)) !important;
+}
+body.tide-ui .tide-sheet-handle {
+  width: 38px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--tide-hair);
+  margin: 4px auto 12px;
+}
+body.tide-ui .tide-import-sheet .import-sheet-hdr {
+  border-bottom: none !important;
+  margin-bottom: 8px !important;
+  min-height: auto !important;
+  justify-content: flex-end !important;
+}
+body.tide-ui .tide-import-sheet .import-sheet-title {
+  display: none !important;
+}
+body.tide-ui .tide-import-scan {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0 8px;
+}
+body.tide-ui .tide-scan-circle-host {
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 8px;
+  flex-shrink: 0;
+}
+body.tide-ui .tide-scan-wrap,
+body.tide-ui .tide-scan-circle-host {
+  border-radius: 50%;
+  overflow: hidden;
+}
+body.tide-ui .tide-scan-wrap {
+  position: relative;
+  margin: 0 auto;
+}
+body.tide-ui .tide-scan-svg {
+  display: block;
+  border-radius: 50%;
+}
+/* Import scan uses same wave classes as hero (.tide-hero-wave-a/b) */
+body.tide-ui .tide-scan-line {
+  stroke: var(--tide-wave-deep);
+  stroke-width: 0.5;
+  stroke-dasharray: 3 3;
+  opacity: 0.45;
+  animation: tideScanLine 1.8s ease-in-out infinite alternate;
+}
+@keyframes tideScanLine {
+  from {
+    transform: translateY(-3px);
+  }
+  to {
+    transform: translateY(3px);
+  }
+}
+body.tide-ui .tide-import-scan-eyebrow {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--tide-ash);
+  font-weight: 600;
+  margin-top: 8px;
+}
+body.tide-ui .tide-import-scan-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--tide-ink);
+  letter-spacing: -0.4px;
+  margin-top: 4px;
+  text-align: center;
+}
+body.tide-ui .tide-import-scan-sub {
+  font-size: 11px;
+  color: var(--tide-ash);
+  margin-top: 6px;
+  text-align: center;
+}
+body.tide-ui .tide-import-dots {
+  display: flex;
+  gap: 5px;
+  margin-top: 16px;
+}
+body.tide-ui .tide-import-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--tide-water);
+  opacity: 0.35;
+  animation: tideDotPulse 1.4s ease-in-out infinite;
+}
+body.tide-ui .tide-import-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+body.tide-ui .tide-import-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+@keyframes tideDotPulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+body.tide-ui .import-parse-msg {
+  display: none;
+}
+body.tide-ui #lottie-scanning-container {
+  display: none !important;
+}
+body.tide-ui .ov-hdr,
+body.tide-ui .modal-title,
+body.tide-ui .import-sheet-hdr {
+  border-color: var(--tide-hair) !important;
+}
+body.tide-ui .ov-title,
+body.tide-ui .modal-title,
+body.tide-ui .import-sheet-title {
+  font-size: 11px !important;
+  letter-spacing: 2px !important;
+  text-transform: uppercase !important;
+  font-weight: 600 !important;
+  color: var(--tide-ink) !important;
+}
+body.tide-ui .form-lbl,
+body.tide-ui .import-ctx-lbl,
+body.tide-ui .sec-lbl {
+  font-size: 10px !important;
+  letter-spacing: 1.6px !important;
+  text-transform: uppercase !important;
+  color: var(--tide-ash) !important;
+}
+body.tide-ui .modal,
+body.tide-ui .import-sheet-panel,
+body.tide-ui .cat-ov-panel {
+  border-radius: 20px 20px 0 0;
+  border: 0.5px solid var(--tide-hair);
+  box-shadow: 0 -8px 28px -10px rgba(14, 15, 18, 0.2);
+}
+body.tide-ui .chip-row .chip.on,
+body.tide-ui .pay-method-pill.on {
+  background: var(--tide-water) !important;
+  color: #fff !important;
+  border-color: var(--tide-water) !important;
+}
+body.tide-ui .empty-state-title {
+  color: var(--tide-ink);
+  font-weight: 500;
+}
+body.tide-ui .empty-state-sub {
+  color: var(--tide-ash);
+}
+
+/* Edit drop sheet — matches prototype TideEditSheet */
+body.tide-ui #ov-edit-expense.tide-edit-drop-overlay {
+  background: rgba(8, 12, 18, 0.42) !important;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+body.tide-ui #ov-edit-expense.tide-edit-drop-overlay.open .tide-edit-drop-panel {
+  animation: tideSheetUp 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes tideSheetUp {
+  from {
+    transform: translateY(110%);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+body.tide-ui #ov-edit-expense .tide-edit-drop-panel {
+  border-radius: 22px 22px 0 0 !important;
+  padding: 10px 22px calc(28px + env(safe-area-inset-bottom)) !important;
+  max-height: 92vh !important;
+  background: var(--tide-surf) !important;
+  box-shadow: 0 -8px 28px -10px rgba(14, 15, 18, 0.25) !important;
+  border: none !important;
+  color: var(--tide-ink);
+}
+body.tide-ui .tide-sheet-handle-row {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 12px;
+}
+body.tide-ui #modal-title-label {
+  display: none !important;
+}
+body.tide-ui .tide-edit-drop-hdr {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-start !important;
+  margin-bottom: 14px !important;
+  padding: 0 !important;
+  border: none !important;
+}
+body.tide-ui .tide-edit-drop-eyebrow {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--tide-ash);
+  font-weight: 600;
+}
+body.tide-ui .tide-edit-drop-name {
+  font-size: 17px;
+  color: var(--tide-ink);
+  font-weight: 600;
+  letter-spacing: -0.4px;
+  margin-top: 2px;
+  line-height: 1.2;
+}
+body.tide-ui .tide-edit-drop-close {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  border-radius: 16px !important;
+  border: none !important;
+  background: var(--tide-chip) !important;
+  color: var(--tide-ink) !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  transform: none !important;
+}
+body.tide-ui .tide-edit-drop-close i {
+  font-size: 14px;
+}
+body.tide-ui .tide-edit-drop-panel .form-lbl {
+  font-size: 10px !important;
+  letter-spacing: 1.5px !important;
+  font-weight: 600 !important;
+  color: var(--tide-ash) !important;
+  text-transform: uppercase;
+  margin-bottom: 6px !important;
+}
+body.tide-ui .tide-edit-drop-panel .form-grp {
+  margin-bottom: 0 !important;
+}
+body.tide-ui .tide-edit-drop-panel #f-name,
+body.tide-ui .tide-edit-drop-panel #f-amt,
+body.tide-ui .tide-edit-drop-panel #f-date {
+  width: 100%;
+  padding: 10px 12px !important;
+  border-radius: 10px !important;
+  background: var(--tide-chip) !important;
+  border: 1px solid transparent !important;
+  color: var(--tide-ink) !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+  box-sizing: border-box;
+}
+body.tide-ui .tide-edit-drop-panel #f-amt {
+  font-size: 16px !important;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.2px;
+  border-color: var(--tide-water) !important;
+}
+body.tide-ui .tide-edit-drop-panel .tide-edit-amt-date-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+body.tide-ui .tide-edit-drop-panel .tide-edit-amt-date-row .form-grp {
+  flex: 1;
+  min-width: 0;
+}
+body.tide-ui .tide-edit-drop-panel .tide-edit-stream-grp {
+  margin-top: 14px !important;
+}
+body.tide-ui .tide-edit-stream-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px !important;
+}
+body.tide-ui .tide-stream-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: none;
+  background: var(--tide-chip);
+  color: var(--tide-ink);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -0.1px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+body.tide-ui .tide-stream-chip.on {
+  background: var(--tide-chip-tone, var(--tide-water));
+  color: #fff;
+}
+body.tide-ui .tide-stream-chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--tide-chip-tone, var(--tide-water));
+  flex-shrink: 0;
+}
+body.tide-ui .tide-stream-chip.on .tide-stream-chip-dot {
+  background: rgba(255, 255, 255, 0.85);
+}
+body.tide-ui .tide-edit-drop-panel .tide-edit-capture-grp {
+  margin-top: 14px !important;
+}
+body.tide-ui .tide-capture-seg {
+  display: inline-flex !important;
+  flex-wrap: nowrap;
+  background: var(--tide-chip) !important;
+  padding: 3px !important;
+  border-radius: 999px !important;
+  gap: 0 !important;
+  border: none !important;
+}
+body.tide-ui .tide-capture-seg .tide-capture-pill,
+body.tide-ui .tide-capture-seg .pay-method-pill {
+  border: none !important;
+  background: transparent !important;
+  padding: 6px 12px !important;
+  border-radius: 999px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.2px;
+  color: var(--tide-ash) !important;
+  margin: 0 !important;
+}
+body.tide-ui .tide-capture-seg .pay-method-pill.on {
+  background: var(--tide-surf) !important;
+  color: var(--tide-ink) !important;
+  box-shadow: 0 1px 2px rgba(14, 15, 18, 0.1) !important;
+  font-weight: 600 !important;
+}
+body.tide-ui .tide-edit-drop-panel .save-btn {
+  width: 100%;
+  margin-top: 18px !important;
+  padding: 13px !important;
+  border-radius: 12px !important;
+  border: none !important;
+  background: var(--tide-ink) !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.1px;
+}
+body.tide-ui .tide-edit-drop-panel .del-btn {
+  width: 100%;
+  margin-top: 8px !important;
+  padding: 12px !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--tide-hair) !important;
+  background: transparent !important;
+  color: #c4554d !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+/* Pulse / Drops — month nav matches Tide home (#s-home rules untouched) */
+body.tide-ui #s-stat .tide-month-nav--pulse-drops,
+body.tide-ui #s-rec .tide-month-nav--pulse-drops {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  width: 100%;
+  box-sizing: border-box;
+}
+body.tide-ui #s-stat .tide-month-nav--pulse-drops .home-header-month-row,
+body.tide-ui #s-rec .tide-month-nav--pulse-drops .home-header-month-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  min-height: 40px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  box-sizing: border-box;
+}
+body.tide-ui #s-stat .tide-month-nav--pulse-drops .home-header-nav-btn,
+body.tide-ui #s-rec .tide-month-nav--pulse-drops .home-header-nav-btn {
+  flex: 0 0 auto !important;
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  border-radius: 11px !important;
+  color: var(--tide-ash) !important;
+  border: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  -webkit-tap-highlight-color: transparent;
+}
+body.tide-ui #s-stat .tide-month-nav--pulse-drops .home-header-nav-btn:active,
+body.tide-ui #s-rec .tide-month-nav--pulse-drops .home-header-nav-btn:active {
+  background: var(--tide-chip) !important;
+}
+body.tide-ui #s-stat .tide-month-nav--pulse-drops .home-header-month-label,
+body.tide-ui #s-stat .tide-month-nav--pulse-drops .home-summary-month,
+body.tide-ui #s-stat .tide-month-nav--pulse-drops #stat-month-lbl,
+body.tide-ui #s-rec .tide-month-nav--pulse-drops .home-header-month-label,
+body.tide-ui #s-rec .tide-month-nav--pulse-drops .home-summary-month,
+body.tide-ui #s-rec .tide-month-nav--pulse-drops #rec-month-lbl {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  text-align: center !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  letter-spacing: 2.2px !important;
+  color: var(--tide-ash) !important;
+  text-transform: uppercase !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  line-height: 1.2 !important;
+}
+
+/* Prefer Inter when tide (matches React prototype) */
+body.tide-ui,
+body.tide-ui .app {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
