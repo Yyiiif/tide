@@ -274,7 +274,7 @@ window.TideUI = (function () {
         tag.className = 'tide-eyebrow-tag';
         eyebrow.appendChild(tag);
       }
-      tag.textContent = 'REFLOW';
+      tag.textContent = 'TIDE';
       pad.querySelectorAll('.tide-home-eyebrow').forEach(function (row) {
         if (row !== eyebrow && !row.querySelector('.page-month-nav') && row.parentNode) row.remove();
       });
@@ -1407,7 +1407,7 @@ window.TideUI = (function () {
       tag.className = 'tide-eyebrow-tag';
       top.insertBefore(tag, top.firstChild);
     }
-    tag.textContent = 'ME';
+    tag.textContent = 'BASE';
     let monthLbl = top.querySelector('.tide-me-month-lbl');
     if (!monthLbl) {
       monthLbl = document.createElement('span');

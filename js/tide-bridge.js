@@ -2,7 +2,7 @@
  * TIDE visual bridge — all screens + overlays, English labels (Tide / Pulse / Drops / Me).
  */
 (function () {
-  const NAV_LABELS = { home: 'Tide', stat: 'Pulse', rec: 'Drops', set: 'Me' };
+  const NAV_LABELS = { home: 'Tide', stat: 'Flow', rec: 'Drops', set: 'Base' };
 
   const TIDE_CAT_MAP = {
     餐飲: '#E0958A',
@@ -42,9 +42,9 @@
 
   const TEXT_EN = {
     首頁: 'Tide',
-    分析: 'Pulse',
+    分析: 'Flow',
     明細: 'Drops',
-    個人: 'Me',
+    個人: 'Base',
     分類支出: 'STREAMS',
     本月分類: 'BY STREAM',
     當月累積消費: 'CUMULATIVE',
@@ -165,9 +165,9 @@
 
   const ARIA_EN = {
     首頁: 'Tide',
-    分析: 'Pulse',
+    分析: 'Flow',
     明細: 'Drops',
-    個人: 'Me',
+    個人: 'Base',
     上個月: 'Previous month',
     下個月: 'Next month',
     上一週: 'Previous week',
@@ -512,7 +512,7 @@
     }
   }
 
-  const NAV_ARIA = { home: '首頁', stat: '分析', rec: '明細', set: '個人' };
+  const NAV_ARIA = { home: 'Tide', stat: 'Flow', rec: 'Drops', set: 'Base' };
 
   /** Keep original SVG tab icons (homeIcons / navIcons); only sync active state. */
   function renderTideNav(activeKey) {
@@ -526,10 +526,6 @@
     const iconTab = activeKey === 'home' ? '' : activeKey;
     if (typeof window.__reflowSyncNavIcons === 'function') {
       window.__reflowSyncNavIcons(iconTab);
-    }
-    const nh = document.getElementById('n-home');
-    if (nh && typeof homeIcons !== 'undefined') {
-      nh.innerHTML = activeKey === 'home' ? homeIcons.on : homeIcons.off;
     }
   }
 
@@ -635,7 +631,7 @@
   function renderTidePulse() {
     const stat = document.getElementById('s-stat');
     if (!stat) return;
-    ensureEyebrow(stat, 'PULSE', 'stat-cal-open');
+    ensureEyebrow(stat, 'FLOW', 'stat-cal-open');
     if (window.TideUI && window.TideUI.layoutScreenHeader) window.TideUI.layoutScreenHeader(stat);
     if (window.TideUI && window.TideUI.applyPulseDropsMonthNav) window.TideUI.applyPulseDropsMonthNav(stat);
     applyEnglishIn(stat);
@@ -793,7 +789,7 @@
     document.body.classList.add('tide-ui');
     document.documentElement.lang = 'en';
     document.documentElement.style.setProperty('theme-color', '#FAFAFB');
-    document.title = 'Reflow';
+    document.title = 'Tide';
     patchCatColors();
     patchEmptyState();
     patchCycleLabel();
