@@ -353,8 +353,18 @@ body.tide-ui #s-home .tide-hero-foot-val {
 }
 .tide-hero-foot {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: flex-end;
+}
+.tide-hero-foot-left {
+  text-align: left;
+}
+.tide-hero-foot-left .tide-hero-foot-lbl {
+  color: #f3f5f8;
+  opacity: 0.98;
+}
+.tide-hero-foot-left .tide-hero-foot-val {
+  color: #ffffff;
 }
 .tide-hero-foot-right {
   text-align: right;
@@ -1513,11 +1523,9 @@ body.tide-ui .tide-scan-svg {
 }
 /* Import scan uses same wave classes as hero (.tide-hero-wave-a/b) */
 body.tide-ui .tide-scan-line {
-  stroke: var(--tide-wave-deep);
-  stroke-width: 0.5;
-  stroke-dasharray: 3 3;
-  opacity: 0.45;
-  animation: tideScanLine 1.8s ease-in-out infinite alternate;
+  display: none !important;
+  stroke: none !important;
+  animation: none !important;
 }
 @keyframes tideScanLine {
   from {

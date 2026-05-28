@@ -163,12 +163,21 @@ window.TideUI = (function () {
     const days = o.days != null ? o.days : 0;
     const level = o.level != null ? o.level : 0.5;
     const heroMode = o.heroMode === 'spent' ? 'spent' : 'remaining';
-    const eyebrow = o.eyebrow || 'REMAINING';
+    const eyebrow = o.eyebrow || 'SPENT';
     const subPct = o.subPctSuffix != null ? o.subPctSuffix : '% left';
     const hideSubPct = !!o.hideSubPct;
     const subLine = hideSubPct
       ? 'of ' + budgetTxt + subPct
       : 'of ' + budgetTxt + ' · ' + pct + subPct;
+    const leftFootLabel = o.leftFootLabel || '';
+    const leftFootValue = o.leftFootValue || '';
+    const leftFootMarkup = leftFootLabel
+      ? '<div class="tide-hero-foot-left"><div class="tide-hero-foot-lbl">' +
+        leftFootLabel +
+        '</div><div class="tide-hero-foot-val">' +
+        leftFootValue +
+        '</div></div>'
+      : '';
     const dry = level <= 0 && heroMode !== 'spent';
     return (
       '<div class="tide-hero-card' +
@@ -189,6 +198,7 @@ window.TideUI = (function () {
       subLine +
       '</div></div>' +
       '<div class="tide-hero-foot">' +
+      leftFootMarkup +
       '<div class="tide-hero-foot-right">' +
       '<div class="tide-hero-foot-lbl">DAYS LEFT</div>' +
       '<div class="tide-hero-foot-val" title="Days left in this month">' +
@@ -697,13 +707,6 @@ window.TideUI = (function () {
       h +
       '" fill="url(#tideScanBg)"/>' +
       seamlessWaveMarkup(waves, WAVE_BACK, 'url(#tideScanFront)', '0.7') +
-      '<line class="tide-scan-line" x1="0" x2="' +
-      w +
-      '" y1="' +
-      h / 2 +
-      '" y2="' +
-      h / 2 +
-      '"/>' +
       '</g>' +
       '</svg></div>'
     );

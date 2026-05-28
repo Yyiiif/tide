@@ -1093,7 +1093,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
           <canvas id="home-cat-donut" width="110" height="110"></canvas>
           <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
             <div class="home-donut-label-row" style="display:flex;align-items:center;gap:4px;font-size:9px;font-weight:400;color:#8E8E93;line-height:1.2;pointer-events:none">
-              <span>總計</span>
+              <span>花多少</span>
             </div>
             <div id="home-cat-center" style="font-size:12px;font-weight:600;color:#1C1C1E;line-height:1.2;font-variant-numeric:tabular-nums">$0</div>
           </div>
@@ -1102,7 +1102,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
       </div>
       <div class="donut-card" id="home-cat-donut-card">
         <div class="category-section-header-container">
-          <span class="category-section-title">分類支出</span>
+          <span class="category-section-title">分類花多少</span>
         </div>
         <div id="home-cat-list" class="home-cat-list"></div>
       </div>
@@ -1125,7 +1125,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
         <div id="analysis-cat-legend" style="display:flex;flex-wrap:wrap;gap:6px 12px"></div>
       </div>
       <div class="donut-card">
-        <div class="donut-title">當月累積消費</div>
+        <div class="donut-title">當月累積花多少</div>
         <div class="stat-trend-chart-wrap"><canvas id="analysis-cumulative-chart"></canvas><div id="cumulative-popup"></div></div>
       </div>
       <div class="donut-card">
@@ -1160,7 +1160,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
         <div class="stat-grid">
           <div class="stat-card clickable" onclick="openOv('today')">
             <i class="ti ti-chevron-right card-arr"></i>
-            <div class="sc-header"><div class="sc-icon-pill" style="background:#FAF3DD"><i class="ti ti-sun" style="color:#C29343"></i></div><span class="sc-label">今日支出</span></div>
+            <div class="sc-header"><div class="sc-icon-pill" style="background:#FAF3DD"><i class="ti ti-sun" style="color:#C29343"></i></div><span class="sc-label">今日花多少</span></div>
             <div class="sc-val" id="rec-d-today">$0</div><div class="sc-sub" id="rec-d-today-n">共 0 筆</div>
           </div>
           <div class="stat-card clickable" onclick="openOv('week')">
@@ -1189,14 +1189,14 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
         </div>
       </div>
       <div class="rec-list-view-toggle-row">
-        <div class="rec-type-seg" role="group" aria-label="支出明細顯示方式">
+        <div class="rec-type-seg" role="group" aria-label="花多少明細顯示方式">
           <button type="button" class="rec-type-seg-btn on" id="rec-list-view-date" aria-selected="true" onclick="setRecListViewMode('date',this)">日期</button>
           <button type="button" class="rec-type-seg-btn" id="rec-list-view-cat" aria-selected="false" onclick="setRecListViewMode('cat',this)">分類</button>
         </div>
       </div>
       <div class="rec-list-view-hdr">
         <div class="rec-list-view-hdr-row2">
-          <span class="sec-lbl" id="rec-sec-lbl">支出明細</span>
+          <span class="sec-lbl" id="rec-sec-lbl">花多少明細</span>
           <span class="rec-list-view-hdr-updated" id="rec-month-updated"></span>
         </div>
       </div>
@@ -1258,7 +1258,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
 </div>
 
 <div class="full-ov" id="ov-today">
-  <div class="ov-hdr"><button class="ov-back" onclick="closeOvs()"><i class="ti ti-arrow-left"></i></button><span class="ov-title">今日支出</span><span class="ov-sub" id="ov-today-date"></span></div>
+  <div class="ov-hdr"><button class="ov-back" onclick="closeOvs()"><i class="ti ti-arrow-left"></i></button><span class="ov-title">今日花多少</span><span class="ov-sub" id="ov-today-date"></span></div>
   <div class="ov-body" id="ov-today-body"></div>
 </div>
 <div class="full-ov" id="ov-week">
@@ -1461,7 +1461,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
       <div id="cat-ov-bar" class="cat-ov-bar"></div>
     </div>
     <div class="cat-ov-scroll" id="cat-ov-scroll">
-      <div class="sec-lbl">消費明細</div>
+      <div class="sec-lbl">花多少明細</div>
       <div id="cat-ov-list"></div>
     </div>
   </div>
@@ -2390,11 +2390,11 @@ function renderHomeBalanceSnapshot(){
   var snap=getActiveBalanceSnapshot();
   var baseAmt=Number(snap&&snap.amount)||0;
   if(baseAmt<=0){wrap.innerHTML='';return;}
-  var remaining=getEstimatedRemaining();
+  var spent=getSnapshotSpentAfter();
   var dateMd=fmtBalanceDateMD(snap.date);
-  var amtTxt=isAmtHidden?'$＊＊＊':fmt(remaining);
-  var amtCls='home-balance-snapshot-amt'+(remaining<0?' home-balance-snapshot-amt--neg':'');
-  wrap.innerHTML='<div class="home-balance-snapshot"><div class="home-balance-snapshot-lbl">帳戶餘額<span class="home-balance-snapshot-date"> '+dateMd+'</span></div><div class="'+amtCls+'">'+amtTxt+'</div></div>';
+  var amtTxt=isAmtHidden?'$＊＊＊':fmt(spent);
+  var amtCls='home-balance-snapshot-amt';
+  wrap.innerHTML='<div class="home-balance-snapshot"><div class="home-balance-snapshot-lbl">spent<span class="home-balance-snapshot-date"> '+dateMd+'</span></div><div class="'+amtCls+'">'+amtTxt+'</div></div>';
 }
 function exportTransactionsToCSV(data,balances){
   const headers=['Record_Type','Date','Time','Category','Vendor','Amount_TWD','Event_Mode','Source','For_Month','Record_Id'];
@@ -2931,7 +2931,7 @@ function renderRecDaily(){
   const isToday=viewDate===td;const dObj=new Date(viewDate+'T12:00:00');
   document.getElementById('rec-daily-sec-lbl').textContent=isToday?'今日花費':`${dObj.getMonth()+1}/${dObj.getDate()} 的花費`;
   const hl=document.getElementById('rec-daily-list');
-  if(!vE.length){hl.innerHTML=getEmptyStateHTML('今天還沒有消費紀錄',false);return}
+  if(!vE.length){hl.innerHTML=getEmptyStateHTML('今天還沒有花費紀錄',false);return}
   hl.innerHTML=vE.slice().reverse().map(liHTML).join('');
 }
 function syncRecDailyView(skipWeek){const rd=document.getElementById('rec-daily');if(!rd||rd.style.display==='none')return;renderRecDailyHeader();if(!skipWeek)renderRecWeekRow();renderRecDaily()}
@@ -2950,7 +2950,7 @@ function weekStatsBodyHTML(canvasId,wE,total,td,monDate){
   const dayTotals=DAY_LABELS.map((_,i)=>{const d=new Date(monDate);d.setDate(monDate.getDate()+i);const ds=d.toISOString().slice(0,10);return{lbl:DAY_LABELS[i],total:wE.filter(e=>e.date===ds).reduce((s,e)=>s+(e.amt||0),0),isToday:ds===td}});
   const maxVal=Math.max(...dayTotals.map(d=>d.total),1);
   const barsHTML=dayTotals.map(d=>{const h=Math.max(4,Math.round((d.total/maxVal)*70));return`<div class="bar-col"><div class="bar-amt">${d.total>0?fmt(d.total):''}</div><div class="bar-wrap"><div class="bar" style="height:${h}px;background:${d.isToday?'#37352F':'#D6D5D2'}"></div></div><div class="bar-lbl">${d.lbl}</div></div>`}).join('');
-  const html=`<div class="donut-card"><div class="donut-title">分類比例 <span style="font-size:11px;color:var(--t3);font-weight:400;text-transform:none;letter-spacing:0">${fmt(total)}</span></div><div class="donut-wrap"><div style="position:relative;width:100px;height:100px;flex-shrink:0"><canvas id="${canvasId}" width="100" height="100"></canvas><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none"><div style="font-size:9px;color:#ABABAB">本週</div><div style="font-size:12px;font-weight:500;color:#37352F">${fmt(total)}</div></div></div><div class="leg-table">${legHTML(sorted,total)}</div></div></div><div class="donut-card"><div class="donut-title">每日支出</div><div class="bar-chart-wrap">${barsHTML}</div></div><div class="sec-lbl">本週消費明細</div><div>${wE.length?wE.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(function(x){return recItemHTML(x);}).join(''):getEmptyStateHTML('本週無消費紀錄',false)}</div>`;
+  const html=`<div class="donut-card"><div class="donut-title">分類比例 <span style="font-size:11px;color:var(--t3);font-weight:400;text-transform:none;letter-spacing:0">${fmt(total)}</span></div><div class="donut-wrap"><div style="position:relative;width:100px;height:100px;flex-shrink:0"><canvas id="${canvasId}" width="100" height="100"></canvas><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none"><div style="font-size:9px;color:#ABABAB">本週</div><div style="font-size:12px;font-weight:500;color:#37352F">${fmt(total)}</div></div></div><div class="leg-table">${legHTML(sorted,total)}</div></div></div><div class="donut-card"><div class="donut-title">每日花多少</div><div class="bar-chart-wrap">${barsHTML}</div></div><div class="sec-lbl">本週花多少明細</div><div>${wE.length?wE.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(function(x){return recItemHTML(x);}).join(''):getEmptyStateHTML('本週無花費紀錄',false)}</div>`;
   return{html,sorted};
 }
 function paintWeekStats(bodyId,canvasId,chartSlot){
@@ -3118,7 +3118,7 @@ function renderHomeMonthLabel(ym){
 }
 var _emptyStateGradSeq=0;
 function getEmptyStateHTML(title,subtitle){
-  if(title==null)title='這個月還沒有消費紀錄';
+  if(title==null)title='這個月還沒有花費紀錄';
   if(subtitle===false||subtitle==='')subtitle=null;
   else if(subtitle==null)subtitle='用 AI 截圖快速匯入';
   var uid=++_emptyStateGradSeq;
@@ -3177,7 +3177,7 @@ function openOverBudgetSheet(catName,e){
   const ov=document.getElementById('cat-alert-over');
   const bar=document.getElementById('cat-alert-bar');
   if(n)n.textContent=`${catName} 這個月比預算多花了一些`;
-  if(u)u.textContent=`目前支出 ${formatAmount(spent)} / 預算 ${formatAmount(budget)}`;
+  if(u)u.textContent=`目前花多少 ${formatAmount(spent)} / 預算 ${formatAmount(budget)}`;
   if(ov)ov.textContent=`已超出 ${formatAmount(overAmt)} (${overPct}%)`;
   let w1,w2,bc2;
   if(spent>budget){
@@ -3266,7 +3266,7 @@ function openCatOv(catName){
     barEl.innerHTML=barHtml;
   }
   const list=document.getElementById('cat-ov-list');
-  if(list)list.innerHTML=catRowsForCat.length?catRowsForCat.map(function(x){return recItemHTML(x);}).join(''):getEmptyStateHTML('這個月沒有'+catName+'的消費',false);
+  if(list)list.innerHTML=catRowsForCat.length?catRowsForCat.map(function(x){return recItemHTML(x);}).join(''):getEmptyStateHTML('這個月沒有'+catName+'的花費',false);
   const scroll=document.getElementById('cat-ov-scroll');
   if(scroll)scroll.scrollTop=0;
   setCatOvSnap(false);
@@ -3390,7 +3390,7 @@ function renderRec(){
       recUpd.textContent=sub==='上次更新 '? '':sub;
     }
   }
-  var sec=document.getElementById('rec-sec-lbl');if(sec)sec.textContent='支出明細';renderRecList();syncRecDailyView()
+  var sec=document.getElementById('rec-sec-lbl');if(sec)sec.textContent='花多少明細';renderRecList();syncRecDailyView()
 }
 function renderRecList(){
   const curMonthExpenses=expenses.filter(function(e){return e.date&&e.date.startsWith(curMonth);});const rl=document.getElementById('rec-list');
@@ -3483,7 +3483,7 @@ function sortBatchItemsNewestFirst(items){
 function renderInputHubList(highlightAnchorMs){
   const el=document.getElementById('input-hub-recent-list');
   if(!el)return;
-  if(!expenses.length){el.innerHTML=getEmptyStateHTML('尚無消費紀錄',false);return}
+  if(!expenses.length){el.innerHTML=getEmptyStateHTML('尚無花費紀錄',false);return}
   const highlight=typeof highlightAnchorMs==='number'&&!isNaN(highlightAnchorMs)?highlightAnchorMs:null;
   const batches=groupInputHubBatches(expenses);
   el.innerHTML=batches.map(function(b){
@@ -3702,7 +3702,7 @@ function renderTodayOv(){
   const cm={};vE.forEach(e=>{const c=e.cat||'其他';cm[c]=(cm[c]||0)+(e.amt||0)});
   const sorted=Object.entries(cm).sort((a,b)=>b[1]-a[1]);
   if(ovTodayChart){ovTodayChart.destroy();ovTodayChart=null}
-  document.getElementById('ov-today-body').innerHTML=`<div class="donut-card"><div class="donut-title">分類支出 <span style="font-size:11px;color:var(--t3);font-weight:400;text-transform:none;letter-spacing:0">${fmt(total)}</span></div><div class="donut-wrap"><div style="position:relative;width:100px;height:100px;flex-shrink:0"><canvas id="ov-td-c" width="100" height="100"></canvas><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none"><div style="font-size:9px;color:#ABABAB">今日</div><div style="font-size:12px;font-weight:500;color:#37352F">${fmt(total)}</div></div></div><div class="leg-table">${legHTML(sorted,total)}</div></div></div><div class="sec-lbl">消費明細</div><div>${vE.length?vE.slice().reverse().map(function(x){return recItemHTML(x);}).join(''):getEmptyStateHTML('無消費紀錄',false)}</div>`;
+  document.getElementById('ov-today-body').innerHTML=`<div class="donut-card"><div class="donut-title">分類花多少 <span style="font-size:11px;color:var(--t3);font-weight:400;text-transform:none;letter-spacing:0">${fmt(total)}</span></div><div class="donut-wrap"><div style="position:relative;width:100px;height:100px;flex-shrink:0"><canvas id="ov-td-c" width="100" height="100"></canvas><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none"><div style="font-size:9px;color:#ABABAB">今日</div><div style="font-size:12px;font-weight:500;color:#37352F">${fmt(total)}</div></div></div><div class="leg-table">${legHTML(sorted,total)}</div></div></div><div class="sec-lbl">花多少明細</div><div>${vE.length?vE.slice().reverse().map(function(x){return recItemHTML(x);}).join(''):getEmptyStateHTML('無花費紀錄',false)}</div>`;
   if(sorted.length)ovTodayChart=donutChart('ov-td-c',sorted);
 }
 function renderWeekOv(){

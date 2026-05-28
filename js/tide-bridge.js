@@ -552,20 +552,23 @@
     const m = heroMetrics();
     const mask = typeof isAmtHidden !== 'undefined' && isAmtHidden;
     const zeroTxt = typeof fmt === 'function' ? fmt(0) : '$0';
-    const showSpent = m.heroMode === 'spent';
-    const heroAmt = m.heroAmount != null ? m.heroAmount : showSpent ? m.spent : m.remaining;
+    const heroAmt = m.spent || 0;
     const remTxt = mask ? '$＊＊＊' : m.emptyMonth ? zeroTxt : fmt(heroAmt);
-    const subSpentAmt = m.heroSubSpent != null ? m.heroSubSpent : m.spent || 0;
-    const spentTxt = mask ? '—' : fmt(subSpentAmt);
     const budgetTxt = mask ? '—' : fmt(m.budgetTotal);
     const pct =
       m.emptyMonth || !(m.budgetTotal > 0)
         ? 0
         : Math.round(Math.max(0, Math.min(100, (m.spent / m.budgetTotal) * 100)));
-    const eyebrow = showSpent ? 'SPENT' : 'REMAINING';
-    const subPctSuffix = showSpent ? '% spent' : ' spent';
-    const heroSubBudgetText = showSpent ? budgetTxt : spentTxt;
-    const hideSubPct = !showSpent;
+    const eyebrow = 'SPENT';
+    const subPctSuffix = '% spent';
+    const heroSubBudgetText = budgetTxt;
+    const hideSubPct = false;
+    const remainingAmt = Math.max(0, (Number(m.budgetTotal) || 0) - (Number(m.spent) || 0));
+    const leftFootValue = mask ? '$＊＊＊' : fmt(remainingAmt);
+    const heroLevel =
+      m.emptyMonth || !(m.budgetTotal > 0)
+        ? 0
+        : Math.max(0, Math.min(1, (m.spent || 0) / m.budgetTotal));
 
     const summary = home.querySelector('.home-summary');
     if (summary) summary.classList.toggle('tide-home--empty-month', !!m.emptyMonth);
@@ -589,18 +592,20 @@
         budgetText: heroSubBudgetText,
         pct: pct,
         days: m.days,
-        level: m.level,
-        heroMode: m.heroMode,
+        level: heroLevel,
+        heroMode: 'spent',
         eyebrow: eyebrow,
         subPctSuffix: subPctSuffix,
         hideSubPct: hideSubPct,
+        leftFootLabel: 'REMAINING',
+        leftFootValue: leftFootValue,
       });
     } else {
       wrap.innerHTML =
         '<div class="tide-hero-card' +
-        (m.level <= 0 ? ' tide-hero-card--dry' : '') +
+        (heroLevel <= 0 ? ' tide-hero-card--dry' : '') +
         '">' +
-        heroSvg(m.level, 'tideHeroGrad') +
+        heroSvg(heroLevel, 'tideHeroGrad') +
         '<div class="tide-hero-overlay">' +
         '<div><div class="tide-hero-eyebrow">' +
         eyebrow +
@@ -609,9 +614,11 @@
         remTxt +
         '</div>' +
         '<div class="tide-hero-sub">' +
-        (showSpent ? 'of ' + budgetTxt + ' · ' + pct + subPctSuffix : 'of ' + spentTxt + subPctSuffix) +
+        'of ' + budgetTxt + ' · ' + pct + subPctSuffix +
         '</div></div>' +
-        '<div class="tide-hero-foot"><div class="tide-hero-foot-right"><div class="tide-hero-foot-lbl">DAYS LEFT</div>' +
+        '<div class="tide-hero-foot"><div class="tide-hero-foot-left"><div class="tide-hero-foot-lbl">REMAINING</div><div class="tide-hero-foot-val">' +
+        leftFootValue +
+        '</div></div><div class="tide-hero-foot-right"><div class="tide-hero-foot-lbl">DAYS LEFT</div>' +
         '<div class="tide-hero-foot-val" title="Days left in this month">' +
         m.days +
         '</div></div></div></div></div>';
