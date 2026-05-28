@@ -3,6 +3,7 @@
 export const REFLOW_DATA = (() => {
   const monthLabel = 'NOV 2026';
   const monthBudget = 17000;
+  // Force Vercel to redeploy without cache 2026
   const monthSpent  = 7580;
   const remaining   = monthBudget - monthSpent;
   const today       = 18; // day of month

@@ -25,6 +25,8 @@ window.loadTideDemoModule = async function loadTideDemoModule() {
   var expenses = await res[1].json();
   if (!Array.isArray(expenses)) expenses = [];
 
+  // Force Vercel to redeploy without cache 2026
+  // reflowState.totalSpent ≈ 7580 (sum of public/data/demo/expenses.json)
   window.TIDE_DEMO = {
     ENABLED: true,
     month: config.month || '2026-11',
