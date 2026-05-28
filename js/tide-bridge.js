@@ -560,10 +560,10 @@
         ? 0
         : Math.round(Math.max(0, Math.min(100, (m.spent / m.budgetTotal) * 100)));
     const eyebrow = 'SPENT';
-    const subPctSuffix = '% spent';
     const heroSubBudgetText = budgetTxt;
-    const hideSubPct = false;
-    const remainingAmt = Math.max(0, (Number(m.budgetTotal) || 0) - (Number(m.spent) || 0));
+    const remainingAmt = Number.isFinite(Number(m.remaining))
+      ? Math.max(0, Number(m.remaining))
+      : Math.max(0, (Number(m.budgetTotal) || 0) - (Number(m.spent) || 0));
     const leftFootValue = mask ? '$＊＊＊' : fmt(remainingAmt);
     const heroLevel =
       m.emptyMonth || !(m.budgetTotal > 0)
@@ -595,8 +595,7 @@
         level: heroLevel,
         heroMode: 'spent',
         eyebrow: eyebrow,
-        subPctSuffix: subPctSuffix,
-        hideSubPct: hideSubPct,
+        hideSubLine: true,
         leftFootLabel: 'REMAINING',
         leftFootValue: leftFootValue,
       });
@@ -613,9 +612,7 @@
         '<div class="tide-hero-amt">' +
         remTxt +
         '</div>' +
-        '<div class="tide-hero-sub">' +
-        'of ' + budgetTxt + ' · ' + pct + subPctSuffix +
-        '</div></div>' +
+        '</div>' +
         '<div class="tide-hero-foot"><div class="tide-hero-foot-left"><div class="tide-hero-foot-lbl">REMAINING</div><div class="tide-hero-foot-val">' +
         leftFootValue +
         '</div></div><div class="tide-hero-foot-right"><div class="tide-hero-foot-lbl">DAYS LEFT</div>' +
@@ -626,8 +623,7 @@
 
     const snapWrap = document.getElementById('home-balance-snapshot-wrap');
     if (snapWrap) {
-      snapWrap.style.display = m.emptyMonth ? 'none' : '';
-      if (!m.emptyMonth && snapWrap.innerHTML.trim()) wrap.insertAdjacentElement('afterend', snapWrap);
+      snapWrap.style.display = 'none';
     }
 
     if (window.TideUI && window.TideUI.styleHomeStreams) {

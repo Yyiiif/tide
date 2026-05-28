@@ -345,6 +345,7 @@ body.tide-ui #s-home .tide-hero-foot-val {
   font-size: 13px;
 }
 .tide-hero-sub {
+  display: none !important;
   font-size: 10.5px;
   color: var(--tide-ink);
   opacity: 0.6;
@@ -355,6 +356,10 @@ body.tide-ui #s-home .tide-hero-foot-val {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+}
+body.tide-ui #s-home .tide-hero-foot .tide-hero-foot-left .tide-hero-foot-val {
+  font-size: 16px;
+  font-weight: 600;
 }
 .tide-hero-foot-left {
   text-align: left;

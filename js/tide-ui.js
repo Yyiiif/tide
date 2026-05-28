@@ -166,9 +166,13 @@ window.TideUI = (function () {
     const eyebrow = o.eyebrow || 'SPENT';
     const subPct = o.subPctSuffix != null ? o.subPctSuffix : '% left';
     const hideSubPct = !!o.hideSubPct;
+    const hideSubLine = !!o.hideSubLine;
     const subLine = hideSubPct
       ? 'of ' + budgetTxt + subPct
       : 'of ' + budgetTxt + ' · ' + pct + subPct;
+    const subLineMarkup = hideSubLine
+      ? ''
+      : '<div class="tide-hero-sub">' + subLine + '</div>';
     const leftFootLabel = o.leftFootLabel || '';
     const leftFootValue = o.leftFootValue || '';
     const leftFootMarkup = leftFootLabel
@@ -194,9 +198,8 @@ window.TideUI = (function () {
       '<div class="tide-hero-amt">' +
       remTxt +
       '</div>' +
-      '<div class="tide-hero-sub">' +
-      subLine +
-      '</div></div>' +
+      subLineMarkup +
+      '</div>' +
       '<div class="tide-hero-foot">' +
       leftFootMarkup +
       '<div class="tide-hero-foot-right">' +
@@ -453,23 +456,7 @@ window.TideUI = (function () {
 
     const hdr = card && card.querySelector('.category-section-header-container');
     if (hdr) {
-      const mask = typeof isAmtHidden !== 'undefined' && isAmtHidden;
-      const zeroFmt = typeof fmt === 'function' ? fmt(0) : '$0';
-      let spentTxt = '—';
-      if (!mask) {
-        const monthSum =
-          window.ReflowCalc && typeof ReflowCalc.monthSpentTotal === 'function'
-            ? ReflowCalc.monthSpentTotal(curMonth)
-            : typeof monthSpent === 'function'
-              ? monthSpent()
-              : 0;
-        spentTxt = emptyMonth ? zeroFmt : typeof fmt === 'function' ? fmt(monthSum) : String(monthSum);
-      }
-      hdr.innerHTML =
-        '<span class="tide-streams-lbl">STREAMS</span>' +
-        '<span class="tide-streams-meta">' +
-        spentTxt +
-        ' spent</span>';
+      hdr.innerHTML = '<span class="tide-streams-lbl">STREAMS</span>';
     }
 
     function catZhFromRow(row) {

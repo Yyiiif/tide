@@ -1720,6 +1720,23 @@ async function loadAppStateFromIndexedDB(){
   var loadedEvents=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.specialEvents,[]);
   specialEvents=Array.isArray(loadedEvents)?loadedEvents:[];
 }
+async function pruneExpensesAfterMay2026Once(){
+  var onceKey='reflow_prune_after_2026_05_done';
+  try{
+    if(localStorage.getItem(onceKey)==='1')return;
+  }catch(_){}
+  if(!Array.isArray(expenses))expenses=[];
+  var pruned=expenses.filter(function(e){
+    var d=normalizeISODate(e&&e.date);
+    if(!d)return true;
+    return d.slice(0,7)<='2026-05';
+  });
+  if(pruned.length!==expenses.length){
+    expenses=pruned;
+    await ReflowDB.replaceExpenses(expenses);
+  }
+  try{localStorage.setItem(onceKey,'1');}catch(_){}
+}
 async function applyTideDemoData(){
   var d=window.TIDE_DEMO;
   if(!d||!d.ENABLED)return false;
@@ -1753,6 +1770,7 @@ async function initializeReflowData(){
   }
   await ensureInitialIndexedDBSeed();
   await loadAppStateFromIndexedDB();
+  await pruneExpensesAfterMay2026Once();
 }
 let cats=JSON.parse(JSON.stringify(DEFAULT_CATS));
 let expenses=[];
@@ -3124,8 +3142,7 @@ function getEmptyStateHTML(title,subtitle){
   var uid=++_emptyStateGradSeq;
   var g1='emptyWaveGrad1_'+uid,g2='emptyWaveGrad2_'+uid;
   var svg='<svg width="160" height="64" viewBox="0 0 160 64" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="'+g1+'" x1="0" y1="0" x2="0" y2="64" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#44474F" stop-opacity="0.12"/><stop offset="100%" stop-color="#44474F" stop-opacity="0"/></linearGradient><linearGradient id="'+g2+'" x1="0" y1="0" x2="160" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#44474F" stop-opacity="0"/><stop offset="50%" stop-color="#44474F" stop-opacity="0.5"/><stop offset="100%" stop-color="#44474F" stop-opacity="0"/></linearGradient></defs><path d="M0 38 Q20 22 40 38 Q60 54 80 38 Q100 22 120 38 Q140 54 160 38 L160 64 L0 64 Z" fill="url(#'+g1+')"/><path d="M0 38 Q20 22 40 38 Q60 54 80 38 Q100 22 120 38 Q140 54 160 38" stroke="url(#'+g2+')" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>';
-  var sub=subtitle?'<div style="font-size:11px;color:#C7C7CC">'+escapePhText(subtitle)+'</div>':'';
-  return '<div style="display:flex;flex-direction:column;align-items:center;padding:32px 16px;gap:12px">'+svg+'<div style="font-size:13px;color:#ABABAB;font-weight:500">'+escapePhText(title)+'</div>'+sub+'</div>';
+  return '<div style="display:flex;flex-direction:column;align-items:center;padding:32px 16px;gap:12px">'+svg+'</div>';
 }
 function renderHome(){
   syncAutoEventBuffer();
