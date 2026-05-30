@@ -5,9 +5,14 @@
 (function () {
   function normalizeCat(name) {
     if (typeof normalizeCoreCatName === 'function') return normalizeCoreCatName(name);
+    const legacy = {
+      '餐飲': 'Food', '購物': 'Shopping', '交通': 'Transit', '娛樂': 'Entertain',
+      '醫療': 'Health', '其他': 'Other', Transport: 'Transit', Entertainment: 'Entertain',
+    };
     const n = String(name == null ? '' : name).trim();
-    if (!n || n === '其他') return '其他';
-    if (n === '居家') return '醫療';
+    if (legacy[n]) return legacy[n];
+    if (!n || n === 'Other') return 'Other';
+    if (n === 'Home' || n === '居家') return 'Health';
     return n;
   }
 

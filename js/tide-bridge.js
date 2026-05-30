@@ -5,26 +5,52 @@
   const NAV_LABELS = { home: 'Tide', stat: 'Flow', rec: 'Drops', set: 'Base' };
 
   const MIST_COLORS = {
-    餐飲: '#C4A09A',
-    購物: '#8AAF9C',
-    交通: '#8AAABF',
-    娛樂: '#A898C4',
-    醫療: '#B4A888',
-    其他: '#A4A8A8',
+    'Food': '#C4A09A',
+    'Shopping': '#8AAF9C',
+    'Transit': '#8AAABF',
+    'Entertain': '#A898C4',
+    'Health': '#C49AB0',
+    'Other': '#A4A8A8',
+    'Spare1': '#B4A898',
+    'Spare2': '#BF8C6E',
+    'Spare3': '#D4C47A'
   };
 
-  const TIDE_CAT_MAP = Object.assign({}, MIST_COLORS, { 居家: MIST_COLORS['醫療'] });
+  const MIST_FALLBACK = ['#B4A898','#BF8C6E','#D4C47A'];
 
-  const CAT_EN_TO_ZH = {
-    Food: '餐飲',
-    Transit: '交通',
-    Shopping: '購物',
-    Leisure: '娛樂',
-    Medical: '醫療',
-    Others: '其他',
-    Home: '醫療',
-    Misc: '其他',
-  };
+  const MIST_PALETTE = [
+    MIST_COLORS['Food'],
+    MIST_COLORS['Shopping'],
+    MIST_COLORS['Transit'],
+    MIST_COLORS['Entertain'],
+    MIST_COLORS['Health'],
+    MIST_COLORS['Other'],
+    MIST_COLORS['Spare1'],
+    MIST_COLORS['Spare2'],
+    MIST_COLORS['Spare3'],
+  ];
+
+  const TIDE_CAT_MAP = Object.assign({}, MIST_COLORS, { Home: MIST_COLORS['Health'] });
+
+  function rebuildTideCatMap() {
+    if (typeof cats === 'undefined' || !Array.isArray(cats)) return;
+    Object.keys(TIDE_CAT_MAP).forEach(function (k) {
+      delete TIDE_CAT_MAP[k];
+    });
+    cats.forEach(function (c) {
+      if (!c || !c.name) return;
+      const n = normalizeCatKey(c.name);
+      let mid;
+      if (typeof getCatMistIdx === 'function') {
+        const idx = getCatMistIdx(c);
+        mid = MIST_PALETTE[idx] || MIST_FALLBACK[idx % MIST_FALLBACK.length] || MIST_PALETTE[MIST_PALETTE.length - 1];
+      } else {
+        mid = MIST_COLORS[n] || MIST_COLORS['Other'];
+      }
+      TIDE_CAT_MAP[n] = mid;
+    });
+    TIDE_CAT_MAP['Home'] = TIDE_CAT_MAP['Health'] || MIST_COLORS['Health'];
+  }
 
   const STREAM_SVG_H = 110;
   const STREAM_SVG_W = 320;
@@ -37,335 +63,39 @@
     if (window.ReflowCalc && typeof ReflowCalc.normalizeCat === 'function') {
       return ReflowCalc.normalizeCat(name);
     }
-    const n = name == null || name === '' ? '其他' : String(name).trim();
-    if (n === '居家') return '醫療';
+    const n = name == null || name === '' ? 'Other' : String(name).trim();
+    if (n === 'Home') return 'Health';
     return n;
-  }
-
-  const PAY_EN = {
-    手動輸入: 'Manual',
-    每月帳單: 'Monthly bill',
-    'App截圖': 'App screenshot',
-  };
-
-  const TEXT_EN = {
-    首頁: 'Tide',
-    分析: 'Flow',
-    明細: 'Drops',
-    個人: 'Base',
-    分類支出: 'STREAMS',
-    本月分類: 'BY STREAM',
-    當月累積消費: 'CUMULATIVE',
-    消費密度: 'DAILY PULSE',
-    支出明細: 'ENTRIES',
-    消費明細: 'ENTRIES',
-    日期: 'By date',
-    分類: 'By stream',
-    類別管理: 'STREAMS',
-    總預算: 'MONTHLY CAP',
-    每月預算: 'Monthly cap',
-    'Spent this month': 'Spent this month',
-    ' spent': ' spent',
-    啟用緩衝: 'Event buffer',
-    帳戶餘額: 'BALANCE',
-    Event: 'EVENTS',
-    未分配: 'Unallocated',
-    'CSV資料': 'DATA',
-    匯出資料: 'Export CSV',
-    匯入資料: 'Import CSV',
-    總計: 'TOTAL',
-    今日支出: "TODAY'S SPEND",
-    本週累計: 'WEEK TOTAL',
-    本週統計: 'WEEK SUMMARY',
-    今日花費: "TODAY'S DROPS",
-    長期趨勢: 'Trend',
-    輸入中心: 'Input hub',
-    週曆: 'Week view',
-    每日: 'Day',
-    月份: 'Month',
-    類別趨勢: 'Category Trend',
-    每月趨勢: 'Monthly Trend',
-    全部: 'All',
-    總支出: 'Total spend',
-    分類比例: 'BY STREAM',
-    每日支出: 'Daily spend',
-    本週消費明細: 'THIS WEEK',
-    今日: 'Today',
-    本週: 'Week',
-    最近紀錄: 'Recent',
-    過往紀錄: 'Past',
-    智慧匯入: 'Smart import',
-    新增支出: 'Add drop',
-    編輯支出: 'Edit drop',
-    說明: 'Note',
-    '金額 (NT$)': 'Amount (NTD)',
-    類別: 'Category',
-    輸入方式: 'Source',
-    儲存: 'Save',
-    刪除這筆紀錄: 'Delete drop',
-    選擇顏色: 'Pick color',
-    確認: 'Confirm',
-    編輯標籤: 'Edit tag',
-    標籤名稱: 'Tag name',
-    儲存修改: 'Save changes',
-    刪除標籤: 'Delete tag',
-    選擇日期: 'Pick date',
-    取消: 'Cancel',
-    返回: 'Back',
-    關閉: 'Close',
-    確認匯出: 'Export',
-    確認匯入: 'Import',
-    選擇檔案: 'Choose file',
-    預算: 'Budget',
-    尚無標籤: 'No tags yet',
-    尚無事件: 'No events yet',
-    尚無餘額紀錄: 'No balance records',
-    尚無消費紀錄: 'No entries yet',
-    今天還沒有消費紀錄: 'No drops today',
-    本週無消費紀錄: 'No drops this week',
-    這個月還沒有消費紀錄: 'No drops this month',
-    無消費紀錄: 'No entries',
-    '用 AI 截圖快速匯入': 'Import from a screenshot with AI',
-    新增餘額: 'Add balance',
-    編輯餘額: 'Edit balance',
-    專案: 'Project',
-    事件: 'Event',
-    匯入前設定: 'Before import',
-    快速選擇: 'Quick pick',
-    開始辨識: 'Start scan',
-    '正在辨識...': 'Scanning...',
-    解析完成: 'Scan complete',
-    確認儲存: 'Save selected',
-    '記住我的選擇，之後不再詢問': 'Remember my choices',
-    全選: 'Select all',
-    '（未指定）': '(unspecified)',
-    目前沒有可匯出的資料: 'Nothing to export',
-    '將匯出消費紀錄為 CSV 檔案': 'Export transactions as CSV',
-    '選擇 CSV 檔案以匯入消費紀錄': 'Choose a CSV file to import transactions',
-    '選擇 CSV 檔案以匯入消費紀錄與帳戶餘額': 'Choose a CSV to import transactions and balances',
-    '正在匯入資料...': 'Importing...',
-    '正在準備資料...': 'Preparing export...',
-    檔案中沒有可匯入的紀錄: 'No rows to import in this file',
-    '無法讀取 CSV 檔案，請確認格式後再試': 'Could not read CSV — check the format',
-    '6月': '6M',
-    '12月': '12M',
-    上個月: 'Previous month',
-    下個月: 'Next month',
-    上一週: 'Previous week',
-    下一週: 'Next week',
-    隱藏金額: 'Hide amounts',
-    顯示金額: 'Show amounts',
-    '手動輸入': 'Manual entry',
-    'AI 智慧辨識': 'AI scan',
-    '啟用特殊事件緩衝（依專案日期自動）': 'Enable event buffer (auto by project dates)',
-    支出明細顯示方式: 'Entry list layout',
-    趨勢時間範圍: 'Trend range',
-    類別趨勢時間範圍: 'Stream trend range',
-    趨勢分類篩選: 'Trend stream filter',
-    每月支出趨勢: 'Monthly spend trend',
-    點擊編輯: 'Tap to edit',
-    '未辨識到可匯入的列。': 'No importable rows found.',
-    '未辨識到交易列，請換一張截圖或確認畫面清晰。':
-      'No transactions found — try another screenshot.',
-    '此檢視已依偏好隱藏可能為轉帳／儲值的列。':
-      'Rows that may be transfers are hidden per your preference.',
-  };
-
-  const ARIA_EN = {
-    首頁: 'Tide',
-    分析: 'Flow',
-    明細: 'Drops',
-    個人: 'Base',
-    上個月: 'Previous month',
-    下個月: 'Next month',
-    上一週: 'Previous week',
-    下一週: 'Next week',
-    返回: 'Back',
-    關閉: 'Close',
-    隱藏金額: 'Hide amounts',
-    顯示金額: 'Show amounts',
-    長期趨勢: 'Trend',
-    輸入中心: 'Input hub',
-    '手動輸入': 'Manual entry',
-    'AI 智慧辨識': 'AI scan',
-  };
-
-  const TEXT_SELECTORS =
-    '.sec-lbl, .donut-title, .category-section-title, .set-section-title, .page-title, ' +
-    '.rec-type-seg-btn, .event-buffer-title-txt, .budget-label, .import-sheet-title, ' +
-    '.ov-title, .modal-title span, .modal-title, .form-lbl, .sc-label, .rec-hdr-pill, ' +
-    '.stat-trend-pill, .csv-menu-action-btn, .save-btn, .del-btn, .import-done-btn, ' +
-    '.import-done-save-primary, .import-done-close-muted, .import-ctx-start, .cal-foot-btn, ' +
-    '.cal-pick-top-title, .export-csv-btn span, .ph-proj-list-empty, .ai-ctx-mgr-hint, ' +
-    '.import-sheet-title, .import-ctx-lbl, .import-remember-lbl, .import-done-title, ' +
-    '.import-parse-msg, .cat-ov-title, .home-balance-snapshot-lbl, .cb-unalloc, ' +
-    '.budget-row-info, .rec-list-view-hdr-updated, .event-list-item-name, .balance-list-item-lbl';
-
-  let translateScheduled = false;
-
-  function fmt(n) {
-    if (typeof window.fmt === 'function') return window.fmt(n);
-    return '$' + Math.round(Number(n) || 0).toLocaleString('en-US');
   }
 
   function payDisplay(name) {
     const n = String(name || '').trim();
-    return PAY_EN[n] || n;
+    if (window.TideI18n && TideI18n.getLocale() === 'en') {
+      const payMap = { 手動輸入: 'Manual', 每月帳單: 'Monthly bill', 'App截圖': 'App screenshot' };
+      return payMap[n] || n;
+    }
+    return n;
   }
 
   function translateString(s) {
-    if (s == null || s === '') return s;
-    let t = String(s).trim();
-    if (TEXT_EN[t]) return TEXT_EN[t];
-    if (PAY_EN[t]) return PAY_EN[t];
-
-    const rules = [
-      [/^共\s*(\d+)\s*筆$/, '$1 entries'],
-      [/^(\d+)\s*筆$/, '$1 entries'],
-      [/^上次更新\s*/, 'Last updated '],
-      [/^未分配\s+(.+)$/, 'Unallocated $1'],
-      [/^超出預算\s+(.+)$/, 'Over budget $1'],
-      [/^總預算\s+(.+)$/, 'Monthly cap $1'],
-      [/^目前期間：(.+)$/, 'Period: $1'],
-      [/^當日合計：(.+)$/, 'Day total: $1'],
-      [/^目前支出\s+(.+)\s*\/\s*預算\s+(.+)$/, 'Spent $1 / budget $2'],
-      [/^已超出\s+(.+)$/, 'Over by $1'],
-      [/^(.+)\s+這個月比預算多花了一些$/, '$1 is over budget this month'],
-      [/^這個月沒有(.+)的消費$/, 'No $1 spend this month'],
-      [/^(\d{4})\/(\d{1,2})\/(\d{1,2})\s*\|\s*共\s*(\d+)\s*筆$/, '$2/$3/$1 | $4 entries'],
-      [/^(.+)\s*\|\s*共\s*(\d+)\s*筆$/, '$1 | $2 entries'],
-      [/^將匯出\s+(\d+)\s*筆消費紀錄與\s*(\d+)\s*筆帳戶餘額為 CSV 檔案$/, 'Export $1 transactions and $2 balances as CSV'],
-      [/^將匯出\s+(\d+)\s*筆帳戶餘額為 CSV 檔案$/, 'Export $1 balances as CSV'],
-      [/^將匯出\s+(\d+)\s*筆消費紀錄為 CSV 檔案$/, 'Export $1 transactions as CSV'],
-      [
-        /^已選擇檔案，將匯入\s+(\d+)\s*筆消費紀錄與\s*(\d+)\s*筆帳戶餘額$/,
-        'File selected — import $1 transactions and $2 balances',
-      ],
-      [/^已選擇檔案，將匯入\s+(\d+)\s*筆帳戶餘額$/, 'File selected — import $1 balances'],
-      [/^已選擇檔案，將匯入\s+(\d+)\s*筆消費紀錄$/, 'File selected — import $1 transactions'],
-      [/^(\d{1,2})\/(\d{1,2})\s*的花費$/, 'Spend on $1/$2'],
-      [/^(\d+)月(\d+)日\s+(.+)$/, '$1/$2 $3'],
-      [/^帳戶餘額\s*/, 'Balance '],
-    ];
-    for (let i = 0; i < rules.length; i++) {
-      const m = t.match(rules[i][0]);
-      if (m) {
-        t = t.replace(rules[i][0], function () {
-          let out = rules[i][1];
-          for (let j = 1; j < arguments.length - 2; j++) {
-            out = out.replace('$' + j, arguments[j]);
-          }
-          return out;
-        });
-        break;
-      }
-    }
-
-    if (t.startsWith('未分配')) {
-      const m = t.match(/未分配\s*(.+)/);
-      if (m) return 'Unallocated ' + m[1];
-    }
-    if (/^週[一二三四五六日]$/.test(t)) {
-      const wd = { 週日: 'Sun', 週一: 'Mon', 週二: 'Tue', 週三: 'Wed', 週四: 'Thu', 週五: 'Fri', 週六: 'Sat' };
-      return wd[t] || t;
-    }
-    if (t === '今天') return 'Today';
-
-    return t;
-  }
-
-  function translateTextNode(el) {
-    if (!el) return;
-    if (el.children.length > 0) return;
-    const next = translateString(el.textContent);
-    if (next !== el.textContent) el.textContent = next;
-  }
-
-  function translateAttributes(root) {
-    if (!root) return;
-    root.querySelectorAll('[aria-label]').forEach(function (el) {
-      const raw = (el.getAttribute('aria-label') || '').trim();
-      if (ARIA_EN[raw]) el.setAttribute('aria-label', ARIA_EN[raw]);
-      else if (TEXT_EN[raw]) el.setAttribute('aria-label', TEXT_EN[raw]);
-    });
-    root.querySelectorAll('[placeholder]').forEach(function (el) {
-      const raw = (el.getAttribute('placeholder') || '').trim();
-      if (TEXT_EN[raw]) el.setAttribute('placeholder', TEXT_EN[raw]);
-    });
-    root.querySelectorAll('button.pay-method-pill').forEach(function (btn) {
-      const pay = btn.getAttribute('data-pay');
-      if (pay && PAY_EN[pay]) btn.textContent = PAY_EN[pay];
-    });
-  }
-
-  function restoreCategoryLabels(root) {
-    if (!root) return;
-    const sel =
-      '.home-cat-name, .cat-mgr-name, .tide-stream-name, .tide-pulse-legend-name, ' +
-      '.tide-pulse-stream-name, .tide-stream-chip, .tag:not(.tag-rec-pay), .analysis-trend-cat-pill';
-    root.querySelectorAll(sel).forEach(function (el) {
-      const stored = el.getAttribute('data-cat-zh');
-      if (stored) {
-        el.textContent = stored;
-        return;
-      }
-      const raw = (el.textContent || '').trim();
-      if (CAT_EN_TO_ZH[raw]) {
-        const zh = CAT_EN_TO_ZH[raw];
-        el.setAttribute('data-cat-zh', zh);
-        el.textContent = zh;
-      }
-    });
+    return window.TideI18n ? TideI18n.translate(s) : s;
   }
 
   function applyEnglishIn(root) {
-    if (!root) return;
-    root.querySelectorAll(TEXT_SELECTORS).forEach(translateTextNode);
-    const donutLbl = root.querySelector('.home-donut-label-row span');
-    if (donutLbl) translateTextNode(donutLbl);
-    restoreCategoryLabels(root);
-    translateAttributes(root);
+    if (window.TideI18n) TideI18n.applyIn(root);
   }
 
   function applyEnglishGlobally() {
-    applyEnglishIn(document.body);
-    const csvTitle = document.getElementById('csv-overlay-title-text');
-    if (csvTitle) translateTextNode(csvTitle);
-    const modalLbl = document.getElementById('modal-title-label');
-    if (modalLbl) translateTextNode(modalLbl);
-    const hubTitle = document.getElementById('input-hub-ov-title');
-    if (hubTitle) hubTitle.textContent = translateString(hubTitle.textContent);
-    const eb = document.querySelector('#event-buffer-section .event-buffer-title-txt');
-    if (eb && eb.textContent.trim() === 'Event') eb.textContent = 'Events';
-    const balTap = document.querySelector('.balance-buffer-card .event-buffer-title-txt');
-    if (balTap) balTap.textContent = 'Balance snapshot';
-    const expSub = document.getElementById('export-csv-confirm-sub');
-    if (expSub) expSub.textContent = translateString(expSub.textContent);
-    const impSub = document.getElementById('import-csv-confirm-sub');
-    if (impSub) impSub.textContent = translateString(impSub.textContent);
-    const balSnap = document.querySelector('.home-balance-snapshot-lbl');
-    if (balSnap) {
-      const raw = balSnap.textContent || '';
-      if (raw.indexOf('帳戶餘額') >= 0) {
-        balSnap.textContent = raw.replace('帳戶餘額', 'Balance');
-      }
-    }
-    document.querySelectorAll('.cb-unalloc, .budget-row-info').forEach(function (el) {
-      el.textContent = translateString(el.textContent);
-    });
+    if (window.TideI18n) TideI18n.applyGlobally();
   }
 
   function scheduleEnglishPass() {
-    if (translateScheduled) return;
-    translateScheduled = true;
-    requestAnimationFrame(function () {
-      translateScheduled = false;
-      try {
-        applyEnglishGlobally();
-      } catch (e) {
-        console.error('tide-bridge translate', e);
-      }
-    });
+    if (window.TideI18n) TideI18n.scheduleApply();
+  }
+
+  function fmt(n) {
+    if (typeof window.fmt === 'function') return window.fmt(n);
+    return '$' + Math.round(Number(n) || 0).toLocaleString('en-US');
   }
 
   function wavePaths(w, h, level) {
@@ -655,8 +385,8 @@
             rows.forEach(function (e) {
               const c =
                 typeof normalizeCoreCatName === 'function'
-                  ? normalizeCoreCatName(e.cat || '其他')
-                  : normalizeCatKey(e.cat || '其他');
+                  ? normalizeCoreCatName(e.cat || 'Other')
+                  : normalizeCatKey(e.cat || 'Other');
               m[c] = (m[c] || 0) + (Number(e.amt) || 0);
             });
             return m;
@@ -673,7 +403,10 @@
         return {
           cat: cat,
           amt: entry[1],
-          color: MIST_COLORS[cat] || MIST_COLORS['其他'],
+          color:
+            typeof catColors === 'function'
+              ? catColors(cat).mid
+              : MIST_COLORS[cat] || MIST_COLORS['Other'],
         };
       });
     const monthTotal = active.reduce(function (s, r) {
@@ -1011,17 +744,32 @@
   function patchCycleLabel() {
     if (typeof getCycleLabel === 'function') {
       window.getCycleLabel = function () {
-        return 'Monthly cap';
+        return window.TideI18n ? TideI18n.t('每月預算') : 'Monthly cap';
       };
     }
   }
 
-  function mistDropSVG(cat) {
+  function mistDotSVG(cat, size) {
+    const sz = size == null ? 10 : Number(size) || 10;
+    const r = sz / 2;
     const n = normalizeCatKey(cat);
-    const color = MIST_COLORS[n] || MIST_COLORS['其他'];
+    let color = MIST_COLORS[n] || MIST_COLORS['Other'];
+    if (typeof catColors === 'function') {
+      try {
+        color = catColors(n).mid || color;
+      } catch (e) {}
+    }
     const id = 'drop_' + n + '_' + Math.random().toString(36).slice(2, 6);
     return (
-      '<svg class="tide-mist-drop" width="11" height="14" viewBox="0 0 11 14" style="flex-shrink:0">' +
+      '<svg class="tide-mist-drop" width="' +
+      sz +
+      '" height="' +
+      sz +
+      '" viewBox="0 0 ' +
+      sz +
+      ' ' +
+      sz +
+      '" style="flex-shrink:0">' +
       '<defs>' +
       '<linearGradient id="' +
       id +
@@ -1034,11 +782,21 @@
       '" stop-opacity="0.25"/>' +
       '</linearGradient>' +
       '</defs>' +
-      '<path d="M5.5,0.5 C5.5,0.5 0.5,5.5 0.5,8.5 A5,5 0 0 0 10.5,8.5 C10.5,5.5 5.5,0.5 5.5,0.5 Z" fill="url(#' +
+      '<circle cx="' +
+      r +
+      '" cy="' +
+      r +
+      '" r="' +
+      r +
+      '" fill="url(#' +
       id +
       ')"/>' +
       '</svg>'
     );
+  }
+
+  function mistDropSVG(cat) {
+    return mistDotSVG(cat, 10);
   }
 
   function patchExpenseListItemDots(fnName) {
@@ -1047,7 +805,7 @@
     window[fnName] = function () {
       const html = orig.apply(this, arguments);
       const e = arguments[0];
-      const cat = e && e.cat != null && e.cat !== '' ? e.cat : '其他';
+      const cat = e && e.cat != null && e.cat !== '' ? e.cat : 'Other';
       return html.replace(
         /<div class="li-dot" style="background:[^"]*"><\/div>/,
         mistDropSVG(cat)
@@ -1111,8 +869,9 @@
   }
 
   function init() {
+    if (window.TideI18n) TideI18n.init();
     document.body.classList.add('tide-ui');
-    document.documentElement.lang = 'en';
+    document.documentElement.lang = window.TideI18n && TideI18n.getLocale() === 'zh-TW' ? 'zh-TW' : 'en';
     document.documentElement.style.setProperty('theme-color', '#FAFAFB');
     document.title = 'Tide';
     patchCatColors();
@@ -1120,12 +879,28 @@
     patchCycleLabel();
     patchExpenseItemDots();
     patchStyleDropsList();
+    rebuildTideCatMap();
+    window.rebuildTideCatMap = rebuildTideCatMap;
+    window.TIDE_MIST_PALETTE = MIST_PALETTE;
+    window.mistDotSVG = mistDotSVG;
 
     wrapFn('renderHome', renderTideHome);
     wrapFn('renderStat', renderTidePulse);
     wrapFn('renderRec', renderTideDrops);
     wrapFn('renderSet', function () {
       renderTideMe();
+      if (window.TideI18n) TideI18n.syncLocaleSwitcher();
+    });
+    wrapFn('toggleCatMgrPanel', function () {
+      if (document.getElementById('s-set')?.classList.contains('active')) {
+        renderTideMe();
+      }
+    });
+    wrapFn('setCatMistSwatch', function () {
+      rebuildTideCatMap();
+    });
+    wrapFn('renameCat', function () {
+      rebuildTideCatMap();
     });
     wrapFn('renderRecList', function () {
       if (document.getElementById('s-rec')?.classList.contains('active')) {
@@ -1172,7 +947,7 @@
       if (document.getElementById('s-set')?.classList.contains('active')) renderTideMe();
     });
     wrapFn('renderCatMgrList', function () {
-      restoreCategoryLabels(document.getElementById('cat-mgr-list'));
+      if (window.TideI18n) TideI18n.applyCategoryLabels(document.getElementById('cat-mgr-list'));
     });
     wrapFn('openModal', function () {
       applyEnglishIn(document.getElementById('modal'));
@@ -1210,6 +985,17 @@
     wrapFn('openHeatmapDayOv', function () {
       applyEnglishIn(document.getElementById('heatmap-day-ov'));
     });
+    function applyEventBalanceI18n() {
+      if (window.TideI18n) TideI18n.applyEventBalanceOverlays();
+    }
+    wrapFn('openEventList', applyEventBalanceI18n);
+    wrapFn('openBalanceList', applyEventBalanceI18n);
+    wrapFn('openAddBalanceRecord', applyEventBalanceI18n);
+    wrapFn('openEditBalanceRecord', applyEventBalanceI18n);
+    wrapFn('openProjectRecordModal', applyEventBalanceI18n);
+    wrapFn('openEditEventModal', applyEventBalanceI18n);
+    wrapFn('renderEventList', applyEventBalanceI18n);
+    wrapFn('renderBalanceList', applyEventBalanceI18n);
     wrapFn('updateHomeCategoryTotalBudgetLabel', function () {
       const el = document.getElementById('home-cat-total-budget-lbl');
       if (el) el.textContent = translateString(el.textContent);

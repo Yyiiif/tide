@@ -1212,11 +1212,18 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
   <div class="scr" id="s-set">
     <div class="simple-hdr"><span class="page-title">個人</span></div>
     <div class="scr-pad">
+      <div class="set-section" id="locale-section">
+        <div class="set-section-title">語言</div>
+        <div class="locale-seg" role="group" aria-label="語言">
+          <button type="button" class="locale-seg-btn" data-locale="zh-TW" data-locale-fixed="1">中文</button>
+          <button type="button" class="locale-seg-btn" data-locale="en" data-locale-fixed="1">English</button>
+        </div>
+      </div>
       <div class="set-section event-buffer-card" id="event-buffer-section">
         <div class="event-buffer-tap" role="button" tabindex="0" onclick="openEventList()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openEventList()}">
           <span class="event-buffer-chevron" aria-hidden="true"><i class="ti ti-chevron-right"></i></span>
           <div class="event-buffer-title-row">
-            <span class="event-buffer-title-txt">Event</span>
+            <span class="event-buffer-title-txt">事件列表</span>
           </div>
         </div>
         <div class="event-buffer-toggle-row" onclick="event.stopPropagation()">
@@ -1308,8 +1315,8 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
       <div class="donut-title stat-trend-head">
         <span>Category Trend</span>
         <div class="stat-trend-toggle" id="analysis-stat-trend-range-toggle" role="group" aria-label="Category Trend range">
-          <button type="button" class="stat-trend-pill on" onclick="setAnalysisCatTrendRange(6,this)">6月</button>
-          <button type="button" class="stat-trend-pill" onclick="setAnalysisCatTrendRange(12,this)">12月</button>
+          <button type="button" class="stat-trend-pill on" onclick="setAnalysisCatTrendRange(6,this)">6M</button>
+          <button type="button" class="stat-trend-pill" onclick="setAnalysisCatTrendRange(12,this)">12M</button>
         </div>
       </div>
       <div class="stat-trend-leg" id="analysis-stat-trend-leg"></div>
@@ -1318,13 +1325,13 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
     <div class="donut-card" id="analysis-monthly-trend-card">
       <div class="donut-title stat-trend-head">
         <span>Monthly Trend</span>
-        <div class="stat-trend-toggle" id="analysis-monthly-range-toggle" role="group" aria-label="趨勢時間範圍">
-          <button type="button" class="stat-trend-pill on" onclick="setAnalysisTrendRange(6,this)">6月</button>
-          <button type="button" class="stat-trend-pill" onclick="setAnalysisTrendRange(12,this)">12月</button>
+        <div class="stat-trend-toggle" id="analysis-monthly-range-toggle" role="group" aria-label="Trend range">
+          <button type="button" class="stat-trend-pill on" onclick="setAnalysisTrendRange(6,this)">6M</button>
+          <button type="button" class="stat-trend-pill" onclick="setAnalysisTrendRange(12,this)">12M</button>
         </div>
       </div>
-      <div class="stat-trend-chart-wrap"><canvas id="analysis-monthly-trend-chart" aria-label="每月支出趨勢"></canvas></div>
-      <div class="analysis-trend-cat-filters" id="analysis-monthly-trend-cats" role="group" aria-label="趨勢分類篩選"></div>
+      <div class="stat-trend-chart-wrap"><canvas id="analysis-monthly-trend-chart" aria-label="Monthly spend trend"></canvas></div>
+      <div class="analysis-trend-cat-filters" id="analysis-monthly-trend-cats" role="group" aria-label="Trend stream filter"></div>
     </div>
   </div>
 </div>
@@ -1499,7 +1506,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
   <div class="event-ov-shell">
     <div class="ov-hdr event-ov-hdr">
       <button type="button" class="ov-back" onclick="closeEventList()" aria-label="返回"><i class="ti ti-chevron-left"></i></button>
-      <span class="ov-title">Event</span>
+      <span class="ov-title">事件列表</span>
       <span style="width:44px;flex-shrink:0" aria-hidden="true"></span>
     </div>
     <div class="event-ov-list-wrap" id="event-proj-list"></div>
@@ -1567,27 +1574,66 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
 <script>
 const NOTION_COLORS=[{name:'Default',bg:'#FFFFFF',text:'#373530'},{name:'Gray',bg:'#F1F1EF',text:'#787774'},{name:'Brown',bg:'#F0E4DC',text:'#9A6550'},{name:'Orange',bg:'#F8ECDF',text:'#CC782F'},{name:'Yellow',bg:'#FBF0DC',text:'#B8762A'},{name:'Teal',bg:'#E4F0ED',text:'#3D8C7E'},{name:'Green',bg:'#EEF3ED',text:'#548164'},{name:'Blue',bg:'#E9F3F7',text:'#487CA5'},{name:'Purple',bg:'#EEE6F5',text:'#7B5A9E'},{name:'Pink',bg:'#F9F2F5',text:'#B35488'},{name:'Red',bg:'#FAECEC',text:'#C4554D'}];
 const MID={0:'#8B8B89',1:'#B8B8B5',2:'#C8A090',3:'#DFA06A',4:'#E8C080',5:'#8EC4B8',6:'#9DC4AD',7:'#8BBDD8',8:'#C0A8D8',9:'#D898B8',10:'#E09490'};
-const TIDE_CAT_MID={'餐飲':'#C4A09A','交通':'#8AAABF','購物':'#8AAF9C','娛樂':'#A898C4','醫療':'#B4A888','其他':'#A4A8A8'};
+const TIDE_CAT_MID={'Food':'#C4A09A','Transit':'#8AAABF','Shopping':'#8AAF9C','Entertain':'#A898C4','Health':'#C49AB0','Other':'#A4A8A8'};
 function tideCatColorEntry(mid){return{bg:mid+'33',text:mid,mid:mid}}
 const CAT_COLOR_MAP=(function(){
   var m={};
   Object.keys(TIDE_CAT_MID).forEach(function(k){m[k]=tideCatColorEntry(TIDE_CAT_MID[k])});
-  m['居家']=m['醫療'];
-  m['旅遊']=tideCatColorEntry('#C0A8D8');
+  m['Home']=m['Health'];
+  m['Transport']=m['Transit'];
+  m['Entertainment']=m['Entertain'];
   return m;
 })();
-const CORE_CATEGORY_NAMES=['餐飲','交通','購物','娛樂','醫療','其他'];
-const DEFAULT_CATEGORY_ORDER=['餐飲','交通','購物','娛樂','醫療','其他'];
+const CORE_CATEGORY_NAMES=['Food','Transit','Shopping','Entertain','Health','Other'];
+const DEFAULT_CATEGORY_ORDER=['Food','Transit','Shopping','Entertain','Health','Other'];
+const CATEGORY_ORDER_STORAGE_KEY='category_order_v1';
+function loadCategoryOrderIds(){
+  try{
+    var raw=localStorage.getItem(CATEGORY_ORDER_STORAGE_KEY);
+    if(!raw)return null;
+    var parsed=JSON.parse(raw);
+    return Array.isArray(parsed)?parsed:null;
+  }catch(_){return null;}
+}
+function saveCategoryOrderFromCats(){
+  try{
+    localStorage.setItem(CATEGORY_ORDER_STORAGE_KEY,JSON.stringify(cats.map(function(c){return c.id;})));
+  }catch(_){}
+}
+function applyCategoryOrderIds(orderIds){
+  if(!orderIds||!orderIds.length||!Array.isArray(cats)||!cats.length)return;
+  var map={};
+  cats.forEach(function(c){if(c&&c.id)map[c.id]=c;});
+  var next=orderIds.map(function(id){return map[id];}).filter(Boolean);
+  if(next.length===cats.length)cats=next;
+}
+function applySavedCategoryOrder(){
+  applyCategoryOrderIds(loadCategoryOrderIds());
+}
+function getCategoryNameOrder(){
+  return getCoreCatsOrdered().map(function(c){return c.name;});
+}
 function sortCategoriesByDefaultOrder(names){
+  var order=getCategoryNameOrder();
   return(names||[]).slice().sort(function(a,b){
-    var ia=DEFAULT_CATEGORY_ORDER.indexOf(a);
-    var ib=DEFAULT_CATEGORY_ORDER.indexOf(b);
-    if(ia<0)ia=DEFAULT_CATEGORY_ORDER.length;
-    if(ib<0)ib=DEFAULT_CATEGORY_ORDER.length;
+    var ia=order.indexOf(a);
+    var ib=order.indexOf(b);
+    if(ia<0)ia=order.length;
+    if(ib<0)ib=order.length;
     return ia-ib;
   });
 }
-const DEFAULT_CATS=[{id:'c1',name:'餐飲',colorIdx:4},{id:'c2',name:'交通',colorIdx:7},{id:'c3',name:'購物',colorIdx:6},{id:'c4',name:'娛樂',colorIdx:9},{id:'c5',name:'醫療',colorIdx:8},{id:'c6',name:'其他',colorIdx:1}];
+const DEFAULT_CATS=[{id:'c1',name:'Food',colorIdx:4,mistIdx:0},{id:'c2',name:'Transit',colorIdx:7,mistIdx:2},{id:'c3',name:'Shopping',colorIdx:6,mistIdx:1},{id:'c4',name:'Entertain',colorIdx:9,mistIdx:3},{id:'c5',name:'Health',colorIdx:8,mistIdx:4},{id:'c6',name:'Other',colorIdx:1,mistIdx:5}];
+const DEFAULT_MIST_IDX={'Food':0,'Shopping':1,'Transit':2,'Entertain':3,'Health':4,'Other':5,'Home':4,'Transport':2,'Entertainment':3};
+function defaultMistIdxForName(name){
+  var n=normalizeCoreCatName(name);
+  return DEFAULT_MIST_IDX[n]!=null?DEFAULT_MIST_IDX[n]:5;
+}
+function getCatMistIdx(cat){
+  if(!cat)return 5;
+  if(typeof cat.mistIdx==='number'&&cat.mistIdx>=0)return cat.mistIdx;
+  return defaultMistIdxForName(cat.name);
+}
 const DAY_LABELS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const shortMonths=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MONTHS=shortMonths;
@@ -1596,7 +1642,7 @@ const GEMINI_WALLET_PARSER_PROMPT=`你是財務助理。解析截圖中的每一
 介面可能是 (A) Apple Wallet「卡片」／錢包：每張卡片上較大粗體為商戶 name；含「$」的金額為 amount（純數字、去掉 $ 與逗號）；商戶下方的日期列為該筆 date（YYYY-MM-DD）。
 也可能是 (B) 銀行對帳表：嚴格對應欄位「交易日」→ date、「摘要／說明」→ name、「支出」→ amount。
 
-category 請用以下其一（繁體中文、不可自創）：餐飲、交通、購物、娛樂、醫療、其他。若商戶為便利商店（如便利商店、全家、7-11、7-Eleven、萊爾富、OK、FamilyMart 等），一律歸類為「餐飲」，不論購買品項。若為轉帳、存入、薪轉、儲值、提款、內部轉移等非消費，仍要輸出該列，且 isPotentialTransfer 為 true；一般消費為 false。
+category must be exactly one of: Food, Shopping, Transit, Entertain, Health, Other. Convenience stores (7-Eleven, FamilyMart, etc.) always map to Food. For transfers, deposits, salary, top-ups, withdrawals, or internal moves, still output the row with isPotentialTransfer true; false for normal purchases.
 
 輸出格式：
 [{"date":"YYYY-MM-DD","name":"商戶","amount":數字,"category":"類別","isPotentialTransfer":布林}]`;
@@ -1873,9 +1919,8 @@ function getActiveSpecialEvent(){
   return specialEvents.find(function(e){return e.isActive===true&&!e.archived;})||null;
 }
 function getCoreCatsOrdered(){
-  return CORE_CATEGORY_NAMES.map(function(name){
-    return cats.find(function(c){return c.name===name;})||DEFAULT_CATS.find(function(d){return d.name===name;});
-  }).filter(Boolean);
+  if(Array.isArray(cats)&&cats.length)return cats.slice();
+  return DEFAULT_CATS.slice();
 }
 function migrateRenamedCategory(from,to){
   var dirty=false;
@@ -1895,40 +1940,58 @@ function migrateRenamedCategory(from,to){
   });
   if(dirty)saveExpenses().catch(function(err){console.error('saveExpenses failed after cat rename',err);});
 }
+const LEGACY_CAT_MAP={'餐飲':'Food','購物':'Shopping','交通':'Transit','娛樂':'Entertain','醫療':'Health','其他':'Other','Transport':'Transit','Entertainment':'Entertain','Transit':'Transit','Entertain':'Entertain'};
 function normalizeCoreCatName(name){
   var n=String(name==null?'':name).trim();
-  if(n==='居家')return'醫療';
+  if(LEGACY_CAT_MAP[n])return LEGACY_CAT_MAP[n];
+  if(n==='Home'||n==='居家')return'Health';
   return n;
 }
 function enforceCoreCategories(){
-  migrateRenamedCategory('居家','醫療');
-  var defaultsByName={};
-  DEFAULT_CATS.forEach(function(d){defaultsByName[d.name]=d;});
+  migrateRenamedCategory('Home','Health');
+  migrateRenamedCategory('Transport','Transit');
+  migrateRenamedCategory('Entertainment','Entertain');
+  Object.keys(LEGACY_CAT_MAP).forEach(function(from){
+    var to=LEGACY_CAT_MAP[from];
+    if(from!==to)migrateRenamedCategory(from,to);
+  });
   var merged=[];
-  CORE_CATEGORY_NAMES.forEach(function(name){
-    var existing=cats.find(function(c){return c.name===name;});
-    if(existing)merged.push({id:existing.id,name:name,colorIdx:typeof existing.colorIdx==='number'?existing.colorIdx:defaultsByName[name].colorIdx});
-    else merged.push({id:defaultsByName[name].id,name:name,colorIdx:defaultsByName[name].colorIdx});
+  DEFAULT_CATS.forEach(function(defaultCat){
+    var existing=cats.find(function(c){return c.id===defaultCat.id;});
+    if(existing){
+      merged.push({
+        id:existing.id,
+        name:normalizeCoreCatName(existing.name||defaultCat.name),
+        colorIdx:typeof existing.colorIdx==='number'?existing.colorIdx:defaultCat.colorIdx,
+        mistIdx:getCatMistIdx(existing)
+      });
+    }else{
+      merged.push({id:defaultCat.id,name:defaultCat.name,colorIdx:defaultCat.colorIdx,mistIdx:defaultCat.mistIdx});
+    }
   });
   cats=merged;
-  var legacyNames=['旅遊','新類別','住宿'];
+  applySavedCategoryOrder();
+  var legacyNames=['旅遊','新類別','住宿','Travel','Misc'];
   legacyNames.forEach(function(legacy){
     if(catBudgets[legacy]!==undefined){
       var n=Number(catBudgets[legacy])||0;
-      if(n>0)catBudgets['其他']=(Number(catBudgets['其他'])||0)+n;
+      if(n>0)catBudgets['Other']=(Number(catBudgets['Other'])||0)+n;
       delete catBudgets[legacy];
     }
     if(catBuffers[legacy]!==undefined){
       var b=Number(catBuffers[legacy])||0;
-      if(b>0)catBuffers['其他']=(Number(catBuffers['其他'])||0)+b;
+      if(b>0)catBuffers['Other']=(Number(catBuffers['Other'])||0)+b;
       delete catBuffers[legacy];
     }
   });
+  var validNames={};
+  cats.forEach(function(c){validNames[normalizeCoreCatName(c.name)]=true;});
   var expDirty=false;
   expenses.forEach(function(e){
     if(!e||!e.cat)return;
     e.cat=normalizeCoreCatName(e.cat);
-    if(legacyNames.indexOf(e.cat)>=0||CORE_CATEGORY_NAMES.indexOf(e.cat)<0){e.cat='其他';expDirty=true;}
+    if(legacyNames.indexOf(e.cat)>=0){e.cat='Other';expDirty=true;return;}
+    if(!validNames[e.cat]){e.cat='Other';expDirty=true;}
   });
   saveCats();
   saveCatBudgets();
@@ -2033,7 +2096,7 @@ let analysisCatTrendRange=6;
 let analysisTrendCat='all';
 let isAmtHidden=false;
 let dragSrcIdx=null;
-let openCatIdx=null;
+window.openCatIdx=null;
 const DEFAULT_AI_CONTEXT_TAGS=['App截圖','每月帳單'];
 let aiContextTags=[];
 (function loadAiContextTagsInit(){
@@ -2199,8 +2262,8 @@ function migrateMealShopCatColorsIfNeeded(){
   var k='meal_shop_color_swap_v1';
   if(localStorage.getItem(k))return;
   if(!hadCatsV2Stored){localStorage.setItem(k,'1');return;}
-  var meal=cats.find(function(x){return x.name==='餐飲'});
-  var shop=cats.find(function(x){return x.name==='購物'});
+  var meal=cats.find(function(x){return x.name==='Food'});
+  var shop=cats.find(function(x){return x.name==='Shopping'});
   if(meal&&shop&&typeof meal.colorIdx==='number'&&typeof shop.colorIdx==='number'){
     var t=meal.colorIdx;
     meal.colorIdx=shop.colorIdx;
@@ -2328,7 +2391,7 @@ function renderBalanceList(){
   var listEl=document.getElementById('balance-record-list');
   if(!listEl)return;
   var items=balanceSnapshots.map(function(b,idx){return{b:b,idx:idx};}).sort(function(a,b){return String(b.b.date||'').localeCompare(String(a.b.date||''));});
-  listEl.innerHTML=items.length?items.map(function(item){return balanceCardHTML(item.b,item.idx);}).join(''):'<div class="ph-proj-list-empty">尚無餘額紀錄</div>';
+  listEl.innerHTML=items.length?items.map(function(item){return balanceCardHTML(item.b,item.idx);}).join(''):'<div class="ph-proj-list-empty">'+(window.TideI18n?TideI18n.t('尚無餘額紀錄'):'尚無餘額紀錄')+'</div>';
 }
 function openBalanceList(){
   renderBalanceList();
@@ -2341,7 +2404,7 @@ function openAddBalanceRecord(){
   var amt=document.getElementById('balance-record-amt');
   var date=document.getElementById('balance-record-date');
   var del=document.getElementById('balance-record-del-btn');
-  if(title)title.textContent='新增餘額';
+  if(title)title.textContent=window.TideI18n?TideI18n.t('新增餘額'):'新增餘額';
   if(amt)amt.value='';
   if(date)date.value=today();
   if(del)del.style.display='none';
@@ -2357,7 +2420,7 @@ function openEditBalanceRecord(idx){
   var amt=document.getElementById('balance-record-amt');
   var date=document.getElementById('balance-record-date');
   var del=document.getElementById('balance-record-del-btn');
-  if(title)title.textContent='編輯餘額';
+  if(title)title.textContent=window.TideI18n?TideI18n.t('編輯餘額'):'編輯餘額';
   if(amt)amt.value=Number(b.amount)||0;
   if(date)date.value=b.date||'';
   if(del)del.style.display='block';
@@ -2394,7 +2457,7 @@ function saveBalanceRecord(){
 }
 function deleteBalanceRecord(){
   if(balanceEditIdx<0||balanceEditIdx>=balanceSnapshots.length)return;
-  if(!confirm('確定要刪除此餘額紀錄嗎？'))return;
+  if(!confirm(window.TideI18n?TideI18n.confirmMsg('確定要刪除此餘額紀錄嗎？'):'確定要刪除此餘額紀錄嗎？'))return;
   balanceSnapshots.splice(balanceEditIdx,1);
   finishBalanceSync();
   closeBalanceRecordOverlay();
@@ -2444,7 +2507,7 @@ function exportTransactionsToCSV(data,balances){
       'expense',
       date,
       formatRowTime(e.createdAt,date),
-      e.cat||'其他',
+      e.cat||'Other',
       e.name||'',
       Math.round(Number(e.amt)||0),
       '',
@@ -2643,7 +2706,7 @@ function parseCsvImportRows(text){
       date:date,
       name:String(iVendor>=0?cols[iVendor]:'').trim(),
       amt:amt,
-      cat:(String(iCat>=0?cols[iCat]:'其他').trim()||'其他'),
+      cat:(String(iCat>=0?cols[iCat]:'Other').trim()||'Other'),
       pay:(String(iSrc>=0?cols[iSrc]:'手動輸入').trim()||'手動輸入'),
       createdAt:createdAt
     });
@@ -2774,7 +2837,7 @@ function getCatBarBasis(catName,maxSpent){
   const own=getCatBudgetNum(catName);
   if(own>0)return own;
   const minB=getMinCatBudget();
-  if(catName==='其他'){
+  if(catName==='Other'){
     const total=Number(budget)||0;
     if(total>0){
       const unalloc=total-getCatBudgetsSum();
@@ -2818,7 +2881,7 @@ enforceCoreCategories();
 ;(function migrateCategoryPaletteV2(){
   var key='cat_palette_v2';
   if(localStorage.getItem(key))return;
-  var idxByName={'餐飲':4,'交通':7,'購物':6,'娛樂':9,'醫療':8,'居家':8,'其他':1};
+  var idxByName={'Food':4,'Transit':7,'Shopping':6,'Entertain':9,'Health':8,'Home':8,'Other':1};
   var dirty=false;
   cats.forEach(function(c){
     if(idxByName[c.name]!==undefined&&c.colorIdx!==idxByName[c.name]){c.colorIdx=idxByName[c.name];dirty=true;}
@@ -2854,7 +2917,7 @@ function mlbl(m){if(m==null||String(m).trim()==='')return'—';var p=String(m).t
 function getWeekBounds(date){const d=new Date(date+'T12:00:00');const dow=d.getDay();const diff=dow===0?-6:1-dow;const mon=new Date(d);mon.setDate(d.getDate()+diff);const sun=new Date(mon);sun.setDate(mon.getDate()+6);const s=x=>x.toISOString().slice(0,10);return{mon:s(mon),sun:s(sun),monDate:new Date(mon),sunDate:new Date(sun)}}
 function getWeekNumber(date){const d=new Date(date+'T12:00:00');const firstDay=new Date(d.getFullYear(),d.getMonth(),1);const fd=firstDay.getDay();const offset=fd===0?-6:1-fd;const firstMon=new Date(firstDay);firstMon.setDate(1+offset);if(firstMon>firstDay)firstMon.setDate(firstMon.getDate()-7);return Math.floor((d-firstMon)/(7*24*3600*1000))+1}
 function weekPeriodLabel(date){const d=new Date(String(date||today())+'T12:00:00');return shortMonths[d.getMonth()]+' Week '+getWeekNumber(date)}
-function catColors(name){const n=(name==null||name==='')?'其他':String(name);if(CAT_COLOR_MAP[n])return CAT_COLOR_MAP[n];const c=cats.find(x=>x.name===n)||cats[cats.length-1];const idx=c?.colorIdx??1;const nc=NOTION_COLORS[idx]||NOTION_COLORS[1];return{bg:nc.bg,text:nc.text,mid:(MID[idx]!==undefined?MID[idx]:'#A3A29F')}}
+function catColors(name){const n=(name==null||name==='')?'Other':String(name);if(CAT_COLOR_MAP[n])return CAT_COLOR_MAP[n];const c=cats.find(x=>x.name===n)||cats[cats.length-1];const idx=c?.colorIdx??1;const nc=NOTION_COLORS[idx]||NOTION_COLORS[1];return{bg:nc.bg,text:nc.text,mid:(MID[idx]!==undefined?MID[idx]:'#A3A29F')}}
 function shiftDate(ds,days){const d=new Date(ds+'T12:00:00');d.setDate(d.getDate()+days);return d.toISOString().slice(0,10)}
 function getCurrentBudgetPeriod(){
   const td=today();const t=new Date(td+'T12:00:00');
@@ -2965,7 +3028,7 @@ function renderOvRecWeekRow(){
   scrollWeekPillIntoView(row);
 }
 function weekStatsBodyHTML(canvasId,wE,total,td,monDate){
-  const cm={};wE.forEach(e=>{const c=e.cat||'其他';cm[c]=(cm[c]||0)+(e.amt||0)});
+  const cm={};wE.forEach(e=>{const c=e.cat||'Other';cm[c]=(cm[c]||0)+(e.amt||0)});
   const sorted=Object.entries(cm).sort((a,b)=>b[1]-a[1]);
   const dayTotals=DAY_LABELS.map((_,i)=>{const d=new Date(monDate);d.setDate(monDate.getDate()+i);const ds=d.toISOString().slice(0,10);return{lbl:DAY_LABELS[i],total:wE.filter(e=>e.date===ds).reduce((s,e)=>s+(e.amt||0),0),isToday:ds===td}});
   const maxVal=Math.max(...dayTotals.map(d=>d.total),1);
@@ -2993,7 +3056,13 @@ function shiftOvRecViewWeek(delta){
 }
 function openRecDailyOverlay(){var el=document.getElementById('ov-rec-daily');if(!el)return;renderOvRecDaily();el.classList.remove('open');void el.offsetWidth;openOverlayEl(el)}
 function closeRecDailyOverlay(){closeOverlayEl(document.getElementById('ov-rec-daily'))}
-function openLongTermTrend(){renderAnalysisStatTrendChart();renderAnalysisMonthlyTrendChart();openOverlayEl(document.getElementById('ov-long-term-trend'))}
+function openLongTermTrend(){
+  var el=document.getElementById('ov-long-term-trend');
+  openOverlayEl(el);
+  requestAnimationFrame(function(){
+    requestAnimationFrame(refreshLongTermTrendCharts);
+  });
+}
 function closeLongTermTrend(){closeOverlayEl(document.getElementById('ov-long-term-trend'))}
 const navItems={
   home:{icon:'ripple'},
@@ -3077,7 +3146,7 @@ function toggleGlobalAmt(){
 }
 function monthCategoryMap(rows){
   var cm={};
-  (rows||[]).forEach(function(e){var c=e.cat||'其他';cm[c]=(cm[c]||0)+(Number(e.amt)||0);});
+  (rows||[]).forEach(function(e){var c=e.cat||'Other';cm[c]=(cm[c]||0)+(Number(e.amt)||0);});
   var total=Object.values(cm).reduce(function(a,b){return a+b;},0)||0;
   var sorted=Object.entries(cm).sort(function(a,b){return b[1]-a[1];});
   return {cm:cm,total:total,sorted:sorted};
@@ -3174,7 +3243,7 @@ function openOverBudgetSheet(catName,e){
   const overAmt=Math.max(0,spent-budget);
   const overPct=Math.round(spent/Math.max(budget,1e-9)*100);
   let mid='#A3A29F';
-  try{mid=catColors(catName==null||catName===''?'其他':String(catName)).mid}catch(err){}
+  try{mid=catColors(catName==null||catName===''?'Other':String(catName)).mid}catch(err){}
   const darkMid=`color-mix(in srgb,${mid} 62%,#000)`;
   const n=document.getElementById('cat-alert-name');
   const u=document.getElementById('cat-alert-nums');
@@ -3231,7 +3300,7 @@ function initCatOvSnap(){
 function closeCatOvBg(e){if(e.target===document.getElementById('cat-ov'))closeCatOv()}
 function openCatOv(catName){
   const bg=document.getElementById('cat-ov');if(!bg)return;
-  const safeName=n=>(n==null||n===''?'其他':String(n));
+  const safeName=n=>(n==null||n===''?'Other':String(n));
   const safeCol=n=>{try{return catColors(safeName(n))}catch(e){return{bg:'#F1F1EF',text:'#787774',mid:'#A3A29F'}}};
   const t=document.getElementById('cat-ov-title');if(t)t.textContent=catName;
   const catKey=normalizeCoreCatName(catName);
@@ -3287,7 +3356,7 @@ function renderHomeCatList(rows){
   const list=document.getElementById('home-cat-list');if(!list)return[];
   const cm=window.ReflowCalc?ReflowCalc.categorySpendMap(rows):(function(){
     const m={};
-    rows.forEach(function(e){const c=normalizeCoreCatName(e.cat||'其他');m[c]=(m[c]||0)+(e.amt||0);});
+    rows.forEach(function(e){const c=normalizeCoreCatName(e.cat||'Other');m[c]=(m[c]||0)+(e.amt||0);});
     return m;
   })();
   let sorted=Object.entries(cm).filter(([,s])=>s>0);
@@ -3322,7 +3391,7 @@ function renderHomeCatList(rows){
   return sorted;
 }
 function expenseRowDataAttr(id){return 'data-expense-id="'+escapePhAttr(String(id))+'" role="button" tabindex="0"';}
-function liHTML(e){const c=catColors(e.cat);var payTxt=e.pay||'';return`<div class="li" ${expenseRowDataAttr(e.id)}><div class="li-dot" style="background:${c.bg}"></div><div class="li-info"><div class="li-name">${e.name||'—'}</div><div class="li-meta"><span class="tag" style="background:${c.bg};color:${c.text}">${e.cat||'其他'}</span><span class="tag tag-rec-pay">${payTxt}</span></div></div><div class="li-amt">${fmt(e.amt||0)}</div></div>`}
+function liHTML(e){const c=catColors(e.cat);var payTxt=e.pay||'';return`<div class="li" ${expenseRowDataAttr(e.id)}><div class="li-dot" style="background:${c.bg}"></div><div class="li-info"><div class="li-name">${e.name||'—'}</div><div class="li-meta"><span class="tag" style="background:${c.bg};color:${c.text}">${e.cat||'Other'}</span><span class="tag tag-rec-pay">${payTxt}</span></div></div><div class="li-amt">${fmt(e.amt||0)}</div></div>`}
 function recShortDateLbl(dateStr,e){
   var ds=String(dateStr||'').trim();
   if(!ds&&e&&e.createdAt){
@@ -3346,8 +3415,8 @@ function recShortDateLbl(dateStr,e){
   return '';
 }
 function recMonthlyListItemHTML(e){
-  const c=catColors(e.cat||'其他');
-  const cat=e.cat||'其他';
+  const c=catColors(e.cat||'Other');
+  const cat=e.cat||'Other';
   const pay=e.pay||'';
   const dateLbl=recShortDateLbl(e.date,e);
   const payTag=`<span class="tag tag-rec-pay">${escapePhText(pay)}</span>`;
@@ -3361,7 +3430,7 @@ function recItemHTML(e,isRecMonthlyList){
   var payTag=`<span class="tag tag-rec-pay">${payInner}</span>`;
   const dateLbl=recShortDateLbl(e.date,e);
   const dateHtml=dateLbl?`<span class="rec-item-date">${escapePhText(dateLbl)}</span>`:'';
-  return`<div class="rec-item" ${expenseRowDataAttr(e.id)}><div class="li-dot" style="background:${c.bg}"></div><div class="li-info"><div class="li-name">${e.name||'—'}</div><div class="li-meta"><span class="tag" style="background:${c.bg};color:${c.text}">${e.cat||'其他'}</span>${payTag}${dateHtml}</div></div><div class="li-amt">${fmt(e.amt||0)}</div></div>`;
+  return`<div class="rec-item" ${expenseRowDataAttr(e.id)}><div class="li-dot" style="background:${c.bg}"></div><div class="li-info"><div class="li-name">${e.name||'—'}</div><div class="li-meta"><span class="tag" style="background:${c.bg};color:${c.text}">${e.cat||'Other'}</span>${payTag}${dateHtml}</div></div><div class="li-amt">${fmt(e.amt||0)}</div></div>`;
 }
 function recCatViewItemHTML(e){return recMonthlyListItemHTML(e);}
 
@@ -3401,7 +3470,7 @@ function renderRecList(){
   if(!curMonthExpenses.length){rl.innerHTML=getEmptyStateHTML();return}
   if(recMonthlyListViewMode==='cat'){
     const grp={};
-    curMonthExpenses.forEach(function(e){const k=e.cat||'其他';(grp[k]=grp[k]||[]).push(e);});
+    curMonthExpenses.forEach(function(e){const k=e.cat||'Other';(grp[k]=grp[k]||[]).push(e);});
     const entries=Object.keys(grp).map(function(cat){
       const es=grp[cat].slice().sort(function(a,b){return(b.date||'').localeCompare(a.date||'');});
       const tot=es.reduce(function(s,e){return s+(e.amt||0);},0);
@@ -3538,8 +3607,14 @@ function renderStat(){
   renderAnalysisCatBreakdown();
   renderAnalysisCumulativeChart();
   renderAnalysisHeatmapStrip();
+}
+function refreshLongTermTrendCharts(){
   renderAnalysisStatTrendChart();
   renderAnalysisMonthlyTrendChart();
+  requestAnimationFrame(function(){
+    if(analysisTrendChart&&typeof analysisTrendChart.resize==='function')analysisTrendChart.resize();
+    if(analysisMonthlyTrendChart&&typeof analysisMonthlyTrendChart.resize==='function')analysisMonthlyTrendChart.resize();
+  });
 }
 function renderAnalysisCatBreakdown(){
   const titleEl=document.getElementById('analysis-cat-breakdown-title');
@@ -3549,7 +3624,7 @@ function renderAnalysisCatBreakdown(){
   const rows=window.ReflowCalc?ReflowCalc.monthRows(curMonth):expenses.filter(function(e){return e.date&&e.date.startsWith(curMonth);});
   const cm=window.ReflowCalc?ReflowCalc.categorySpendMap(rows):(function(){
     const m={};
-    rows.forEach(function(e){const c=normalizeCoreCatName(e.cat||'其他');m[c]=(m[c]||0)+(Number(e.amt)||0);});
+    rows.forEach(function(e){const c=normalizeCoreCatName(e.cat||'Other');m[c]=(m[c]||0)+(Number(e.amt)||0);});
     return m;
   })();
   const sorted=Object.entries(cm).sort(function(a,b){return b[1]-a[1];});
@@ -3563,7 +3638,7 @@ function renderAnalysisCatBreakdown(){
     const safe=String(cat).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     return'<div style="width:'+pct+'%;background:linear-gradient(90deg,'+mid+' 0%,'+mid+'99 100%);cursor:pointer" onclick="openCatOv(\''+safe+'\')"></div>';
   }).join('');
-  const legendOrder=['購物','餐飲','交通','娛樂','醫療','其他'];
+  const legendOrder=getCategoryNameOrder();
   const cmMap=Object.fromEntries(sorted);
   const legendRows=[];
   legendOrder.forEach(function(k){if(cmMap[k])legendRows.push([k,cmMap[k]]);});
@@ -3679,7 +3754,7 @@ function openHeatmapDayOv(ds){
   if(titleEl)titleEl.textContent=dateLbl;
   var cm={};
   dayExpenses.forEach(function(e){
-    var c=e.cat||'其他';
+    var c=e.cat||'Other';
     cm[c]=(cm[c]||0)+(Number(e.amt)||0);
   });
   var catRows=Object.entries(cm).sort(function(a,b){return b[1]-a[1];});
@@ -3710,7 +3785,7 @@ function renderTodayOv(){
   const isToday=viewDate===today();const dObj=new Date(viewDate+'T12:00:00');
   document.getElementById('ov-today-date').textContent=isToday?'今天':`${dObj.getMonth()+1}/${dObj.getDate()} ${DAY_LABELS[(dObj.getDay()+6)%7]}`;
   const vE=expenses.filter(e=>e.date===viewDate);const total=vE.reduce((s,e)=>s+(e.amt||0),0);
-  const cm={};vE.forEach(e=>{const c=e.cat||'其他';cm[c]=(cm[c]||0)+(e.amt||0)});
+  const cm={};vE.forEach(e=>{const c=e.cat||'Other';cm[c]=(cm[c]||0)+(e.amt||0)});
   const sorted=Object.entries(cm).sort((a,b)=>b[1]-a[1]);
   if(ovTodayChart){ovTodayChart.destroy();ovTodayChart=null}
   document.getElementById('ov-today-body').innerHTML=`<div class="donut-card"><div class="donut-title">分類花多少 <span style="font-size:11px;color:var(--t3);font-weight:400;text-transform:none;letter-spacing:0">${fmt(total)}</span></div><div class="donut-wrap"><div style="position:relative;width:100px;height:100px;flex-shrink:0"><canvas id="ov-td-c" width="100" height="100"></canvas><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none"><div style="font-size:9px;color:#ABABAB">今日</div><div style="font-size:12px;font-weight:500;color:#37352F">${fmt(total)}</div></div></div><div class="leg-table">${legHTML(sorted,total)}</div></div></div><div class="sec-lbl">花多少明細</div><div>${vE.length?vE.slice().reverse().map(function(x){return recItemHTML(x);}).join(''):getEmptyStateHTML('無花費紀錄',false)}</div>`;
@@ -3792,7 +3867,7 @@ function showCumulativePopupForDay(dayIdx,evt,y,m){
   const total=dayExpenses.reduce(function(s,e){return s+(Number(e.amt)||0);},0);
   const cm={};
   dayExpenses.forEach(function(e){
-    const c=e.cat||'其他';
+    const c=e.cat||'Other';
     cm[c]=(cm[c]||0)+(Number(e.amt)||0);
   });
   const topCats=Object.entries(cm).sort(function(a,b){return b[1]-a[1];}).slice(0,2);
@@ -3960,15 +4035,23 @@ function renderAnalysisCumulativeChart(){
     });
   }
 }
+function refreshAfterCatChange(){
+  if(typeof window.rebuildTideCatMap==='function')window.rebuildTideCatMap();
+  renderHome();
+  renderStat();
+  renderRec();
+  renderSet();
+}
 function orderedCoreCatsForTrend(months){
+  const coreNames=getCoreCatsOrdered().map(function(c){return normalizeCoreCatName(c.name);});
   const sums=new Map();
   months.forEach(function(m){
     expenses.filter(function(e){return e.date&&e.date.startsWith(m)}).forEach(function(e){
-      const n=e.cat||'其他';
-      if(CORE_CATEGORY_NAMES.indexOf(n)>=0)sums.set(n,(sums.get(n)||0)+(e.amt||0));
+      const n=normalizeCoreCatName(e.cat||'Other');
+      if(coreNames.indexOf(n)>=0)sums.set(n,(sums.get(n)||0)+(e.amt||0));
     });
   });
-  return CORE_CATEGORY_NAMES.filter(function(n){return(sums.get(n)||0)>0});
+  return coreNames.filter(function(n){return(sums.get(n)||0)>0});
 }
 function statMonthsForTrend(){
   var n=analysisCatTrendRange===12?12:6;
@@ -3988,6 +4071,9 @@ function setAnalysisCatTrendRange(months,el){
   if(tg)tg.querySelectorAll('.stat-trend-pill').forEach(function(b){b.classList.remove('on')});
   if(el)el.classList.add('on');
   renderAnalysisStatTrendChart();
+  requestAnimationFrame(function(){
+    if(analysisTrendChart&&typeof analysisTrendChart.resize==='function')analysisTrendChart.resize();
+  });
 }
 function makeMistGradient(ctx,chartArea,color){
   const gradient=ctx.createLinearGradient(0,chartArea.top,0,chartArea.bottom);
@@ -3995,8 +4081,11 @@ function makeMistGradient(ctx,chartArea,color){
   gradient.addColorStop(1,color+'66');
   return gradient;
 }
-const TREND_MIST={'餐飲':'#C4A09A','購物':'#8AAF9C','交通':'#8AAABF','娛樂':'#A898C4','醫療':'#B4A888','其他':'#A4A8A8'};
-function trendMistColor(cat){return TREND_MIST[cat]||TREND_MIST['其他'];}
+const TREND_MIST={'Food':'#C4A09A','Shopping':'#8AAF9C','Transit':'#8AAABF','Entertain':'#A898C4','Health':'#C49AB0','Other':'#A4A8A8'};
+function trendMistColor(cat){
+  try{if(typeof catColors==='function')return catColors(cat).mid;}catch(_){}
+  return TREND_MIST[cat]||TREND_MIST['Other'];
+}
 function renderAnalysisStatTrendChart(){
   const canvas=document.getElementById('analysis-stat-trend-chart');
   const legEl=document.getElementById('analysis-stat-trend-leg');
@@ -4026,12 +4115,25 @@ function renderAnalysisStatTrendChart(){
     }
   };
   var catList=orderedCoreCatsForTrend(months);
-  legEl.innerHTML=catList.map(function(c){return'<div class="stat-trend-leg-item"><span class="stat-trend-leg-sw" style="background:'+trendMistColor(c)+'"></span><span>'+c+'</span></div>'}).join('');
+  if(!catList.length){
+    var fallback=new Map();
+    months.forEach(function(m){
+      expenses.filter(function(e){return e.date&&e.date.startsWith(m)}).forEach(function(e){
+        var n=normalizeCoreCatName(e.cat||'Other');
+        fallback.set(n,(fallback.get(n)||0)+(e.amt||0));
+      });
+    });
+    catList=Array.from(fallback.keys()).filter(function(n){return(fallback.get(n)||0)>0;});
+  }
+  legEl.innerHTML=catList.map(function(c){
+    var dn=window.TideI18n?TideI18n.displayCat(c):c;
+    return'<div class="stat-trend-leg-item"><span class="stat-trend-leg-sw" style="background:'+trendMistColor(c)+'"></span><span>'+escapePhText(dn)+'</span></div>';
+  }).join('');
   var datasets=catList.map(function(c){
     var mistColor=trendMistColor(c);
     return{
       label:c,
-      data:months.map(function(m){return expenses.filter(function(e){return e.date&&e.date.startsWith(m)&&(e.cat||'其他')===c}).reduce(function(s,e){return s+(e.amt||0)},0)}),
+      data:months.map(function(m){return expenses.filter(function(e){return e.date&&e.date.startsWith(m)&&normalizeCoreCatName(e.cat||'Other')===c}).reduce(function(s,e){return s+(e.amt||0)},0)}),
       backgroundColor:function(context){
         const chart=context.chart;
         const ctx=chart.ctx;
@@ -4064,7 +4166,7 @@ function getAnalysisMonthlyLineColor(){
 function monthTrendAmount(m,cat){
   return expenses.filter(function(e){
     if(!e.date||!e.date.startsWith(m))return false;
-    if(cat&&cat!=='all'&&(e.cat||'其他')!==cat)return false;
+    if(cat&&cat!=='all'&&normalizeCoreCatName(e.cat||'Other')!==cat)return false;
     return true;
   }).reduce(function(s,e){return s+(e.amt||0)},0);
 }
@@ -4074,10 +4176,16 @@ function setAnalysisTrendRange(months,el){
   if(tg)tg.querySelectorAll('.stat-trend-pill').forEach(function(b){b.classList.remove('on')});
   if(el)el.classList.add('on');
   renderAnalysisMonthlyTrendChart();
+  requestAnimationFrame(function(){
+    if(analysisMonthlyTrendChart&&typeof analysisMonthlyTrendChart.resize==='function')analysisMonthlyTrendChart.resize();
+  });
 }
 function setAnalysisTrendCat(cat){
   analysisTrendCat=cat||'all';
   renderAnalysisMonthlyTrendChart();
+  requestAnimationFrame(function(){
+    if(analysisMonthlyTrendChart&&typeof analysisMonthlyTrendChart.resize==='function')analysisMonthlyTrendChart.resize();
+  });
 }
 function renderAnalysisMonthlyTrendCatPills(catList){
   var el=document.getElementById('analysis-monthly-trend-cats');
@@ -4086,7 +4194,7 @@ function renderAnalysisMonthlyTrendCatPills(catList){
   var parts=[];
   var allOn=analysisTrendCat==='all';
   var allCol={bg:'#F1F1EF',text:'#37352F'};
-  parts.push('<button type="button" class="analysis-trend-cat-pill all'+(allOn?' on':'')+'" style="'+analysisTrendCatPillStyle(allCol,allOn)+'" onclick="setAnalysisTrendCat(\'all\')">全部</button>');
+  parts.push('<button type="button" class="analysis-trend-cat-pill all'+(allOn?' on':'')+'" style="'+analysisTrendCatPillStyle(allCol,allOn)+'" onclick="setAnalysisTrendCat(\'all\')">'+(window.TideI18n?TideI18n.t('全部'):'All')+'</button>');
   catList.forEach(function(c){
     var cc=catColors(c);
     var on=analysisTrendCat===c;
@@ -4203,7 +4311,7 @@ function analysisMonthlyTrendValueLabelsPlugin(){
 function computeAnalysisMonthlyTrendPayload(months){
   var labels=months.map(function(m){var mo=parseInt(m.slice(5,7),10);return shortMonths[mo-1]||m;});
   var color=getAnalysisMonthlyLineColor();
-  var label=analysisTrendCat==='all'?'總支出':analysisTrendCat;
+  var label=analysisTrendCat==='all'?(window.TideI18n?TideI18n.t('總支出'):'Total spend'):(window.TideI18n?TideI18n.displayCat(analysisTrendCat):analysisTrendCat);
   var series=months.map(function(m){return monthTrendAmount(m,analysisTrendCat);});
   var rawMax=Math.max.apply(null,series.concat([0]));
   var yMaxNice=trendNiceYAxisMax(rawMax);
@@ -4238,7 +4346,8 @@ function fmtEventDateRange(start,end){
   return a||b||'';
 }
 function eventCardHTML(p,idx){
-  const name=escapePhText(p.name||'事件');
+  const fallback=window.TideI18n?TideI18n.defaultEventLabel():'事件';
+  const name=escapePhText(p.name||fallback);
   const dates=escapePhText(fmtEventDateRange(p.startDate,p.endDate));
   const amt=(p.buffer||0)>0?fmt(Number(p.buffer||0)):'';
   return'<div class="rec-item event-card" role="button" tabindex="0" data-event-idx="'+idx+'" data-event-id="'+escapePhAttr(p.id)+'" onclick="openEditEventModal('+idx+')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openEditEventModal('+idx+')}"><span class="event-dot" aria-hidden="true"></span><div class="li-info"><div class="li-name">'+name+'</div><div class="event-card-dates">'+dates+'</div></div><div class="li-amt">'+amt+'</div></div>';
@@ -4279,6 +4388,7 @@ function getEventDayCount(startDate,endDate){
 let eventEditIdx=-1;
 async function initApp(){
   await initializeReflowData();
+  if(typeof window.rebuildTideCatMap==='function')window.rebuildTideCatMap();
   migrateMealShopCatColorsIfNeeded();
   syncAutoEventBuffer();
   renderHome();
@@ -4300,7 +4410,7 @@ function renderEventList(){
   const items=specialEvents.map(function(p,idx){return{p:p,idx:idx};}).sort(function(a,b){return String(b.p.startDate||'').localeCompare(String(a.p.startDate||''));});
   listEl.innerHTML=items.length?items.map(function(item){
     return eventCardHTML(item.p,item.idx);
-  }).join(''):'<div class="ph-proj-list-empty">尚無事件</div>';
+  }).join(''):'<div class="ph-proj-list-empty">'+(window.TideI18n?TideI18n.t('尚無事件'):'尚無事件')+'</div>';
 }
 function openEditEventModal(idx){
   var i=Number(idx);
@@ -4348,7 +4458,7 @@ function saveEventNew(){
   if(amt>0&&!ed)return;
   if(ed&&sd>ed)return;
   if(!name&&amt<=0)return;
-  var newEv={id:'e'+Date.now(),name:name||'事件',buffer:amt,startDate:sd,endDate:ed,archived:false};
+  var newEv={id:'e'+Date.now(),name:name||(window.TideI18n?TideI18n.defaultEventLabel():'事件'),buffer:amt,startDate:sd,endDate:ed,archived:false};
   specialEvents.push(newEv);
   saveProjects();
   preferHomeMonthForEvent(newEv);
@@ -4367,7 +4477,7 @@ function saveEventEdit(){
   if(f.amt>0&&!f.ed)return;
   if(f.ed&&f.sd>f.ed)return;
   if(!f.name&&f.amt<=0)return;
-  p.name=f.name||'事件';
+  p.name=f.name||(window.TideI18n?TideI18n.defaultEventLabel():'事件');
   p.buffer=f.amt;
   p.startDate=f.sd;
   p.endDate=f.ed;
@@ -4380,7 +4490,7 @@ function saveEventEdit(){
 }
 function deleteEventEdit(){
   if(eventEditIdx<0||eventEditIdx>=specialEvents.length)return;
-  if(!confirm('確定要刪除此事件嗎？'))return;
+  if(!confirm(window.TideI18n?TideI18n.confirmMsg('確定要刪除此事件嗎？'):'確定要刪除此事件嗎？'))return;
   specialEvents.splice(eventEditIdx,1);
   closeEditEventModal();
   finishEventEditSync();
@@ -4512,16 +4622,19 @@ function renderSet(){
   const pInfo=document.getElementById('budget-period-info');
   if(pInfo)pInfo.textContent=`目前期間：${fmtP(period.start)} – ${fmtP(period.end)}`;
   const coreCats=getCoreCatsOrdered();
-  document.getElementById('cat-mgr-list').innerHTML=coreCats.map((c,i)=>{
+  const catMgrEl=document.getElementById('cat-mgr-list');
+  if(catMgrEl&&!document.body.classList.contains('tide-ui')){
+  catMgrEl.innerHTML=coreCats.map((c,i)=>{
     const dotCol=catColors(c.name);
     const rawBdg=catBudgets[c.name];
     const bdgNum=rawBdg!==undefined&&rawBdg!==''?Number(rawBdg):NaN;
     const bdgShow=!isNaN(bdgNum)&&bdgNum>0?fmt(bdgNum):'—';
     const selCi=typeof c.colorIdx==='number'?c.colorIdx:1;
     const sw=NOTION_COLORS.map((ncx,ci)=>`<button type="button" class="cat-mgr-swatch${ci===selCi?' on':''}" style="background:${ncx.bg}" aria-label="${ncx.name}" onclick="setCatMgrSwatch('${c.id}',${ci})"></button>`).join('');
-    const panel=openCatIdx===i?`<div class="cat-mgr-panel"><div class="cat-mgr-panel-row"><input type="number" class="cat-mgr-inp" placeholder="預算" value="${rawBdg!==undefined&&rawBdg!==''?rawBdg:''}" onchange="updateCatBudget('${c.name}',this.value)"></div><div class="cat-mgr-swatches">${sw}</div></div>`:'';
+    const panel=window.openCatIdx===i?`<div class="cat-mgr-panel"><div class="cat-mgr-panel-row"><input type="text" class="cat-mgr-inp" placeholder="名稱" value="${escapePhAttr(c.name)}" onchange="renameCat('${c.id}',this.value)"></div><div class="cat-mgr-swatches">${sw}</div></div>`:'';
     return`<div class="cat-mgr-item"><div class="set-row" id="sr-${c.id}" data-index="${i}"><div class="set-dot" style="background:${dotCol.bg};border:1.5px solid ${dotCol.text}66" onclick="event.stopPropagation();toggleCatMgrPanel(${i})"></div><span class="cat-mgr-name">${c.name}</span><span class="cat-mgr-budget">${bdgShow}</span></div>${panel}</div>`;
   }).join('');
+  }
   renderUnalloc();
   const ap=getAiFilterPref();
   document.querySelectorAll('.ai-pref-pill').forEach(b=>b.classList.toggle('on',b.getAttribute('data-val')===ap));
@@ -4578,16 +4691,16 @@ function isConvenienceStoreMerchant(name){
   return false;
 }
 function autoTagCategoryForMerchant(name){
-  return isConvenienceStoreMerchant(name)?'餐飲':null;
+  return isConvenienceStoreMerchant(name)?'Food':null;
 }
 function mapImportLineToAppCat(rawCat){
   const t=normalizeCoreCatName(String(rawCat||'').trim());
-  if(!t)return'其他';
+  if(!t)return'Other';
   const names=cats.map(c=>c.name);
   if(names.includes(t))return t;
-  if(t==='醫療'||t==='居家'||/醫療|居家|medical|home|住家/i.test(t))return'醫療';
+  if(t==='Health'||t==='居家'||/醫療|居家|medical|home|住家/i.test(t))return'Health';
   for(const n of names){if(t.includes(n)||n.includes(t))return n}
-  return'其他';
+  return'Other';
 }
 function normalizeGeminiImportRows(raw){
   if(!Array.isArray(raw))return[];
@@ -4653,7 +4766,7 @@ async function confirmAndSaveImport(){
     const i=parseInt(ch.getAttribute('data-i'),10);
     if(isNaN(i)||!rows[i])return;
     const it=rows[i];
-    let cat=it.mappedCat||'其他';
+    let cat=it.mappedCat||'Other';
     const autoCat=autoTagCategoryForMerchant(it.name);
     if(autoCat)cat=autoCat;
     var payImp='手動輸入';
@@ -4702,7 +4815,7 @@ function renderImportParseResults(items){
     const qPart=askHighlight?'<span class="import-item-q" title="可能為轉帳／存入">?</span>':'<span class="import-item-q" aria-hidden="true"></span>';
     const label=it.label||it.name||it.description||it.merchant||'—';
     const amt=parseImportItemAmt(it);
-    var catNm=String(it.mappedCat||'其他');
+    var catNm=String(it.mappedCat||'Other');
     var ccol=catColors(catNm);
     html+=`<label class="${rowClass}"><input type="checkbox" class="import-row-sel import-item-chk" data-i="${idx}" checked onchange="updateImportMasterSelectAppearance()">${qPart}<span class="import-item-main"><span class="import-item-txt">${escImportTxt(label)}</span><span class="import-item-meta-row"><span class="tag" style="background:${ccol.bg};color:${ccol.text}">${escImportTxt(catNm)}</span></span></span><span class="import-item-amt">$${amt.toLocaleString('zh-TW',{maximumFractionDigits:0})}</span></label>`;
   });
@@ -4727,55 +4840,104 @@ function updateImportMasterSelectAppearance(){
   m.checked=[].every.call(rows,function(r){return r.checked});
 }
 function catMgrDragStart(e){
+  e.stopPropagation();
   dragSrcIdx=parseInt(e.currentTarget.dataset.index,10);
   e.dataTransfer.effectAllowed='move';
   e.dataTransfer.setData('text/plain',String(dragSrcIdx));
 }
 function catMgrDragOver(e){
   e.preventDefault();
+  e.stopPropagation();
   e.dataTransfer.dropEffect='move';
-  e.currentTarget.style.opacity='0.5';
+  var item=e.currentTarget.closest('.tide-me-cat-item')||e.currentTarget;
+  if(item)item.style.opacity='0.5';
 }
 function catMgrDragLeave(e){
-  e.currentTarget.style.opacity='1';
+  var item=e.currentTarget.closest('.tide-me-cat-item')||e.currentTarget;
+  if(item)item.style.opacity='1';
+}
+function reorderCats(fromIdx,toIdx){
+  if(fromIdx==null||toIdx==null||fromIdx===toIdx||!Number.isFinite(fromIdx)||!Number.isFinite(toIdx))return false;
+  var persisted=loadCategoryOrderIds()||cats.map(function(c){return c.id;});
+  var item=cats[fromIdx];
+  if(!item)return false;
+  var rest=cats.filter(function(_,idx){return idx!==fromIdx;});
+  rest.splice(toIdx,0,item);
+  cats=rest;
+  window.openCatIdx=null;
+  dragSrcIdx=null;
+  refreshAfterCatChange();
+  var saveDefault=window.confirm('Save this as your default stream order?');
+  if(saveDefault){
+    saveCategoryOrderFromCats();
+    saveCats();
+  }else{
+    applyCategoryOrderIds(persisted);
+    refreshAfterCatChange();
+  }
+  return true;
 }
 function catMgrDrop(e){
   e.preventDefault();
-  e.currentTarget.style.opacity='1';
-  const targetIdx=parseInt(e.currentTarget.dataset.index,10);
+  e.stopPropagation();
+  var item=e.currentTarget.closest('.tide-me-cat-item')||e.currentTarget;
+  if(item)item.style.opacity='1';
+  var targetIdx=parseInt((item&&item.dataset.index)||e.currentTarget.dataset.index,10);
   if(dragSrcIdx!==null&&dragSrcIdx!==targetIdx){
-    const item=cats[dragSrcIdx];
-    const rest=cats.filter((_,idx)=>idx!==dragSrcIdx);
-    rest.splice(targetIdx,0,item);
-    cats=rest;
-    openCatIdx=null;
-    dragSrcIdx=null;
-    saveCats();
-    saveCatBudgets();
-    renderSet();
+    reorderCats(dragSrcIdx,targetIdx);
     return;
   }
   dragSrcIdx=null;
 }
 function catMgrDragEnd(e){
-  document.querySelectorAll('#cat-mgr-list .set-row').forEach(el=>{el.style.opacity=''});
+  document.querySelectorAll('#cat-mgr-list .tide-me-cat-item, #cat-mgr-list .set-row').forEach(function(el){el.style.opacity='';});
   dragSrcIdx=null;
 }
+window.reorderCats=reorderCats;
+window.catMgrDragStart=catMgrDragStart;
+window.catMgrDragOver=catMgrDragOver;
+window.catMgrDragLeave=catMgrDragLeave;
+window.catMgrDrop=catMgrDrop;
+window.catMgrDragEnd=catMgrDragEnd;
 function toggleCatMgrPanel(idx){
-  openCatIdx=openCatIdx===idx?null:idx;
+  window.openCatIdx=window.openCatIdx===idx?null:idx;
+  if(document.body.classList.contains('tide-ui')&&window.TideUI&&typeof window.TideUI.styleMePage==='function'){
+    window.TideUI.styleMePage();
+    return;
+  }
   renderSet();
+}
+window.toggleCatMgrPanel=toggleCatMgrPanel;
+function setCatMistSwatch(catId,mistIdx){
+  const c=cats.find(x=>x.id===catId);
+  if(!c)return;
+  var palette=window.TIDE_MIST_PALETTE;
+  var maxIdx=(Array.isArray(palette)&&palette.length?palette.length:9)-1;
+  c.mistIdx=Math.max(0,Math.min(maxIdx,Number(mistIdx)||0));
+  saveCats();
+  refreshAfterCatChange();
 }
 function setCatMgrSwatch(catId,colorIdx){
   const c=cats.find(x=>x.id===catId);
-  if(c){c.colorIdx=colorIdx;saveCats();renderSet();}
+  if(c){c.colorIdx=colorIdx;saveCats();refreshAfterCatChange();}
 }
-function renameCat(id,name){const c=cats.find(x=>x.id===id);if(!c||CORE_CATEGORY_NAMES.indexOf(c.name)<0)return;if(c&&name.trim()){const old=c.name;c.name=name.trim();if(catBudgets[old]!==undefined){catBudgets[c.name]=catBudgets[old];delete catBudgets[old];saveCatBudgets()}saveCats();renderSet()}}
+function renameCat(id,name){
+  const c=cats.find(x=>x.id===id);
+  if(!c||!name.trim())return;
+  const next=name.trim();
+  if(c.name===next)return;
+  migrateRenamedCategory(c.name,next);
+  saveCats();
+  refreshAfterCatChange();
+}
+window.setCatMistSwatch=setCatMistSwatch;
+window.renameCat=renameCat;
 function delCat(id){return;}
 function addCat(){return;}
 let cpTargetId=null,cpSelIdx=null;
 function openCp(id){cpTargetId=id;const c=cats.find(x=>x.id===id);cpSelIdx=c?.colorIdx??1;renderCpGrid();openOverlayEl(document.getElementById('cp-modal'))}
 function renderCpGrid(){document.getElementById('cp-grid').innerHTML=NOTION_COLORS.map((nc,i)=>`<div class="color-swatch${cpSelIdx===i?' on':''}" style="background:${nc.bg}" onclick="cpSelIdx=${i};renderCpGrid()"><span style="font-size:10px;color:${nc.text}">${nc.name}</span></div>`).join('')}
-function confirmColor(){const c=cats.find(x=>x.id===cpTargetId);if(c){c.colorIdx=cpSelIdx;saveCats();renderSet()}closeOverlayEl(document.getElementById('cp-modal'))}
+function confirmColor(){const c=cats.find(x=>x.id===cpTargetId);if(c){c.colorIdx=cpSelIdx;saveCats();refreshAfterCatChange()}closeOverlayEl(document.getElementById('cp-modal'))}
 function closeCpBg(e){if(e.target===document.getElementById('cp-modal'))closeOverlayEl(document.getElementById('cp-modal'))}
 function renderChips(){document.getElementById('chips').innerHTML=cats.map(c=>{const col=catColors(c.name);const isOn=c.id===selCat;return`<div class="chip" data-cat-id="${c.id}" style="${categoryChipInlineStyle(col,isOn)}" onclick="pickCat('${c.id}')">${c.name}</div>`}).join('')}
 function openAddExpOv(){openModal()}
@@ -4966,7 +5128,7 @@ async function saveExp(){
   if(!amt||!date)return;
   const wasEdit=!!editingId;
   const cat=cats.find(c=>c.id===selCat);const pay=document.getElementById('f-pay').value;
-  let catName=cat?.name||'其他';
+  let catName=cat?.name||'Other';
   const autoCat=autoTagCategoryForMerchant(name);
   if(autoCat)catName=autoCat;
   if(editingId!=null){const e=findExpenseById(editingId);if(e){e.name=name;e.amt=amt;e.date=date;e.cat=catName;e.pay=pay;if(!e.createdAt)e.createdAt=new Date().toISOString();}}
@@ -5057,6 +5219,7 @@ window.addEventListener('load',expenseTrackerWindowLoad);
 if(document.readyState==='complete')expenseTrackerWindowLoad();
 </script>
 <script src="js/reflow-calc.js"></script>
+<script src="js/i18n.js"></script>
 <script src="js/tide-ui.js"></script>
 <script src="js/tide-bridge.js"></script>
 </body>

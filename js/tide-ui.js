@@ -9,21 +9,24 @@ window.TideUI = (function () {
   const WAVE_LITE = '#D4D6DA';
   const WAVE_DEEP = '#101113';
 
-  const CORE_CAT_NAMES = ['餐飲', '交通', '購物', '娛樂', '醫療', '其他'];
+  const CORE_CAT_NAMES = ['Food', 'Transit', 'Shopping', 'Entertain', 'Health', 'Other'];
 
   function normalizeCatKey(name) {
     if (window.ReflowCalc && typeof ReflowCalc.normalizeCat === 'function') {
       return ReflowCalc.normalizeCat(name);
     }
     const n = String(name == null ? '' : name).trim();
-    if (!n || n === '其他') return '其他';
-    if (n === '居家') return '醫療';
+    if (!n || n === 'Other') return 'Other';
+    if (n === 'Home') return 'Health';
     return n;
   }
 
   function catLabel(name) {
+    if (window.TideI18n && typeof TideI18n.displayCat === 'function') {
+      return TideI18n.displayCat(name);
+    }
     const k = normalizeCatKey(name);
-    return k || String(name == null ? '' : name).trim() || '其他';
+    return k || String(name == null ? '' : name).trim() || 'Other';
   }
 
   function liteOf(hex, amt) {
@@ -1279,9 +1282,11 @@ window.TideUI = (function () {
         : '';
     const dot =
       opts.icon !== false
-        ? '<span class="tide-me-row-dot" style="background:' +
-          (opts.accent || 'var(--tide-ash)') +
-          '"></span>'
+        ? opts.mistCat && typeof window.mistDotSVG === 'function'
+          ? window.mistDotSVG(opts.mistCat, opts.dotSize == null ? 8 : opts.dotSize)
+          : '<span class="tide-me-row-dot" style="background:' +
+            (opts.accent || 'var(--tide-ash)') +
+            '"></span>'
         : '';
     const sub = opts.sub ? '<div class="tide-me-row-sub">' + opts.sub + '</div>' : '';
     const val =
@@ -1311,9 +1316,19 @@ window.TideUI = (function () {
   }
 
   function meSecHdr(label, meta) {
+    const zhMap = {
+      BUDGET: '總預算',
+      STREAMS: '類別管理',
+      EVENTS: '事件',
+      BALANCE: '帳戶餘額',
+      DATA: '資料',
+      LANGUAGE: '語言',
+    };
+    const loc = window.TideI18n ? TideI18n.getLocale() : 'en';
+    const text = loc === 'zh-TW' ? zhMap[label] || label : label;
     return (
       '<div class="tide-me-sec-hdr"><span class="tide-me-sec-lbl">' +
-      label +
+      text +
       '</span>' +
       (meta != null ? '<span class="tide-me-sec-meta">' + meta + '</span>' : '') +
       '</div>'
@@ -1393,6 +1408,33 @@ window.TideUI = (function () {
     return el;
   }
 
+  function bindMeStreamEditors(streamsSec) {
+    if (!streamsSec || streamsSec.dataset.streamsEditorBound === '1') return;
+    streamsSec.dataset.streamsEditorBound = '1';
+    streamsSec.addEventListener('click', function (e) {
+      if (
+        e.target.closest(
+          '.tide-me-cat-panel, .tide-me-mist-swatch, .tide-me-cat-name-inp, .tide-me-stream-drag, input, button, label'
+        )
+      ) {
+        return;
+      }
+      const row = e.target.closest('.tide-me-row--stream');
+      if (!row) return;
+      const item = row.closest('.tide-me-cat-item');
+      const card = streamsSec.querySelector('#cat-mgr-list');
+      if (!card || !item) return;
+      const items = card.querySelectorAll('.tide-me-cat-item');
+      let idx = -1;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i] === item) idx = i;
+      }
+      if (idx >= 0 && typeof window.toggleCatMgrPanel === 'function') {
+        window.toggleCatMgrPanel(idx);
+      }
+    });
+  }
+
   function styleMePage() {
     const set = document.getElementById('s-set');
     if (!set || !document.body.classList.contains('tide-ui')) return;
@@ -1418,6 +1460,7 @@ window.TideUI = (function () {
     const balanceSec = resolveMeBlock('tide-me-balance-block', function () {
       return document.getElementById('balance-snapshot-section');
     });
+    const localeSec = document.getElementById('locale-section');
     let exportWrap = pad.querySelector('.set-export-wrap');
 
     if (exportWrap && !pad.querySelector('.tide-me-data-block')) {
@@ -1435,6 +1478,7 @@ window.TideUI = (function () {
       streamsSec,
       eventsSec,
       balanceSec,
+      localeSec,
       dataBlock,
     ].filter(Boolean);
     order.forEach(function (el) {
@@ -1445,13 +1489,18 @@ window.TideUI = (function () {
       const drops = (expenses || []).filter(function (e) {
         return e.date && e.date.startsWith(curMonth);
       }).length;
+      const loc = window.TideI18n ? TideI18n.getLocale() : 'en';
+      const subTxt =
+        loc === 'zh-TW'
+          ? '本月追蹤 ' + drops + ' 筆支出'
+          : drops + ' drops tracked this month';
       profile.innerHTML =
         '<div class="tide-me-profile-card">' +
         '<div class="tide-me-avatar">RF</div>' +
         '<div class="tide-me-profile-text"><div class="tide-me-name">Reflow user</div>' +
         '<div class="tide-me-sub">' +
-        drops +
-        ' drops tracked this month</div></div>' +
+        subTxt +
+        '</div></div>' +
         '<svg class="tide-me-chevron" width="6" height="10" viewBox="0 0 6 10" aria-hidden="true">' +
         '<path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>';
     }
@@ -1474,7 +1523,7 @@ window.TideUI = (function () {
         '<div class="tide-me-card">' +
         meRowHtml({
           icon: false,
-          label: 'Spent this month',
+          label: window.TideI18n ? TideI18n.t('本月支出') : 'Spent this month',
           sub: '',
           value: mask ? '$＊＊＊' : fmtFn(monthSpentVal),
           divider: false,
@@ -1489,23 +1538,95 @@ window.TideUI = (function () {
     if (streamsSec) {
       streamsSec.className = 'tide-me-block';
       const coreCats = typeof getCoreCatsOrdered === 'function' ? getCoreCatsOrdered() : [];
+      const openIdx =
+        window.openCatIdx != null && Number.isFinite(Number(window.openCatIdx))
+          ? Number(window.openCatIdx)
+          : null;
+      const palette =
+        window.TIDE_MIST_PALETTE ||
+        ['#C4A09A', '#8AAF9C', '#8AAABF', '#A898C4', '#C49AB0', '#A4A8A8', '#B4A898', '#BF8C6E', '#D4C47A'];
       const rows = coreCats
         .map(function (c, i) {
           const catZh = c.name;
           const spent = meMonthSpentForCat(catZh);
-          const col = typeof catColors === 'function' ? catColors(catZh) : { mid: WATER };
-          return meRowHtml({
-            icon: true,
-            accent: col.mid || col.text || WATER,
-            label: catLabel(catZh),
-            sub: '',
-            value: mask ? '$＊＊＊' : fmtFn(spent),
-            divider: i < coreCats.length - 1,
-          });
+          const isOpen = openIdx === i;
+          const mistIdx =
+            typeof getCatMistIdx === 'function' ? getCatMistIdx(c) : i % palette.length;
+          const safeId = escapeAttr(String(c.id)).replace(/'/g, "\\'");
+          const dot =
+            typeof window.mistDotSVG === 'function'
+              ? window.mistDotSVG(catZh, 8)
+              : '<span class="tide-me-row-dot"></span>';
+          const swatches = palette
+            .map(function (hex, si) {
+              return (
+                '<button type="button" class="tide-me-mist-swatch' +
+                (si === mistIdx ? ' on' : '') +
+                '" style="background:linear-gradient(180deg,' +
+                hex +
+                ' 0%,' +
+                hex +
+                '66 100%)" aria-label="Color ' +
+                (si + 1) +
+                '" onclick="event.stopPropagation();setCatMistSwatch(\'' +
+                safeId +
+                '\',' +
+                si +
+                ')"></button>'
+              );
+            })
+            .join('');
+          const rowBorder = i < coreCats.length - 1 && !isOpen ? '' : ' tide-me-row--last';
+          return (
+            '<div class="tide-me-cat-item' +
+            (isOpen ? ' tide-me-cat-item--open' : '') +
+            '" data-index="' +
+            i +
+            '" ondragover="catMgrDragOver(event)" ondragleave="catMgrDragLeave(event)" ondrop="catMgrDrop(event)">' +
+            '<div class="tide-me-row tide-me-row--stream' +
+            rowBorder +
+            '" role="button" tabindex="0" data-stream-idx="' +
+            i +
+            '">' +
+            '<button type="button" class="tide-me-stream-drag" draggable="true" data-index="' +
+            i +
+            '" aria-label="Drag to reorder" onclick="event.stopPropagation()" ondragstart="catMgrDragStart(event)" ondragend="catMgrDragEnd(event)">' +
+            '<i class="ti ti-grip-vertical" aria-hidden="true"></i></button>' +
+            dot +
+            '<div class="tide-me-row-main"><div class="tide-me-row-lbl">' +
+            catLabel(catZh) +
+            '</div></div>' +
+            '<div class="tide-me-row-val">' +
+            (mask ? '$＊＊＊' : fmtFn(spent)) +
+            '</div>' +
+            '<svg class="tide-me-stream-chev" width="6" height="10" viewBox="0 0 6 10" aria-hidden="true"' +
+            (isOpen ? ' style="transform:rotate(90deg)"' : '') +
+            '><path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>' +
+            '</div>' +
+            (isOpen
+              ? '<div class="tide-me-cat-panel">' +
+                '<label class="tide-me-cat-field-lbl">' +
+                (window.TideI18n ? TideI18n.t('名稱') : 'Name') +
+                '</label>' +
+                '<input type="text" class="tide-me-cat-name-inp" value="' +
+                escapeAttr(catZh) +
+                '" onclick="event.stopPropagation()" onchange="renameCat(\'' +
+                safeId +
+                '\',this.value)">' +
+                '<label class="tide-me-cat-field-lbl">' +
+                (window.TideI18n ? TideI18n.t('Color') : 'Color') +
+                '</label>' +
+                '<div class="tide-me-mist-swatches">' +
+                swatches +
+                '</div></div>'
+              : '') +
+            '</div>'
+          );
         })
         .join('');
       streamsSec.innerHTML =
         meSecHdr('STREAMS', coreCats.length) + '<div class="tide-me-card" id="cat-mgr-list">' + rows + '</div>';
+      bindMeStreamEditors(streamsSec);
       const unalloc = document.getElementById('cb-unalloc');
       if (unalloc) unalloc.style.display = 'none';
     }
@@ -1521,24 +1642,35 @@ window.TideUI = (function () {
       const eventNames = activeEvents
         .slice(0, 2)
         .map(function (p) {
-          return p.name || 'Event';
+          const n = p.name || '';
+          if (!n || n === '事件') {
+            return window.TideI18n ? TideI18n.defaultEventLabel() : '事件';
+          }
+          return n;
         })
         .join(' · ');
-      const subNames = eventNames || 'No active events';
+      const tl = function (zh) {
+        return window.TideI18n ? TideI18n.t(zh) : zh;
+      };
+      const subNames = eventNames || tl('尚無進行中事件');
       eventsSec.innerHTML =
         meSecHdr('EVENTS') +
         '<div class="tide-me-card">' +
         '<div class="tide-me-row tide-me-row--toggle">' +
         '<span class="tide-me-row-dot" style="background:#8E6BC0"></span>' +
-        '<div class="tide-me-row-main"><div class="tide-me-row-lbl">Event buffer</div>' +
-        '<div class="tide-me-row-sub">Auto-buffer trips & one-offs</div></div>' +
+        '<div class="tide-me-row-main"><div class="tide-me-row-lbl">' +
+        tl('啟用緩衝') +
+        '</div>' +
+        '<div class="tide-me-row-sub">' +
+        tl('自動緩衝行程與一次性支出') +
+        '</div></div>' +
         '<label class="tide-me-toggle-wrap" onclick="event.stopPropagation()">' +
         '<input type="checkbox" id="event-buffer-enabled" disabled>' +
         '<span class="tide-me-toggle"></span></label></div>' +
         meRowHtml({
           icon: false,
           accent: '#8E6BC0',
-          label: 'Active events',
+          label: tl('進行中事件'),
           sub: subNames,
           value: String(activeEvents.length),
           onclick: 'openEventList()',
@@ -1558,20 +1690,36 @@ window.TideUI = (function () {
           })[0];
       }
       const balVal = latest ? fmtFn(Number(latest.amount) || 0) : '—';
-      const balSub = latest ? meFormatBalanceDate(latest.date) : 'No snapshot yet';
+      const tl = function (zh) {
+        return window.TideI18n ? TideI18n.t(zh) : zh;
+      };
+      const balSub = latest ? meFormatBalanceDate(latest.date) : tl('尚無快照');
       balanceSec.innerHTML =
         meSecHdr('BALANCE') +
         '<div class="tide-me-card">' +
         meRowHtml({
           icon: true,
           accent: 'var(--tide-water)',
-          label: 'Latest snapshot',
+          label: tl('最新快照'),
           sub: balSub,
           value: mask ? '$＊＊＊' : balVal,
           onclick: 'openBalanceList()',
           divider: false,
         }) +
         '</div>';
+    }
+
+    if (localeSec) {
+      localeSec.className = 'tide-me-block tide-me-locale-block';
+      localeSec.innerHTML =
+        meSecHdr('LANGUAGE') +
+        '<div class="locale-seg" role="group" aria-label="' +
+        (window.TideI18n ? TideI18n.t('語言') : 'Language') +
+        '">' +
+        '<button type="button" class="locale-seg-btn" data-locale="zh-TW" data-locale-fixed="1">中文</button>' +
+        '<button type="button" class="locale-seg-btn" data-locale="en" data-locale-fixed="1">English</button>' +
+        '</div>';
+      if (window.TideI18n) TideI18n.syncLocaleSwitcher();
     }
 
     if (dataBlock) {

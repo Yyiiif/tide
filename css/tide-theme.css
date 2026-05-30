@@ -1016,6 +1016,33 @@ body.tide-ui .rec-type-seg-btn.on {
   color: var(--tide-ink);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
+body.tide-ui .locale-seg {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--tide-chip);
+  border-radius: 999px;
+}
+body.tide-ui .locale-seg-btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: var(--tide-ash);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+body.tide-ui .locale-seg-btn.on {
+  background: var(--tide-surf);
+  color: var(--tide-ink);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+body.tide-ui .tide-me-locale-block .locale-seg {
+  margin-top: 4px;
+}
 body.tide-ui .tide-drops-entries-meta {
   display: none !important;
 }
@@ -1254,6 +1281,93 @@ body.tide-ui .tide-me-row-dot {
   height: 8px;
   border-radius: 4px;
   flex-shrink: 0;
+}
+body.tide-ui .tide-me-row--stream {
+  cursor: pointer;
+}
+body.tide-ui .tide-me-stream-drag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  margin: -4px 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--tide-ash);
+  cursor: grab;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+}
+body.tide-ui .tide-me-stream-drag:active {
+  cursor: grabbing;
+}
+body.tide-ui .tide-me-stream-drag .ti {
+  font-size: 14px;
+  line-height: 1;
+  opacity: 0.55;
+}
+body.tide-ui .tide-me-cat-item[draggable='true'],
+body.tide-ui .tide-me-cat-item.is-dragging {
+  opacity: 0.55;
+}
+body.tide-ui .tide-me-stream-chev {
+  flex-shrink: 0;
+  color: var(--tide-ash);
+  transition: transform 0.2s ease;
+}
+body.tide-ui .tide-me-cat-item--open .tide-me-row--stream {
+  border-bottom: none;
+}
+body.tide-ui .tide-me-cat-panel {
+  padding: 0 14px 14px;
+  border-bottom: 0.5px solid var(--tide-hair);
+}
+body.tide-ui .tide-me-cat-item--open:last-child .tide-me-cat-panel,
+body.tide-ui .tide-me-cat-item:last-child .tide-me-cat-panel {
+  border-bottom: none;
+}
+body.tide-ui .tide-me-cat-field-lbl {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--tide-ash);
+  margin: 0 0 6px;
+}
+body.tide-ui .tide-me-cat-name-inp {
+  width: 100%;
+  box-sizing: border-box;
+  border: 0.5px solid var(--tide-hair);
+  border-radius: 10px;
+  background: var(--tide-bg);
+  color: var(--tide-ink);
+  font-family: inherit;
+  font-size: 13px;
+  padding: 9px 11px;
+  margin-bottom: 12px;
+  outline: none;
+}
+body.tide-ui .tide-me-mist-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+body.tide-ui .tide-me-mist-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+body.tide-ui .tide-me-mist-swatch.on {
+  border-color: var(--tide-ink);
+  box-shadow: 0 0 0 1px var(--tide-surf);
 }
 body.tide-ui .tide-me-row-main {
   flex: 1;
