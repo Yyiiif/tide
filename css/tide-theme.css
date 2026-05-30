@@ -732,10 +732,10 @@ body.tide-ui .tide-flow-surge-card-stat {
   text-align: right;
   flex-shrink: 0;
 }
-body.tide-ui .tide-flow-surge-card-mult {
-  font-size: 16px;
-  font-weight: 700;
-  color: #C4A09A;
+body.tide-ui .tide-flow-surge-card-amt {
+  font-size: 14px;
+  font-weight: 500;
+  color: #44474F;
   font-variant-numeric: tabular-nums;
 }
 body.tide-ui .tide-flow-surge-card-days {

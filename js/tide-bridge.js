@@ -719,9 +719,9 @@
       '</div>' +
       '</div>' +
       '<div class="tide-flow-surge-card-stat">' +
-      '<div class="tide-flow-surge-card-mult">' +
-      period.multiplier +
-      '×</div>' +
+      '<div class="tide-flow-surge-card-amt">' +
+      fmt(period.surgeTotal) +
+      '</div>' +
       '<div class="tide-flow-surge-card-days">' +
       period.numDays +
       ' ' +
@@ -734,8 +734,8 @@
   function renderFlowSurgeSection(stat) {
     const pad = stat.querySelector('.scr-pad');
     if (!pad) return;
-    const cards = pad.querySelectorAll(':scope > .donut-card');
-    const heatCard = cards[2];
+    const strip = document.getElementById('analysis-heatmap-strip');
+    const heatCard = strip && strip.closest('.donut-card');
     if (!heatCard) return;
 
     let section = document.getElementById('tide-flow-surge-section');
