@@ -762,32 +762,9 @@ window.TideUI = (function () {
 
     scope.querySelectorAll('.rec-item').forEach(function (row) {
       row.classList.add('tide-drop-row');
-      const dot = row.querySelector('.li-dot');
-      let color = WATER;
-      if (dot && dot.style.background) {
-        const bg = dot.style.background;
-        color = bg.length === 4 ? bg : bg.replace(/33$/, '');
-      }
-      if (typeof catColors === 'function') {
-        const tag = row.querySelector('.tag:not(.tag-rec-pay)');
-        if (tag) {
-          const zh = tag.getAttribute('data-cat-zh') || tag.textContent;
-          try {
-            color = catColors(zh).mid || color;
-          } catch (e) {}
-        }
-      }
-      if (!row.querySelector('.tide-drop-glyph')) {
-        const wrap = document.createElement('div');
-        wrap.innerHTML = dropGlyphHtml(color);
-        const glyphEl = wrap.firstElementChild;
-        if (dot) dot.style.display = 'none';
-        const info = row.querySelector('.li-info');
-        if (glyphEl) {
-          if (info) row.insertBefore(glyphEl, info);
-          else row.insertBefore(glyphEl, row.firstChild);
-        }
-      }
+      row.querySelectorAll('.tide-drop-glyph, .li-dot').forEach(function (el) {
+        el.remove();
+      });
       const meta = row.querySelector('.li-meta');
       if (meta) {
         const tags = meta.querySelectorAll('.tag');
@@ -862,8 +839,6 @@ window.TideUI = (function () {
     const mask = opts.mask;
     const spentTxt = mask ? '$＊＊＊' : opts.spentTxt;
     const avgTxt = mask ? '$＊＊＊' : opts.avgTxt;
-    const vsTxt = opts.vsTxt;
-    const onPace = opts.onPace;
     return (
       '<div class="tide-pulse-hero-card tide-pulse-hero-card--card">' +
       '<div class="tide-pulse-hero-top">' +
@@ -875,18 +850,6 @@ window.TideUI = (function () {
       '<div class="tide-pulse-hero-avg">' +
       avgTxt +
       '<span> avg / day</span></div>' +
-      '</div>' +
-      '<div class="tide-pulse-hero-badge-col">' +
-      '<div class="tide-pulse-pace-badge' +
-      (onPace ? '' : ' tide-pulse-pace-badge--warn') +
-      '">' +
-      '<span class="tide-pulse-pace-dot"></span>' +
-      (onPace ? 'ON PACE' : 'OVER PACE') +
-      '</div>' +
-      '<div class="tide-pulse-vs-lbl">VS LAST MONTH</div>' +
-      '<div class="tide-pulse-vs-val">' +
-      vsTxt +
-      '</div>' +
       '</div></div>' +
       '<div class="tide-pulse-chart-wrap stat-trend-chart-wrap">' +
       '<canvas id="analysis-cumulative-chart" aria-label="Cumulative spend"></canvas>' +
@@ -1117,9 +1080,6 @@ window.TideUI = (function () {
       heroWrap = document.createElement('div');
       heroWrap.id = 'tide-pulse-hero';
       heroWrap.className = 'tide-pulse-hero-wrap';
-      const pad = stat.querySelector('.scr-pad');
-      const first = pad && pad.querySelector('.donut-card');
-      if (pad) pad.insertBefore(heroWrap, first || pad.firstChild);
     }
     heroWrap.innerHTML = pulseHeroMarkup({
       mask: mask,
@@ -1129,10 +1089,12 @@ window.TideUI = (function () {
       onPace: onPace,
     });
 
+    const pad = stat.querySelector('.scr-pad');
     const cards = stat.querySelectorAll('.scr-pad > .donut-card');
     const streamCard = cards[0];
     const cumCard = cards[1];
     const heatCard = cards[2];
+    if (pad && streamCard) pad.insertBefore(heroWrap, streamCard.nextElementSibling);
 
     if (cumCard) {
       cumCard.classList.add('tide-pulse-hidden');
@@ -1156,15 +1118,6 @@ window.TideUI = (function () {
           '<span class="tide-pulse-sec-meta">' +
           n +
           ' categories</span>';
-      }
-      const barEl = document.getElementById('analysis-cat-bar');
-      const legEl = document.getElementById('analysis-cat-legend');
-      if (legEl) legEl.innerHTML = '';
-      const catRows = pulseCategoryRows(monthRows);
-      const html = pulseStreamSectionMarkup(catRows, monthTotal);
-      if (barEl) {
-        barEl.className = 'tide-pulse-stream-host';
-        barEl.innerHTML = html;
       }
     }
 

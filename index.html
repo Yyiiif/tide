@@ -280,6 +280,9 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
 .donut-wrap{display:flex;align-items:center;gap:14px}
 .leg-table{flex:1;display:flex;flex-direction:column;gap:6px}
 .leg-row{display:flex;align-items:center;justify-content:space-between}
+#analysis-cat-legend{display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:6px 10px;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+#analysis-cat-legend .leg-row.leg-row--inline{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;white-space:nowrap}
+#analysis-cat-legend .leg-row.leg-row--inline .leg-pct{min-width:0;text-align:left}
 .leg-l{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t2)}
 .leg-dot{width:8px;height:8px;border-radius:3px;flex-shrink:0}
 .leg-pct{font-size:11px;color:var(--t3);min-width:28px;text-align:right}
@@ -1079,7 +1082,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
 <div class="app">
 <div class="content">
   <div class="scr active" id="s-home">
-    <div class="simple-hdr"><span class="page-title">首頁</span></div>
+    <div class="simple-hdr"><span class="page-title">Tide</span></div>
     <div class="home-summary">
       <div class="page-month-nav sticky-month-navigator homepage-sticky-navigator">
         <div class="home-header-month-row">
@@ -1122,7 +1125,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
       <div class="donut-card">
         <div class="donut-title" id="analysis-cat-breakdown-title"><span>本月分類</span></div>
         <div id="analysis-cat-bar" style="height:12px;border-radius:6px;display:flex;overflow:hidden;margin:10px 0 8px"></div>
-        <div id="analysis-cat-legend" style="display:flex;flex-wrap:wrap;gap:6px 12px"></div>
+        <div id="analysis-cat-legend" style="display:flex;flex-wrap:nowrap;align-items:center;gap:6px 10px;overflow-x:auto;-webkit-overflow-scrolling:touch"></div>
       </div>
       <div class="donut-card">
         <div class="donut-title">當月累積花多少</div>
@@ -1303,8 +1306,8 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
   <div class="ov-body" id="long-term-trend-body">
     <div class="donut-card">
       <div class="donut-title stat-trend-head">
-        <span>類別趨勢</span>
-        <div class="stat-trend-toggle" id="analysis-stat-trend-range-toggle" role="group" aria-label="類別趨勢時間範圍">
+        <span>Category Trend</span>
+        <div class="stat-trend-toggle" id="analysis-stat-trend-range-toggle" role="group" aria-label="Category Trend range">
           <button type="button" class="stat-trend-pill on" onclick="setAnalysisCatTrendRange(6,this)">6月</button>
           <button type="button" class="stat-trend-pill" onclick="setAnalysisCatTrendRange(12,this)">12月</button>
         </div>
@@ -1314,7 +1317,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
     </div>
     <div class="donut-card" id="analysis-monthly-trend-card">
       <div class="donut-title stat-trend-head">
-        <span>每月趨勢</span>
+        <span>Monthly Trend</span>
         <div class="stat-trend-toggle" id="analysis-monthly-range-toggle" role="group" aria-label="趨勢時間範圍">
           <button type="button" class="stat-trend-pill on" onclick="setAnalysisTrendRange(6,this)">6月</button>
           <button type="button" class="stat-trend-pill" onclick="setAnalysisTrendRange(12,this)">12月</button>
@@ -1564,7 +1567,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
 <script>
 const NOTION_COLORS=[{name:'Default',bg:'#FFFFFF',text:'#373530'},{name:'Gray',bg:'#F1F1EF',text:'#787774'},{name:'Brown',bg:'#F0E4DC',text:'#9A6550'},{name:'Orange',bg:'#F8ECDF',text:'#CC782F'},{name:'Yellow',bg:'#FBF0DC',text:'#B8762A'},{name:'Teal',bg:'#E4F0ED',text:'#3D8C7E'},{name:'Green',bg:'#EEF3ED',text:'#548164'},{name:'Blue',bg:'#E9F3F7',text:'#487CA5'},{name:'Purple',bg:'#EEE6F5',text:'#7B5A9E'},{name:'Pink',bg:'#F9F2F5',text:'#B35488'},{name:'Red',bg:'#FAECEC',text:'#C4554D'}];
 const MID={0:'#8B8B89',1:'#B8B8B5',2:'#C8A090',3:'#DFA06A',4:'#E8C080',5:'#8EC4B8',6:'#9DC4AD',7:'#8BBDD8',8:'#C0A8D8',9:'#D898B8',10:'#E09490'};
-const TIDE_CAT_MID={'餐飲':'#E0958A','交通':'#84A8CC','購物':'#8AB29C','娛樂':'#C99CB5','醫療':'#A99CC0','其他':'#9CA0A8'};
+const TIDE_CAT_MID={'餐飲':'#C4A09A','交通':'#8AAABF','購物':'#8AAF9C','娛樂':'#A898C4','醫療':'#B4A888','其他':'#A4A8A8'};
 function tideCatColorEntry(mid){return{bg:mid+'33',text:mid,mid:mid}}
 const CAT_COLOR_MAP=(function(){
   var m={};
@@ -1978,7 +1981,8 @@ function categoryChipInlineStyle(col,on){
   return on?'background:'+col.text+';color:'+col.bg+';font-weight:700':'background:'+col.bg+';color:'+col.text+';font-weight:700';
 }
 function analysisTrendCatPillStyle(col,on){
-  return categoryChipInlineStyle(col,on)+';border:0.5px solid '+(on?col.text:col.bg);
+  if(on)return 'background:'+col.text+';color:#FFFFFF;font-weight:700;border:0.5px solid '+col.text;
+  return 'background:'+col.bg+';color:'+col.text+';font-weight:700;border:0.5px solid '+col.bg;
 }
 function syncAutoEventBuffer(){
   const on=isAnyBufferProjectActiveOn(today());
@@ -3555,13 +3559,20 @@ function renderAnalysisCatBreakdown(){
   barEl.innerHTML=sorted.map(function(entry){
     const cat=entry[0],amt=entry[1];
     const pct=(amt/monthTotal)*100;
+    const mid=catColors(cat).mid;
     const safe=String(cat).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    return'<div style="width:'+pct+'%;background:'+catColors(cat).mid+';cursor:pointer" onclick="openCatOv(\''+safe+'\')"></div>';
+    return'<div style="width:'+pct+'%;background:linear-gradient(90deg,'+mid+' 0%,'+mid+'99 100%);cursor:pointer" onclick="openCatOv(\''+safe+'\')"></div>';
   }).join('');
-  legEl.innerHTML=sorted.map(function(entry){
-    const cat=entry[0];
+  const legendOrder=['購物','餐飲','交通','娛樂','醫療','其他'];
+  const cmMap=Object.fromEntries(sorted);
+  const legendRows=[];
+  legendOrder.forEach(function(k){if(cmMap[k])legendRows.push([k,cmMap[k]]);});
+  sorted.forEach(function(entry){if(legendOrder.indexOf(entry[0])<0)legendRows.push(entry);});
+  legEl.innerHTML=legendRows.map(function(entry){
+    const cat=entry[0],amt=entry[1];
+    const pct=Math.round(amt/(monthTotal||1)*100);
     const col=catColors(cat).mid;
-    return'<span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#787774"><span style="width:8px;height:8px;border-radius:3px;background:'+col+';flex-shrink:0"></span><span>'+escapePhText(cat)+'</span></span>';
+    return'<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#787774;white-space:nowrap;flex-shrink:0"><span style="width:8px;height:8px;border-radius:3px;background:'+col+';flex-shrink:0"></span><span>'+escapePhText(cat)+'</span><span style="color:#9CA0A8;font-variant-numeric:tabular-nums">'+pct+'%</span></span>';
   }).join('');
 }
 
@@ -3978,6 +3989,14 @@ function setAnalysisCatTrendRange(months,el){
   if(el)el.classList.add('on');
   renderAnalysisStatTrendChart();
 }
+function makeMistGradient(ctx,chartArea,color){
+  const gradient=ctx.createLinearGradient(0,chartArea.top,0,chartArea.bottom);
+  gradient.addColorStop(0,color+'EE');
+  gradient.addColorStop(1,color+'66');
+  return gradient;
+}
+const TREND_MIST={'餐飲':'#C4A09A','購物':'#8AAF9C','交通':'#8AAABF','娛樂':'#A898C4','醫療':'#B4A888','其他':'#A4A8A8'};
+function trendMistColor(cat){return TREND_MIST[cat]||TREND_MIST['其他'];}
 function renderAnalysisStatTrendChart(){
   const canvas=document.getElementById('analysis-stat-trend-chart');
   const legEl=document.getElementById('analysis-stat-trend-leg');
@@ -4007,8 +4026,23 @@ function renderAnalysisStatTrendChart(){
     }
   };
   var catList=orderedCoreCatsForTrend(months);
-  legEl.innerHTML=catList.map(function(c){return'<div class="stat-trend-leg-item"><span class="stat-trend-leg-sw" style="background:'+catColors(c).mid+'"></span><span>'+c+'</span></div>'}).join('');
-  var datasets=catList.map(function(c){return{label:c,data:months.map(function(m){return expenses.filter(function(e){return e.date&&e.date.startsWith(m)&&(e.cat||'其他')===c}).reduce(function(s,e){return s+(e.amt||0)},0)}),backgroundColor:catColors(c).mid,borderRadius:4,borderSkipped:false}});
+  legEl.innerHTML=catList.map(function(c){return'<div class="stat-trend-leg-item"><span class="stat-trend-leg-sw" style="background:'+trendMistColor(c)+'"></span><span>'+c+'</span></div>'}).join('');
+  var datasets=catList.map(function(c){
+    var mistColor=trendMistColor(c);
+    return{
+      label:c,
+      data:months.map(function(m){return expenses.filter(function(e){return e.date&&e.date.startsWith(m)&&(e.cat||'其他')===c}).reduce(function(s,e){return s+(e.amt||0)},0)}),
+      backgroundColor:function(context){
+        const chart=context.chart;
+        const ctx=chart.ctx;
+        const chartArea=chart.chartArea;
+        if(!chartArea)return mistColor+'CC';
+        return makeMistGradient(ctx,chartArea,mistColor);
+      },
+      borderRadius:{topLeft:4,topRight:4},
+      borderSkipped:'bottom'
+    };
+  });
   analysisTrendChart=new Chart(canvas,{type:'bar',data:{labels,datasets:datasets},options:baseOpts});
 }
 function statMonthsForMonthlyTrend(range){

@@ -4,15 +4,16 @@
 (function () {
   const NAV_LABELS = { home: 'Tide', stat: 'Flow', rec: 'Drops', set: 'Base' };
 
-  const TIDE_CAT_MAP = {
-    餐飲: '#E0958A',
-    交通: '#84A8CC',
-    購物: '#8AB29C',
-    娛樂: '#C99CB5',
-    醫療: '#A99CC0',
-    其他: '#9CA0A8',
-    居家: '#A99CC0',
+  const MIST_COLORS = {
+    餐飲: '#C4A09A',
+    購物: '#8AAF9C',
+    交通: '#8AAABF',
+    娛樂: '#A898C4',
+    醫療: '#B4A888',
+    其他: '#A4A8A8',
   };
+
+  const TIDE_CAT_MAP = Object.assign({}, MIST_COLORS, { 居家: MIST_COLORS['醫療'] });
 
   const CAT_EN_TO_ZH = {
     Food: '餐飲',
@@ -24,6 +25,13 @@
     Home: '醫療',
     Misc: '其他',
   };
+
+  const STREAM_SVG_H = 110;
+  const STREAM_SVG_W = 320;
+  const STREAM_WAVE_PAD_TOP = 14;
+  const STREAM_MIN_BAND = 6;
+  const STREAM_BAND_SCALE = 0.9;
+  const STREAM_BAND_GAP = 4;
 
   function normalizeCatKey(name) {
     if (window.ReflowCalc && typeof ReflowCalc.normalizeCat === 'function') {
@@ -75,8 +83,8 @@
     週曆: 'Week view',
     每日: 'Day',
     月份: 'Month',
-    類別趨勢: 'Stream trend',
-    每月趨勢: 'Monthly trend',
+    類別趨勢: 'Category Trend',
+    每月趨勢: 'Monthly Trend',
     全部: 'All',
     總支出: 'Total spend',
     分類比例: 'BY STREAM',
@@ -628,6 +636,252 @@
     scheduleEnglishPass();
   }
 
+  function getStreamCategoryRows() {
+    const month =
+      typeof curMonth !== 'undefined' && curMonth ? curMonth : '';
+    const rows =
+      window.ReflowCalc && typeof ReflowCalc.monthRows === 'function'
+        ? ReflowCalc.monthRows(month)
+        : typeof expenses !== 'undefined'
+          ? expenses.filter(function (e) {
+              return e.date && e.date.startsWith(month);
+            })
+          : [];
+    const cm =
+      window.ReflowCalc && typeof ReflowCalc.categorySpendMap === 'function'
+        ? ReflowCalc.categorySpendMap(rows)
+        : (function () {
+            const m = {};
+            rows.forEach(function (e) {
+              const c =
+                typeof normalizeCoreCatName === 'function'
+                  ? normalizeCoreCatName(e.cat || '其他')
+                  : normalizeCatKey(e.cat || '其他');
+              m[c] = (m[c] || 0) + (Number(e.amt) || 0);
+            });
+            return m;
+          })();
+    const active = Object.entries(cm)
+      .filter(function (entry) {
+        return (entry[1] || 0) > 0;
+      })
+      .sort(function (a, b) {
+        return b[1] - a[1];
+      })
+      .map(function (entry) {
+        const cat = entry[0];
+        return {
+          cat: cat,
+          amt: entry[1],
+          color: MIST_COLORS[cat] || MIST_COLORS['其他'],
+        };
+      });
+    const monthTotal = active.reduce(function (s, r) {
+      return s + r.amt;
+    }, 0);
+    return { active: active, monthTotal: monthTotal };
+  }
+
+  function streamBandHeights(active, monthTotal) {
+    const gapTotal = Math.max(0, active.length - 1) * STREAM_BAND_GAP;
+    let heights = active.map(function (row) {
+      const pctFrac = row.amt / monthTotal;
+      return Math.max(STREAM_MIN_BAND, pctFrac * STREAM_BAND_SCALE * STREAM_SVG_H);
+    });
+    let bandTotal = heights.reduce(function (s, h) {
+      return s + h;
+    }, 0);
+    if (bandTotal + gapTotal > STREAM_SVG_H) {
+      const avail = STREAM_SVG_H - gapTotal;
+      const scale = avail / bandTotal;
+      heights = heights.map(function (h) {
+        return Math.max(STREAM_MIN_BAND, h * scale);
+      });
+    }
+    return heights;
+  }
+
+  function streamBandWavePath(topY, bottomY, amp, seed) {
+    const s = seed;
+    const a = amp;
+    const y = topY;
+    const y0 = y + a * 0.12 * Math.sin(s * 1.3);
+    const c1y = y - a * (1.25 + 0.22 * Math.sin(s));
+    const c2y = y + a * (1.05 + 0.28 * Math.cos(s + 0.85));
+    const midY = y + a * 0.08 * Math.cos(s * 0.9 + 1.1);
+    const c5y = y - a * (0.95 + 0.2 * Math.sin(s + 1.6));
+    const c6y = y + a * (0.72 + 0.18 * Math.cos(s + 2.3));
+    const endY = y + a * 0.1 * Math.sin(s * 1.7 + 0.55);
+    return (
+      'M0,' +
+      y0.toFixed(2) +
+      ' C80,' +
+      c1y.toFixed(2) +
+      ' 160,' +
+      c2y.toFixed(2) +
+      ' 240,' +
+      midY.toFixed(2) +
+      ' C280,' +
+      c5y.toFixed(2) +
+      ' 310,' +
+      c6y.toFixed(2) +
+      ' 320,' +
+      endY.toFixed(2) +
+      ' L320,' +
+      bottomY.toFixed(2) +
+      ' L0,' +
+      bottomY.toFixed(2) +
+      ' Z'
+    );
+  }
+
+  function renderByStreamWaveChart() {
+    const barEl = document.getElementById('analysis-cat-bar');
+    const legEl = document.getElementById('analysis-cat-legend');
+    if (!barEl || !legEl) return;
+
+    const built = getStreamCategoryRows();
+    const active = built.active;
+    const monthTotal = built.monthTotal;
+
+    if (!(monthTotal > 0) || !active.length) {
+      barEl.innerHTML = '';
+      barEl.style.height = '';
+      barEl.style.borderRadius = '';
+      barEl.style.overflow = '';
+      barEl.style.margin = '';
+      barEl.style.paddingTop = '';
+      barEl.style.display = '';
+      legEl.innerHTML = '';
+      return;
+    }
+
+    const heights = streamBandHeights(active, monthTotal);
+    let defs = '';
+    let paths = '';
+    let cursorY = 0;
+
+    active.forEach(function (row, i) {
+      const pctFrac = row.amt / monthTotal;
+      const pctDisplay = Math.round(pctFrac * 100);
+      const bandH = heights[i];
+      const topY = cursorY;
+      const bottomY = cursorY + bandH;
+      const amp = Math.max(3, Math.min(11, bandH * 0.34));
+      const seed = i * 1.37 + pctFrac * 4.2;
+      const color = row.color;
+      const gradA = 'grad_' + row.cat + '_a';
+      const gradB = 'grad_' + row.cat + '_b';
+      const safe = String(row.cat).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
+      defs +=
+        '<linearGradient id="' +
+        gradA +
+        '" gradientUnits="userSpaceOnUse" x1="0" y1="' +
+        topY.toFixed(2) +
+        '" x2="0" y2="' +
+        bottomY.toFixed(2) +
+        '">' +
+        '<stop offset="0%" stop-color="' +
+        color +
+        '" stop-opacity="0.65"/>' +
+        '<stop offset="100%" stop-color="' +
+        color +
+        '" stop-opacity="0"/></linearGradient>';
+      defs +=
+        '<linearGradient id="' +
+        gradB +
+        '" gradientUnits="userSpaceOnUse" x1="0" y1="' +
+        (topY + 8).toFixed(2) +
+        '" x2="0" y2="' +
+        bottomY.toFixed(2) +
+        '">' +
+        '<stop offset="0%" stop-color="' +
+        color +
+        '" stop-opacity="0.28"/>' +
+        '<stop offset="100%" stop-color="' +
+        color +
+        '" stop-opacity="0"/></linearGradient>';
+
+      let bandPaths =
+        '<path fill="url(#' +
+        gradA +
+        ')" d="' +
+        streamBandWavePath(topY, bottomY, amp, seed) +
+        '"/>';
+
+      if (pctFrac * 100 > 20) {
+        bandPaths +=
+          '<path fill="url(#' +
+          gradB +
+          ')" d="' +
+          streamBandWavePath(topY + 8, bottomY, amp * 0.9, seed + 0.55) +
+          '"/>';
+      }
+
+      paths +=
+        '<g class="tide-stream-band-hit" style="cursor:pointer" onclick="openCatOv(\'' +
+        safe +
+        '\')">' +
+        bandPaths +
+        '<rect x="0" y="' +
+        (topY - amp * 1.3).toFixed(2) +
+        '" width="' +
+        STREAM_SVG_W +
+        '" height="' +
+        (bandH + amp * 1.3).toFixed(2) +
+        '" fill="transparent" pointer-events="all"/>' +
+        '</g>';
+
+      cursorY = bottomY + (i < active.length - 1 ? STREAM_BAND_GAP : 0);
+      row.pctDisplay = pctDisplay;
+    });
+
+    barEl.style.height = 'auto';
+    barEl.style.borderRadius = '0';
+    barEl.style.overflow = 'visible';
+    barEl.style.margin = '8px 0 8px';
+    barEl.style.paddingTop = '0';
+    barEl.style.display = 'block';
+    barEl.innerHTML =
+      '<svg viewBox="0 -' +
+      STREAM_WAVE_PAD_TOP +
+      ' ' +
+      STREAM_SVG_W +
+      ' ' +
+      (STREAM_SVG_H + STREAM_WAVE_PAD_TOP) +
+      '" width="100%" aria-hidden="true" style="display:block;overflow:visible">' +
+      '<defs>' +
+      defs +
+      '</defs>' +
+      paths +
+      '</svg>';
+
+    legEl.innerHTML = active
+      .map(function (row) {
+        const safe = String(row.cat).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        const label =
+          typeof catLabel === 'function' ? catLabel(row.cat) : row.cat;
+        const name =
+          typeof escapePhText === 'function' ? escapePhText(label) : label;
+        return (
+          '<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#787774;white-space:nowrap;flex-shrink:0;cursor:pointer" onclick="openCatOv(\'' +
+          safe +
+          '\')">' +
+          '<span style="width:8px;height:8px;border-radius:50%;background:' +
+          row.color +
+          ';flex-shrink:0"></span>' +
+          '<span>' +
+          name +
+          '</span>' +
+          '<span style="color:#9CA0A8;font-variant-numeric:tabular-nums">' +
+          row.pctDisplay +
+          '%</span></span>'
+        );
+      })
+      .join('');
+  }
+
   function renderTidePulse() {
     const stat = document.getElementById('s-stat');
     if (!stat) return;
@@ -762,6 +1016,77 @@
     }
   }
 
+  function mistDropSVG(cat) {
+    const n = normalizeCatKey(cat);
+    const color = MIST_COLORS[n] || MIST_COLORS['其他'];
+    const id = 'drop_' + n + '_' + Math.random().toString(36).slice(2, 6);
+    return (
+      '<svg class="tide-mist-drop" width="11" height="14" viewBox="0 0 11 14" style="flex-shrink:0">' +
+      '<defs>' +
+      '<linearGradient id="' +
+      id +
+      '" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0%" stop-color="' +
+      color +
+      '" stop-opacity="1"/>' +
+      '<stop offset="100%" stop-color="' +
+      color +
+      '" stop-opacity="0.25"/>' +
+      '</linearGradient>' +
+      '</defs>' +
+      '<path d="M5.5,0.5 C5.5,0.5 0.5,5.5 0.5,8.5 A5,5 0 0 0 10.5,8.5 C10.5,5.5 5.5,0.5 5.5,0.5 Z" fill="url(#' +
+      id +
+      ')"/>' +
+      '</svg>'
+    );
+  }
+
+  function patchExpenseListItemDots(fnName) {
+    const orig = window[fnName];
+    if (typeof orig !== 'function') return;
+    window[fnName] = function () {
+      const html = orig.apply(this, arguments);
+      const e = arguments[0];
+      const cat = e && e.cat != null && e.cat !== '' ? e.cat : '其他';
+      return html.replace(
+        /<div class="li-dot" style="background:[^"]*"><\/div>/,
+        mistDropSVG(cat)
+      );
+    };
+  }
+
+  function cleanupLegacyExpenseIcons(root) {
+    let scope = root;
+    if (root && root.querySelectorAll && root.id !== 'rec-list' && root.id !== 'input-hub-recent-list') {
+      scope = root;
+    } else if (root && (root.id === 'rec-list' || root.id === 'input-hub-recent-list')) {
+      scope = root;
+    } else {
+      scope = document;
+    }
+    scope.querySelectorAll('.rec-item, .li').forEach(function (row) {
+      row.querySelectorAll('.tide-drop-glyph, .li-dot').forEach(function (el) {
+        el.remove();
+      });
+    });
+  }
+
+  function patchStyleDropsList() {
+    if (!window.TideUI || typeof window.TideUI.styleDropsList !== 'function') return;
+    const orig = window.TideUI.styleDropsList;
+    window.TideUI.styleDropsList = function (root) {
+      orig.call(this, root);
+      cleanupLegacyExpenseIcons(root);
+    };
+  }
+
+  function patchExpenseItemDots() {
+    patchExpenseListItemDots('recMonthlyListItemHTML');
+    patchExpenseListItemDots('recItemHTML');
+    patchExpenseListItemDots('recCatViewItemHTML');
+    patchExpenseListItemDots('liHTML');
+  }
+
   function wrapFn(name, after) {
     const orig = window[name];
     if (typeof orig !== 'function') return;
@@ -793,6 +1118,8 @@
     patchCatColors();
     patchEmptyState();
     patchCycleLabel();
+    patchExpenseItemDots();
+    patchStyleDropsList();
 
     wrapFn('renderHome', renderTideHome);
     wrapFn('renderStat', renderTidePulse);
@@ -820,6 +1147,7 @@
       }
     });
     wrapFn('renderAnalysisCatBreakdown', function () {
+      renderByStreamWaveChart();
       if (document.getElementById('s-stat')?.classList.contains('active')) renderTidePulse();
     });
     wrapFn('renderRecDaily', function () {

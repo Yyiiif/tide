@@ -687,7 +687,41 @@ body.tide-ui .tide-pulse-stream-host {
   overflow: visible !important;
 }
 body.tide-ui #analysis-cat-legend {
-  display: none !important;
+  display: flex !important;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 6px 10px;
+  min-width: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+body.tide-ui #analysis-cat-legend .leg-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+body.tide-ui #analysis-cat-legend .leg-l {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--tide-muted, #787774);
+}
+body.tide-ui #analysis-cat-legend .leg-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+body.tide-ui #analysis-cat-legend .leg-pct {
+  font-size: 11px;
+  color: var(--tide-muted, #9ca0a8);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
 }
 body.tide-ui .tide-pulse-stack-bar {
   display: flex;
