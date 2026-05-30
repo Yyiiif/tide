@@ -843,10 +843,12 @@ window.TideUI = (function () {
     const spentTxt = mask ? '$＊＊＊' : opts.spentTxt;
     const avgTxt = mask ? '$＊＊＊' : opts.avgTxt;
     return (
+      '<div class="donut-title tide-pulse-hero-title">' +
+      '<span class="tide-pulse-sec-lbl">SPENT SO FAR</span>' +
+      '</div>' +
       '<div class="tide-pulse-hero-card tide-pulse-hero-card--card">' +
       '<div class="tide-pulse-hero-top">' +
       '<div class="tide-pulse-hero-copy">' +
-      '<div class="tide-pulse-hero-lbl">SPENT SO FAR</div>' +
       '<div class="tide-pulse-hero-amt">' +
       spentTxt +
       '</div>' +
@@ -1082,8 +1084,11 @@ window.TideUI = (function () {
     if (!heroWrap) {
       heroWrap = document.createElement('div');
       heroWrap.id = 'tide-pulse-hero';
-      heroWrap.className = 'tide-pulse-hero-wrap';
+      heroWrap.className = 'tide-pulse-hero-wrap donut-card tide-pulse-section';
+    } else {
+      heroWrap.className = 'tide-pulse-hero-wrap donut-card tide-pulse-section';
     }
+    heroWrap.classList.remove('tide-pulse-hidden');
     heroWrap.innerHTML = pulseHeroMarkup({
       mask: mask,
       spentTxt: typeof fmt === 'function' ? fmt(monthTotal) : '$0',
@@ -1093,13 +1098,13 @@ window.TideUI = (function () {
     });
 
     const pad = stat.querySelector('.scr-pad');
-    const cards = stat.querySelectorAll('.scr-pad > .donut-card');
+    const cards = stat.querySelectorAll('.scr-pad > .donut-card:not(#tide-pulse-hero)');
     const streamCard = cards[0];
     const cumCard = cards[1];
     const heatCard = cards[2];
     if (pad && streamCard) pad.insertBefore(heroWrap, streamCard.nextElementSibling);
 
-    if (cumCard) {
+    if (cumCard && cumCard.id !== 'tide-pulse-hero') {
       cumCard.classList.add('tide-pulse-hidden');
       cumCard.querySelectorAll('#analysis-cumulative-chart, #cumulative-popup').forEach(function (el) {
         el.remove();

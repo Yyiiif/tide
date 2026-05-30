@@ -615,6 +615,169 @@
       .join('');
   }
 
+  function flowSurgeMonthMeta() {
+    const parts = String(typeof curMonth !== 'undefined' ? curMonth : '').split('-').map(Number);
+    if (parts.length < 2 || !Number.isFinite(parts[0]) || !Number.isFinite(parts[1])) {
+      return { y: 2026, mo: 11, lastDay: 30 };
+    }
+    const y = parts[0];
+    const mo = parts[1];
+    return { y: y, mo: mo, lastDay: new Date(y, mo, 0).getDate() };
+  }
+
+  function flowSurgeDailySeries(meta) {
+    const byDay = {};
+    const rows =
+      window.ReflowCalc && typeof ReflowCalc.monthRows === 'function'
+        ? ReflowCalc.monthRows(curMonth)
+        : typeof expenses !== 'undefined'
+          ? expenses.filter(function (e) {
+              return e.date && e.date.startsWith(curMonth);
+            })
+          : [];
+    rows.forEach(function (e) {
+      const d = parseInt(String(e.date).slice(8, 10), 10);
+      if (!Number.isFinite(d) || d < 1 || d > meta.lastDay) return;
+      byDay[d] = (byDay[d] || 0) + (Number(e.amt) || 0);
+    });
+    const daily = [];
+    for (let d = 1; d <= meta.lastDay; d++) daily.push(byDay[d] || 0);
+    return daily;
+  }
+
+  function detectFlowSurges(daily, lastDay) {
+    const total = daily.reduce(function (s, v) {
+      return s + v;
+    }, 0);
+    const dailyAvg = lastDay > 0 ? total / lastDay : 0;
+    if (dailyAvg <= 0) return { periods: [], dailyAvg: 0 };
+
+    const surgeIdx = [];
+    for (let i = 0; i < lastDay; i++) {
+      if (daily[i] > dailyAvg * 1.5) surgeIdx.push(i);
+    }
+
+    const periods = [];
+    let i = 0;
+    while (i < surgeIdx.length) {
+      let start = surgeIdx[i];
+      let end = start;
+      while (i + 1 < surgeIdx.length && surgeIdx[i + 1] === end + 1) {
+        i++;
+        end = surgeIdx[i];
+      }
+      const numDays = end - start + 1;
+      let surgeTotal = 0;
+      for (let d = start; d <= end; d++) surgeTotal += daily[d];
+      const normalAvg = Math.round(dailyAvg * numDays);
+      const multiplier = normalAvg > 0 ? Math.round((surgeTotal / normalAvg) * 10) / 10 : 0;
+      periods.push({
+        startDay: start + 1,
+        endDay: end + 1,
+        surgeTotal: surgeTotal,
+        normalAvg: normalAvg,
+        multiplier: multiplier,
+        numDays: numDays,
+      });
+      i++;
+    }
+
+    periods.sort(function (a, b) {
+      return b.multiplier - a.multiplier;
+    });
+    return { periods: periods, dailyAvg: dailyAvg };
+  }
+
+  function flowSurgeDateRangeLabel(meta, startDay, endDay) {
+    const months =
+      typeof shortMonths !== 'undefined'
+        ? shortMonths
+        : ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const month = months[meta.mo - 1] || '';
+    if (startDay === endDay) return month + ' ' + startDay;
+    return month + ' ' + startDay + ' – ' + endDay;
+  }
+
+  function flowSurgeCardMarkup(period, meta) {
+    const dateRange = flowSurgeDateRangeLabel(meta, period.startDay, period.endDay);
+    const dayLbl = period.numDays === 1 ? 'day' : 'days';
+    return (
+      '<div class="tide-flow-surge-card" role="button" tabindex="0" onclick="openFlowSurgeOv(' +
+      period.startDay +
+      ',' +
+      period.endDay +
+      ')">' +
+      '<div class="tide-flow-surge-card-bar"></div>' +
+      '<div class="tide-flow-surge-card-main">' +
+      '<div class="tide-flow-surge-card-date">' +
+      dateRange +
+      '</div>' +
+      '<div class="tide-flow-surge-card-detail">Surge ' +
+      fmt(period.surgeTotal) +
+      ' · usual ' +
+      fmt(period.normalAvg) +
+      '</div>' +
+      '</div>' +
+      '<div class="tide-flow-surge-card-stat">' +
+      '<div class="tide-flow-surge-card-mult">' +
+      period.multiplier +
+      '×</div>' +
+      '<div class="tide-flow-surge-card-days">' +
+      period.numDays +
+      ' ' +
+      dayLbl +
+      '</div>' +
+      '</div></div>'
+    );
+  }
+
+  function renderFlowSurgeSection(stat) {
+    const pad = stat.querySelector('.scr-pad');
+    if (!pad) return;
+    const cards = pad.querySelectorAll(':scope > .donut-card');
+    const heatCard = cards[2];
+    if (!heatCard) return;
+
+    let section = document.getElementById('tide-flow-surge-section');
+    if (!section) {
+      section = document.createElement('div');
+      section.id = 'tide-flow-surge-section';
+      section.className = 'donut-card tide-pulse-section tide-flow-surge-section';
+      heatCard.insertAdjacentElement('afterend', section);
+    } else if (section.previousElementSibling !== heatCard) {
+      heatCard.insertAdjacentElement('afterend', section);
+    }
+    section.className = 'donut-card tide-pulse-section tide-flow-surge-section';
+
+    const meta = flowSurgeMonthMeta();
+    const daily = flowSurgeDailySeries(meta);
+    const result = detectFlowSurges(daily, meta.lastDay);
+    const periods = result.periods;
+    const n = periods.length;
+
+    let cardsHtml = '';
+    if (!n) {
+      cardsHtml = '<div class="tide-flow-surge-empty">No surges this month</div>';
+    } else {
+      cardsHtml = periods
+        .map(function (p) {
+          return flowSurgeCardMarkup(p, meta);
+        })
+        .join('');
+    }
+
+    section.innerHTML =
+      '<div class="donut-title">' +
+      '<span class="tide-pulse-sec-lbl">FLOW SURGE</span>' +
+      '<span class="tide-pulse-sec-meta">' +
+      n +
+      ' detected</span>' +
+      '</div>' +
+      '<div class="tide-flow-surge-cards">' +
+      cardsHtml +
+      '</div>';
+  }
+
   function renderTidePulse() {
     const stat = document.getElementById('s-stat');
     if (!stat) return;
@@ -625,6 +788,7 @@
     if (window.TideUI && window.TideUI.stylePulsePage) {
       window.TideUI.stylePulsePage();
     }
+    renderFlowSurgeSection(stat);
     scheduleEnglishPass();
   }
 
@@ -983,6 +1147,9 @@
       if (window.TideUI && window.TideUI.tideifyEditDropChips) window.TideUI.tideifyEditDropChips();
     });
     wrapFn('openHeatmapDayOv', function () {
+      applyEnglishIn(document.getElementById('heatmap-day-ov'));
+    });
+    wrapFn('openFlowSurgeOv', function () {
       applyEnglishIn(document.getElementById('heatmap-day-ov'));
     });
     function applyEventBalanceI18n() {

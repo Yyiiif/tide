@@ -3740,20 +3740,34 @@ function closeHeatmapDayOv(e){
   closeOverlayEl(bg);
   setHeatmapDayOvSnap(false);
 }
-function openHeatmapDayOv(ds){
-  var dayExpenses=expenses.filter(function(e){return String(e.date).slice(0,10)===ds;});
-  if(!dayExpenses.length)return;
+function openExpenseDetailOv(startDate,endDate){
+  var start=String(startDate||'').slice(0,10);
+  var end=String(endDate||start).slice(0,10);
+  if(!start)return;
+  if(end<start){var tmp=start;start=end;end=tmp;}
+  var rangeExpenses=expenses.filter(function(e){
+    var d=String(e.date).slice(0,10);
+    return d>=start&&d<=end;
+  });
+  if(!rangeExpenses.length)return;
   const bg=document.getElementById('heatmap-day-ov');
   if(!bg)return;
-  var total=dayExpenses.reduce(function(s,e){return s+(Number(e.amt)||0);},0);
-  var parts=String(ds).split('-').map(Number);
-  var dObj=new Date(ds+'T12:00:00');
-  var wdLabels=['週日','週一','週二','週三','週四','週五','週六'];
-  var dateLbl=(parts[1]||0)+'月'+(parts[2]||0)+'日 '+wdLabels[dObj.getDay()];
+  var total=rangeExpenses.reduce(function(s,e){return s+(Number(e.amt)||0);},0);
   var titleEl=document.getElementById('heatmap-day-title');
-  if(titleEl)titleEl.textContent=dateLbl;
+  if(titleEl){
+    if(start===end){
+      var parts=start.split('-').map(Number);
+      var dObj=new Date(start+'T12:00:00');
+      var wdLabels=['週日','週一','週二','週三','週四','週五','週六'];
+      titleEl.textContent=(parts[1]||0)+'月'+(parts[2]||0)+'日 '+wdLabels[dObj.getDay()];
+    }else{
+      var p1=start.split('-').map(Number);
+      var p2=end.split('-').map(Number);
+      titleEl.textContent=(p1[1]||0)+'月'+(p1[2]||0)+'日 – '+(p2[2]||0)+'日';
+    }
+  }
   var cm={};
-  dayExpenses.forEach(function(e){
+  rangeExpenses.forEach(function(e){
     var c=e.cat||'Other';
     cm[c]=(cm[c]||0)+(Number(e.amt)||0);
   });
@@ -3768,18 +3782,31 @@ function openHeatmapDayOv(ds){
     var mid=catColors(entry[0]).mid;
     return'<div style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:3px;background:'+mid+';flex-shrink:0"></span><span>'+escapePhText(entry[0])+'</span><span style="color:#787774">'+fmt(entry[1])+'</span></div>';
   }).join('');
-  var catLegHtml='<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><div style="display:flex;flex-wrap:wrap;gap:8px;font-size:12px;color:#37352F">'+legItems+'</div><div style="font-size:12px;color:#787774;font-weight:500;flex-shrink:0;margin-left:auto">當日合計：'+fmt(total)+'</div></div>';
+  var totalLbl=start===end?'當日合計':'期間合計';
+  var catLegHtml='<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><div style="display:flex;flex-wrap:wrap;gap:8px;font-size:12px;color:#37352F">'+legItems+'</div><div style="font-size:12px;color:#787774;font-weight:500;flex-shrink:0;margin-left:auto">'+totalLbl+'：'+fmt(total)+'</div></div>';
   var statsEl=document.getElementById('heatmap-day-stats');
   if(statsEl)statsEl.innerHTML=catBarHtml+catLegHtml;
-  var listHtml=dayExpenses.slice().sort(function(a,b){return(Number(b.amt)||0)-(Number(a.amt)||0);}).map(function(x){return recItemHTML(x);}).join('');
+  var listHtml=rangeExpenses.slice().sort(function(a,b){
+    var dc=(b.date||'').localeCompare(a.date||'');
+    if(dc!==0)return dc;
+    return(Number(b.amt)||0)-(Number(a.amt)||0);
+  }).map(function(x){return recItemHTML(x);}).join('');
   var scrollEl=document.getElementById('heatmap-day-scroll');
   if(scrollEl){
-    scrollEl.innerHTML='<div>'+listHtml+'</div>';
+    var listBody=start===end?'<div>'+listHtml+'</div>':'<div class="sec-lbl">花多少明細</div><div>'+listHtml+'</div>';
+    scrollEl.innerHTML=listBody;
     scrollEl.scrollTop=0;
   }
   setHeatmapDayOvSnap(false);
   initHeatmapDayOvSnap();
   openOverlayEl(bg);
+}
+function openHeatmapDayOv(ds){openExpenseDetailOv(ds,ds);}
+function openFlowSurgeOv(startDay,endDay){
+  var ym=curMonth;
+  var startDate=ym+'-'+String(startDay).padStart(2,'0');
+  var endDate=ym+'-'+String(endDay).padStart(2,'0');
+  openExpenseDetailOv(startDate,endDate);
 }
 function renderTodayOv(){
   const isToday=viewDate===today();const dObj=new Date(viewDate+'T12:00:00');
