@@ -535,6 +535,12 @@ body.tide-ui .fab-sub.fab-main i {
 }
 
 /* ── Pulse (stat) — matches prototype DirectionTidePulse ── */
+body.tide-ui #s-stat {
+  --flow-motion-duration: 0.9s;
+  --flow-motion-ease: cubic-bezier(0.22, 1, 0.42, 1);
+  --reflow-duration: 0.9s;
+  --reflow-bezier: cubic-bezier(0.22, 1, 0.42, 1);
+}
 body.tide-ui #s-stat .scr-pad {
   padding-top: 0;
   padding-left: 0;
@@ -755,47 +761,51 @@ body.tide-ui .tide-flow-surge-card-days {
   margin-top: 2px;
 }
 
-/* BY STREAM — left-to-right soft reveal */
-body.tide-ui #analysis-cat-bar.tide-stream-chart--enter,
-body.tide-ui #analysis-cat-bar.tide-stream-chart--ready,
-body.tide-ui #analysis-cat-legend.tide-stream-legend--enter,
-body.tide-ui #analysis-cat-legend.tide-stream-legend--ready {
-  -webkit-mask-image: linear-gradient(to right, #000 0%, #000 72%, transparent 100%);
-  mask-image: linear-gradient(to right, #000 0%, #000 72%, transparent 100%);
-  -webkit-mask-size: 240% 100%;
-  mask-size: 240% 100%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
+/* BY STREAM — soft fade (Flow) */
+body.tide-ui #s-stat #analysis-cat-bar.tide-stream-chart--enter,
+body.tide-ui #s-stat #analysis-cat-legend.tide-stream-legend--enter {
+  opacity: 0;
 }
-body.tide-ui #analysis-cat-bar.tide-stream-chart--enter {
-  -webkit-mask-position: 100% 0;
-  mask-position: 100% 0;
+body.tide-ui #s-stat #analysis-cat-bar.tide-stream-chart--exit {
+  opacity: 0;
+  transition: opacity calc(var(--flow-motion-duration, 0.9s) * 0.5) ease-out;
 }
-body.tide-ui #analysis-cat-bar.tide-stream-chart--ready {
-  -webkit-mask-position: 0 0;
-  mask-position: 0 0;
-  transition:
-    -webkit-mask-position 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-    mask-position 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+body.tide-ui #s-stat #analysis-cat-bar.tide-stream-chart--ready {
+  opacity: 1;
+  transition: opacity var(--flow-motion-duration, 0.9s) var(--flow-motion-ease, cubic-bezier(0.22, 1, 0.42, 1));
 }
-body.tide-ui #analysis-cat-legend.tide-stream-legend--enter {
-  -webkit-mask-position: 100% 0;
-  mask-position: 100% 0;
+body.tide-ui #s-stat #analysis-cat-legend.tide-stream-legend--exit {
+  opacity: 0;
+  transition: opacity calc(var(--flow-motion-duration, 0.9s) * 0.4) ease-out;
 }
-body.tide-ui #analysis-cat-legend.tide-stream-legend--ready {
-  -webkit-mask-position: 0 0;
-  mask-position: 0 0;
-  transition:
-    -webkit-mask-position 0.48s cubic-bezier(0.22, 1, 0.36, 1),
-    mask-position 0.48s cubic-bezier(0.22, 1, 0.36, 1);
-  transition-delay: 140ms;
+body.tide-ui #s-stat #analysis-cat-legend.tide-stream-legend--ready {
+  opacity: 1;
+  transition: opacity var(--flow-motion-duration, 0.9s) var(--flow-motion-ease, cubic-bezier(0.22, 1, 0.42, 1));
+  transition-delay: 200ms;
+}
+body.tide-ui #s-stat #cumulative-popup {
+  animation: tideFlowPopupIn calc(var(--flow-motion-duration, 0.9s) * 0.38) var(--flow-motion-ease, cubic-bezier(0.22, 1, 0.42, 1));
+}
+@keyframes tideFlowPopupIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  body.tide-ui #analysis-cat-bar.tide-stream-chart--ready,
-  body.tide-ui #analysis-cat-legend.tide-stream-legend--ready {
-    -webkit-mask-image: none;
-    mask-image: none;
+  body.tide-ui #s-stat #analysis-cat-bar.tide-stream-chart--ready,
+  body.tide-ui #s-stat #analysis-cat-bar.tide-stream-chart--exit,
+  body.tide-ui #s-stat #analysis-cat-legend.tide-stream-legend--ready,
+  body.tide-ui #s-stat #analysis-cat-legend.tide-stream-legend--exit {
     transition: none;
+    opacity: 1;
+  }
+  body.tide-ui #s-stat #cumulative-popup {
+    animation: none;
   }
 }
 body.tide-ui #s-stat .donut-card.tide-pulse-section:first-of-type .donut-title {

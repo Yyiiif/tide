@@ -59,6 +59,36 @@
   const STREAM_BAND_SCALE = 0.9;
   const STREAM_BAND_GAP = 4;
 
+  function flowMotionDurationMs() {
+    try {
+      var el = document.getElementById('s-stat') || document.documentElement;
+      var v = getComputedStyle(el).getPropertyValue('--flow-motion-duration').trim();
+      if (!v) v = getComputedStyle(el).getPropertyValue('--reflow-duration').trim();
+      if (v.indexOf('ms') >= 0) return parseFloat(v) || 900;
+      if (v.indexOf('s') >= 0) return (parseFloat(v) || 0.9) * 1000;
+    } catch (_) {}
+    return 900;
+  }
+
+  function reflowDurationMs() {
+    return flowMotionDurationMs();
+  }
+
+  function fadeOutByStreamChart(barEl, legEl, done) {
+    const reduced =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced || !barEl.querySelector('svg')) {
+      done();
+      return;
+    }
+    barEl.classList.remove('tide-stream-chart--enter', 'tide-stream-chart--ready');
+    barEl.classList.add('tide-stream-chart--exit');
+    legEl.classList.remove('tide-stream-legend--enter', 'tide-stream-legend--ready');
+    legEl.classList.add('tide-stream-legend--exit');
+    setTimeout(done, Math.round(flowMotionDurationMs() * 0.5));
+  }
+
   function fadeInByStreamChart(barEl, legEl) {
     const reduced =
       typeof window.matchMedia === 'function' &&
@@ -525,7 +555,7 @@
 
   function streamBandWavePath(topY, bottomY, amp, seed) {
     const w = STREAM_SVG_W;
-    const cycles = 1.55 + 0.18 * Math.sin(seed * 0.75);
+    const cycles = 1.28 + 0.1 * Math.sin(seed * 0.75);
     const phase = seed * 0.95;
     const k = (cycles * Math.PI * 2) / w;
 
@@ -536,7 +566,7 @@
       return amp * k * Math.cos(k * x + phase);
     }
 
-    const segs = Math.max(6, Math.round(cycles * 3));
+    const segs = Math.max(8, Math.round(cycles * 4));
     const segW = w / segs;
     const cp = segW / 3;
     let d = 'M0,' + yAt(0).toFixed(2);
@@ -562,29 +592,7 @@
     return d + ' L' + w + ',' + bottomY.toFixed(2) + ' L0,' + bottomY.toFixed(2) + ' Z';
   }
 
-  function renderByStreamWaveChart() {
-    const barEl = document.getElementById('analysis-cat-bar');
-    const legEl = document.getElementById('analysis-cat-legend');
-    if (!barEl || !legEl) return;
-
-    const built = getStreamCategoryRows();
-    const active = built.active;
-    const monthTotal = built.monthTotal;
-
-    if (!(monthTotal > 0) || !active.length) {
-      barEl.innerHTML = '';
-      barEl.style.height = '';
-      barEl.style.borderRadius = '';
-      barEl.style.overflow = '';
-      barEl.style.margin = '';
-      barEl.style.paddingTop = '';
-      barEl.style.display = '';
-      legEl.innerHTML = '';
-      legEl.classList.remove('tide-stream-legend--enter', 'tide-stream-legend--ready');
-      barEl.classList.remove('tide-stream-chart--enter', 'tide-stream-chart--ready');
-      return;
-    }
-
+  function paintByStreamWaveChart(barEl, legEl, active, monthTotal) {
     const heights = streamBandHeights(active, monthTotal);
     let defs = '';
     let paths = '';
@@ -596,7 +604,7 @@
       const bandH = heights[i];
       const topY = cursorY;
       const bottomY = cursorY + bandH;
-      const amp = Math.max(3.5, Math.min(11, bandH * 0.36));
+      const amp = Math.max(2.5, Math.min(7, bandH * 0.24));
       const seed = i * 1.37 + pctFrac * 4.2;
       const color = row.color;
       const gradKey = String(normalizeCatKey(row.cat)).replace(/[^a-zA-Z0-9]/g, '_');
@@ -622,7 +630,7 @@
         '<linearGradient id="' +
         gradB +
         '" gradientUnits="userSpaceOnUse" x1="0" y1="' +
-        (topY + 6).toFixed(2) +
+        (topY + 4).toFixed(2) +
         '" x2="0" y2="' +
         bottomY.toFixed(2) +
         '">' +
@@ -645,7 +653,7 @@
           '<path fill="url(#' +
           gradB +
           ')" d="' +
-          streamBandWavePath(topY + 6, bottomY, amp * 0.82, seed + 0.4) +
+          streamBandWavePath(topY + 4, bottomY, amp * 0.72, seed + 0.4) +
           '"/>';
       }
 
@@ -712,6 +720,45 @@
       .join('');
 
     fadeInByStreamChart(barEl, legEl);
+  }
+
+  function renderByStreamWaveChart() {
+    const barEl = document.getElementById('analysis-cat-bar');
+    const legEl = document.getElementById('analysis-cat-legend');
+    if (!barEl || !legEl) return;
+
+    const built = getStreamCategoryRows();
+    const active = built.active;
+    const monthTotal = built.monthTotal;
+
+    if (!(monthTotal > 0) || !active.length) {
+      barEl.innerHTML = '';
+      barEl.style.height = '';
+      barEl.style.borderRadius = '';
+      barEl.style.overflow = '';
+      barEl.style.margin = '';
+      barEl.style.paddingTop = '';
+      barEl.style.display = '';
+      legEl.innerHTML = '';
+      legEl.classList.remove('tide-stream-legend--enter', 'tide-stream-legend--ready', 'tide-stream-legend--exit');
+      barEl.classList.remove('tide-stream-chart--enter', 'tide-stream-chart--ready', 'tide-stream-chart--exit');
+      return;
+    }
+
+    function paint() {
+      paintByStreamWaveChart(barEl, legEl, active, monthTotal);
+    }
+
+    if (barEl.classList.contains('tide-stream-chart--ready') && barEl.querySelector('svg')) {
+      fadeOutByStreamChart(barEl, legEl, function () {
+        barEl.classList.remove('tide-stream-chart--exit');
+        legEl.classList.remove('tide-stream-legend--exit');
+        paint();
+      });
+      return;
+    }
+
+    paint();
   }
 
   function flowSurgeMonthMeta() {

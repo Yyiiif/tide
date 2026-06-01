@@ -3848,7 +3848,7 @@ function flashCumulativeMarkerDot(chart,dayIdx){
     if(!analysisCumulativeChart||analysisCumulativeChart!==chart)return;
     ds.pointBackgroundColor=origBg;
     chart.update('none');
-  },150);
+  },220);
 }
 function getCumulativeChartPointPixel(chart,dayIdx){
   if(!chart)return null;
@@ -4029,21 +4029,35 @@ function renderAnalysisCumulativeChart(){
       pointBorderColor:'#9CA8B4',
       pointBorderWidth:1.5
     }]},
-    options:{
-      responsive:true,
-      maintainAspectRatio:false,
-      layout:{padding:{right:24,top:20}},
-      plugins:{legend:{display:false},tooltip:{enabled:false}},
-      scales:{
-        x:{offset:true,grid:{display:false},ticks:{font:{family:'Inter',size:10},color:'#C0C4CC'}},
-        y:{
-          beginAtZero:true,
-          max:yMax,
-          grid:{display:false},
-          ticks:{font:{family:'Inter',size:10},color:'#C0C4CC',callback:function(v){return Math.round(Number(v)||0).toLocaleString();}}
-        }
+    options:(function(){
+      var dur=getReflowDurationMs(canvas);
+      var ease='easeOutQuart';
+      if(typeof Chart!=='undefined'&&Chart.helpers&&Chart.helpers.easing&&Chart.helpers.easing.effects&&Chart.helpers.easing.effects.reflow){
+        ease='reflow';
       }
-    },
+      return{
+        responsive:true,
+        maintainAspectRatio:false,
+        layout:{padding:{right:24,top:20}},
+        animation:{duration:dur,easing:ease},
+        animations:{
+          x:{duration:dur,easing:ease},
+          y:{duration:dur,easing:ease},
+          radius:{duration:dur,easing:ease,from:0}
+        },
+        transitions:{resize:{animation:{duration:0}}},
+        plugins:{legend:{display:false},tooltip:{enabled:false}},
+        scales:{
+          x:{offset:true,grid:{display:false},ticks:{font:{family:'Inter',size:10},color:'#C0C4CC'}},
+          y:{
+            beginAtZero:true,
+            max:yMax,
+            grid:{display:false},
+            ticks:{font:{family:'Inter',size:10},color:'#C0C4CC',callback:function(v){return Math.round(Number(v)||0).toLocaleString();}}
+          }
+        }
+      };
+    })(),
     plugins:[analysisCumulativeMarkerValueLabelsPlugin()]
   });
   window.__cumulativeChartMeta={y:y,m:m,accelerationDays:accelerationDays,lastIdx:data.length-1,lastIsEndpoint:accelerationDays.indexOf(data.length-1)<0};
@@ -4239,13 +4253,20 @@ function renderAnalysisMonthlyTrendCatPills(catList){
   });
   el.innerHTML=parts.join('');
 }
-function getReflowDurationMs(){
+function getReflowDurationMs(el){
   try{
-    var v=getComputedStyle(document.documentElement).getPropertyValue('--reflow-duration').trim();
-    if(v.indexOf('ms')>=0)return parseFloat(v)||600;
-    if(v.indexOf('s')>=0)return(parseFloat(v)||0.6)*1000;
+    var scope=document.documentElement;
+    if(el&&typeof el.closest==='function'){
+      var inStat=el.closest('#s-stat');
+      if(inStat)scope=inStat;
+    }
+    var v=getComputedStyle(scope).getPropertyValue('--flow-motion-duration').trim();
+    if(!v)v=getComputedStyle(scope).getPropertyValue('--reflow-duration').trim();
+    var fallback=scope.id==='s-stat'?900:600;
+    if(v.indexOf('ms')>=0)return parseFloat(v)||fallback;
+    if(v.indexOf('s')>=0)return(parseFloat(v)||fallback/1000)*1000;
   }catch(_){}
-  return 600;
+  return el?900:600;
 }
 function reflowEase(t){
   var x1=0.25,y1=1,x2=0.5,y2=1;
@@ -4268,6 +4289,22 @@ function reflowEase(t){
   if(!Chart.helpers.easing.effects)Chart.helpers.easing.effects={};
   Chart.helpers.easing.effects.reflow=reflowEase;
 })();
+function getReflowChartAnimationOptions(){
+  var dur=getReflowDurationMs();
+  var ease='easeOutCubic';
+  if(typeof Chart!=='undefined'&&Chart.helpers&&Chart.helpers.easing&&Chart.helpers.easing.effects&&Chart.helpers.easing.effects.reflow){
+    ease='reflow';
+  }
+  return{
+    animation:{duration:dur,easing:ease},
+    animations:{
+      x:{duration:dur,easing:ease},
+      y:{duration:dur,easing:ease},
+      radius:{duration:dur,easing:ease,from:0}
+    },
+    transitions:{resize:{animation:{duration:0}}}
+  };
+}
 function attachAnalysisMonthlyPointStyles(ds,color){
   ds._reflowLineColor=color;
   ds._reflowPointRadius=3;
