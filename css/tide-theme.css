@@ -279,7 +279,8 @@ body.tide-ui #s-home .tide-hero-card,
   box-shadow: 0 12px 32px -16px rgba(14, 15, 18, 0.18);
 }
 body.tide-ui .tide-hero-card--dry .tide-hero-wave-a,
-body.tide-ui .tide-hero-card--dry .tide-hero-wave-b {
+body.tide-ui .tide-hero-card--dry .tide-hero-wave-b,
+body.tide-ui .tide-hero-card--dry .tide-hero-wave-c {
   display: none;
 }
 /* Home REMAINING tank — at most ~⅓ of screen below header & above nav */
@@ -314,6 +315,16 @@ body.tide-ui #s-home .tide-hero-card {
 .tide-hero-wave-b {
   animation: tideDriftB 5.2s linear infinite;
   will-change: transform;
+}
+.tide-hero-wave-c {
+  animation: tideDriftA 8.5s linear infinite;
+  will-change: transform;
+}
+body.tide-ui .tide-hero-tank-svg .tide-hero-wave-a,
+body.tide-ui .tide-hero-tank-svg .tide-hero-wave-b,
+body.tide-ui .tide-hero-tank-svg .tide-hero-wave-c {
+  animation: none;
+  will-change: auto;
 }
 .tide-hero-overlay {
   position: absolute;
@@ -744,7 +755,52 @@ body.tide-ui .tide-flow-surge-card-days {
   margin-top: 2px;
 }
 
-/* BY STREAM */
+/* BY STREAM — left-to-right soft reveal */
+body.tide-ui #analysis-cat-bar.tide-stream-chart--enter,
+body.tide-ui #analysis-cat-bar.tide-stream-chart--ready,
+body.tide-ui #analysis-cat-legend.tide-stream-legend--enter,
+body.tide-ui #analysis-cat-legend.tide-stream-legend--ready {
+  -webkit-mask-image: linear-gradient(to right, #000 0%, #000 72%, transparent 100%);
+  mask-image: linear-gradient(to right, #000 0%, #000 72%, transparent 100%);
+  -webkit-mask-size: 240% 100%;
+  mask-size: 240% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+}
+body.tide-ui #analysis-cat-bar.tide-stream-chart--enter {
+  -webkit-mask-position: 100% 0;
+  mask-position: 100% 0;
+}
+body.tide-ui #analysis-cat-bar.tide-stream-chart--ready {
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
+  transition:
+    -webkit-mask-position 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    mask-position 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+body.tide-ui #analysis-cat-legend.tide-stream-legend--enter {
+  -webkit-mask-position: 100% 0;
+  mask-position: 100% 0;
+}
+body.tide-ui #analysis-cat-legend.tide-stream-legend--ready {
+  -webkit-mask-position: 0 0;
+  mask-position: 0 0;
+  transition:
+    -webkit-mask-position 0.48s cubic-bezier(0.22, 1, 0.36, 1),
+    mask-position 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: 140ms;
+}
+@media (prefers-reduced-motion: reduce) {
+  body.tide-ui #analysis-cat-bar.tide-stream-chart--ready,
+  body.tide-ui #analysis-cat-legend.tide-stream-legend--ready {
+    -webkit-mask-image: none;
+    mask-image: none;
+    transition: none;
+  }
+}
+body.tide-ui #s-stat .donut-card.tide-pulse-section:first-of-type .donut-title {
+  margin-bottom: 12px;
+}
 body.tide-ui .tide-pulse-stream-host {
   height: auto !important;
   margin: 0 !important;

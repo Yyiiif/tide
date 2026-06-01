@@ -105,8 +105,21 @@
 
   const HERO_REMAINING_WATER_MIN = 0.03;
   const HERO_REMAINING_WATER_MAX = 0.4;
-  const HERO_SPENT_WATER_MIN = 0.3;
+  /** At $0 — enough fill so REMAINING foot text sits on dark water. */
+  const HERO_SPENT_WATER_ZERO = 0.32;
   const HERO_SPENT_WATER_MAX = 0.8;
+  /** Typical monthly spend band (TWD) — maps to 35%–65% water. */
+  const HERO_SPENT_NORMAL_LOW = 20000;
+  const HERO_SPENT_NORMAL_HIGH = 40000;
+  /** Above normal high → ramp toward high water; at/above → full high water. */
+  const HERO_SPENT_EXTREME = 60000;
+  const HERO_SPENT_WATER_NORMAL_MIN = 0.35;
+  const HERO_SPENT_WATER_NORMAL_MAX = 0.65;
+
+  function lerp(a, b, t) {
+    const x = Math.max(0, Math.min(1, Number(t) || 0));
+    return a + (b - a) * x;
+  }
 
   /** REMAINING hero — visual fill between 3% and 40%. */
   function clampHeroWaterLevel(raw) {
@@ -115,11 +128,13 @@
     return Math.max(HERO_REMAINING_WATER_MIN, Math.min(HERO_REMAINING_WATER_MAX, r));
   }
 
-  /** SPENT hero — clamp mapped ratio to 30%–80%. */
+  /** SPENT hero — linear map for 0–1 ratio; 1 = high water. */
   function clampHeroSpentWaterLevel(raw) {
     const r = Number(raw);
-    if (!Number.isFinite(r) || r <= 0) return HERO_SPENT_WATER_MIN;
-    return Math.max(HERO_SPENT_WATER_MIN, Math.min(HERO_SPENT_WATER_MAX, r));
+    if (!Number.isFinite(r) || r <= 0) return HERO_SPENT_WATER_ZERO;
+    const t = Math.min(1, r);
+    if (t >= 1) return HERO_SPENT_WATER_MAX;
+    return HERO_SPENT_WATER_ZERO + t * (HERO_SPENT_WATER_MAX - HERO_SPENT_WATER_ZERO);
   }
 
   function expenseMonthKeys() {
@@ -143,17 +158,52 @@
     return max;
   }
 
-  /** 0–1 ratio from absolute spend vs personal peak month spend. */
-  function spentHeroRawRatio(spent) {
-    const amt = Number(spent) || 0;
-    if (amt <= 0) return 0;
-    const cap = maxMonthSpentTotal();
-    if (cap <= 0) return 1;
-    return Math.min(1, amt / cap);
+  /** Peak month spend excluding the month being viewed (stable bar for current month). */
+  function spentHeroExtremeCap(ym) {
+    const viewMonth = resolveMonth(ym);
+    let max = 0;
+    expenseMonthKeys().forEach(function (k) {
+      if (k === viewMonth) return;
+      const t = monthSpentTotal(k);
+      if (t > max) max = t;
+    });
+    return max;
   }
 
-  function spentHeroWaterLevel(spent) {
-    return clampHeroSpentWaterLevel(spentHeroRawRatio(spent));
+  function spentHeroScaleCap(ym) {
+    return HERO_SPENT_EXTREME;
+  }
+
+  /** 0–1 ratio across full spend scale (extreme = 1). */
+  function spentHeroRawRatio(spent, ym) {
+    const amt = Number(spent) || 0;
+    if (amt <= 0) return 0;
+    if (amt >= HERO_SPENT_EXTREME) return 1;
+    return amt / HERO_SPENT_EXTREME;
+  }
+
+  /**
+   * $0 → 32%（襯 REMAINING 文字）；0–2萬 → 32%–35%；2–4萬 → 35%–65%；4–6萬 → 65%–80%；≥6萬 → 80%。
+   */
+  function spentHeroWaterLevel(spent, ym) {
+    const amt = Number(spent) || 0;
+    if (amt <= 0) return HERO_SPENT_WATER_ZERO;
+    if (amt >= HERO_SPENT_EXTREME) return HERO_SPENT_WATER_MAX;
+    if (amt >= HERO_SPENT_NORMAL_HIGH) {
+      return lerp(
+        HERO_SPENT_WATER_NORMAL_MAX,
+        HERO_SPENT_WATER_MAX,
+        (amt - HERO_SPENT_NORMAL_HIGH) / (HERO_SPENT_EXTREME - HERO_SPENT_NORMAL_HIGH)
+      );
+    }
+    if (amt >= HERO_SPENT_NORMAL_LOW) {
+      return lerp(
+        HERO_SPENT_WATER_NORMAL_MIN,
+        HERO_SPENT_WATER_NORMAL_MAX,
+        (amt - HERO_SPENT_NORMAL_LOW) / (HERO_SPENT_NORMAL_HIGH - HERO_SPENT_NORMAL_LOW)
+      );
+    }
+    return lerp(HERO_SPENT_WATER_ZERO, HERO_SPENT_WATER_NORMAL_MIN, amt / HERO_SPENT_NORMAL_LOW);
   }
 
   function clampHeroWaterLevelForMode(raw, mode) {
@@ -246,10 +296,10 @@
     const heroAmount = showSpent ? spent : remaining;
     const heroSubSpent = showSpent ? spent : hasBalanceView ? snapshotSpent : spent;
     const rawLevel = showSpent
-      ? spentHeroRawRatio(spent)
+      ? spentHeroRawRatio(spent, monthKey)
       : remainingHeroRawRatio(remaining, monthKey);
     const level = showSpent
-      ? spentHeroWaterLevel(spent)
+      ? spentHeroWaterLevel(spent, monthKey)
       : clampHeroWaterLevel(rawLevel);
     const days = daysLeftForMonth(monthKey);
     return {
@@ -320,6 +370,8 @@
     clampHeroWaterLevel: clampHeroWaterLevel,
     clampHeroSpentWaterLevel: clampHeroSpentWaterLevel,
     maxMonthSpentTotal: maxMonthSpentTotal,
+    spentHeroExtremeCap: spentHeroExtremeCap,
+    spentHeroScaleCap: spentHeroScaleCap,
     spentHeroWaterLevel: spentHeroWaterLevel,
     clampHeroWaterLevelForMode: clampHeroWaterLevelForMode,
     homeHeroMetrics: homeHeroMetrics,

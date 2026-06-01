@@ -54,10 +54,38 @@
 
   const STREAM_SVG_H = 110;
   const STREAM_SVG_W = 320;
-  const STREAM_WAVE_PAD_TOP = 14;
+  const STREAM_WAVE_PAD_TOP = 18;
   const STREAM_MIN_BAND = 6;
   const STREAM_BAND_SCALE = 0.9;
   const STREAM_BAND_GAP = 4;
+
+  function fadeInByStreamChart(barEl, legEl) {
+    const reduced =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    barEl.classList.remove('tide-stream-chart--ready');
+    barEl.classList.add('tide-stream-chart--enter');
+    legEl.classList.remove('tide-stream-legend--ready');
+    legEl.classList.add('tide-stream-legend--enter');
+
+    if (reduced) {
+      barEl.classList.remove('tide-stream-chart--enter');
+      barEl.classList.add('tide-stream-chart--ready');
+      legEl.classList.remove('tide-stream-legend--enter');
+      legEl.classList.add('tide-stream-legend--ready');
+      return;
+    }
+
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        barEl.classList.remove('tide-stream-chart--enter');
+        barEl.classList.add('tide-stream-chart--ready');
+        legEl.classList.remove('tide-stream-legend--enter');
+        legEl.classList.add('tide-stream-legend--ready');
+      });
+    });
+  }
 
   function normalizeCatKey(name) {
     if (window.ReflowCalc && typeof ReflowCalc.normalizeCat === 'function') {
@@ -132,31 +160,95 @@
         : raw > 0
           ? Math.max(0.03, Math.min(0.4, raw))
           : 0;
-    const p = lv > 0 ? wavePaths(w, h, lv) : null;
+    const showWaves = lv > 0;
     const gid = gradId || 'tideHeroGrad';
-    const waveLayers =
-      p != null
-        ? '<g class="tide-hero-wave-a">' +
-          p.loopSizer +
-          '<path d="' +
-          p.back +
-          '" fill="#ECEEF2" opacity="0.85"/></g>' +
-          '<g class="tide-hero-wave-b">' +
-          p.loopSizer +
-          '<path d="' +
-          p.front +
-          '" fill="url(#' +
-          gid +
-          ')"/></g>'
-        : '';
+    const HERO_WAVE_TILES = 8;
+    const surfaceY = h - h * lv;
+    function waveDriftAnimate(shift, dur, reverse) {
+      if (reverse) {
+        return (
+          '<animateTransform attributeName="transform" type="translate" dur="' +
+          dur +
+          's" repeatCount="indefinite" calcMode="linear" from="' +
+          shift +
+          ' 0" to="0 0"/>'
+        );
+      }
+      return (
+        '<animateTransform attributeName="transform" type="translate" dur="' +
+        dur +
+        's" repeatCount="indefinite" calcMode="linear" from="0 0" to="' +
+        shift +
+        ' 0"/>'
+      );
+    }
+    const loop =
+      '<rect class="tide-hero-wave-loop" x="0" y="0" width="' +
+      w * 2 +
+      '" height="1" fill="none" aria-hidden="true"/>';
+    function wavePath(surface, amp, freq, phase) {
+      const tileW = w;
+      const endX = tileW * HERO_WAVE_TILES;
+      const pts = [];
+      for (let x = 0; x <= endX; x += 4) {
+        const y = surface + Math.sin((x / tileW) * freq * Math.PI * 2 + phase) * amp;
+        pts.push(x.toFixed(1) + ',' + y.toFixed(1));
+      }
+      return (
+        'M 0 ' +
+        (h + 8) +
+        ' L 0 ' +
+        surface +
+        ' L ' +
+        pts.join(' L ') +
+        ' L ' +
+        endX +
+        ' ' +
+        (h + 8) +
+        ' Z'
+      );
+    }
+    function waveLayer(className, surface, amp, freq, phase, fill, dur, reverse) {
+      const shift = -(w / freq);
+      return (
+        '<g class="' +
+        className +
+        '">' +
+        waveDriftAnimate(shift, dur, reverse) +
+        loop +
+        '<path d="' +
+        wavePath(surface, amp, freq, phase) +
+        '" fill="' +
+        fill +
+        '"/></g>'
+      );
+    }
+    const waveGradDefs = showWaves
+      ? '<linearGradient id="wg1" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0%" stop-color="#6E8CA4" stop-opacity="0.5"/>' +
+        '<stop offset="100%" stop-color="#6E8CA4" stop-opacity="0.12"/>' +
+        '</linearGradient>' +
+        '<linearGradient id="wg2" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0%" stop-color="#485E74" stop-opacity="0.45"/>' +
+        '<stop offset="100%" stop-color="#485E74" stop-opacity="0.1"/>' +
+        '</linearGradient>' +
+        '<linearGradient id="wg3" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0%" stop-color="#2C404E" stop-opacity="0.4"/>' +
+        '<stop offset="100%" stop-color="#2C404E" stop-opacity="0.08"/>' +
+        '</linearGradient>'
+      : '';
+    const wavePaths = showWaves
+      ? waveLayer('tide-hero-wave-a', surfaceY, 14, 2, 0, 'url(#wg1)', 7, false) +
+        waveLayer('tide-hero-wave-b', surfaceY + 8, 10, 3, Math.PI / 2, 'url(#wg2)', 5.2, true) +
+        waveLayer('tide-hero-wave-c', surfaceY + 14, 8, 2, Math.PI, 'url(#wg3)', 8.5, false)
+      : '';
     return (
-      '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true">' +
-      '<defs><linearGradient id="' + gid + '" x1="0" x2="0" y1="0" y2="1">' +
-      '<stop offset="0" stop-color="#D4D6DA" stop-opacity="0.65"/>' +
-      '<stop offset="1" stop-color="#101113" stop-opacity="0.88"/></linearGradient>' +
+      '<svg class="tide-hero-tank-svg" viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true">' +
+      '<defs>' +
+      waveGradDefs +
       '<clipPath id="' + gid + 'Clip"><rect width="' + w + '" height="' + h + '" rx="22"/></clipPath></defs>' +
       '<g clip-path="url(#' + gid + 'Clip)">' +
-      waveLayers +
+      wavePaths +
       '</g></svg>'
     );
   }
@@ -299,10 +391,7 @@
       ? Math.max(0, Number(m.remaining))
       : Math.max(0, (Number(m.budgetTotal) || 0) - (Number(m.spent) || 0));
     const leftFootValue = mask ? '$＊＊＊' : fmt(remainingAmt);
-    const heroLevel =
-      m.emptyMonth || !(m.budgetTotal > 0)
-        ? 0
-        : Math.max(0, Math.min(1, (m.spent || 0) / m.budgetTotal));
+    const heroLevel = m.emptyMonth ? 0 : Number(m.spent) || 0;
 
     const summary = home.querySelector('.home-summary');
     if (summary) summary.classList.toggle('tide-home--empty-month', !!m.emptyMonth);
@@ -435,37 +524,42 @@
   }
 
   function streamBandWavePath(topY, bottomY, amp, seed) {
-    const s = seed;
-    const a = amp;
-    const y = topY;
-    const y0 = y + a * 0.12 * Math.sin(s * 1.3);
-    const c1y = y - a * (1.25 + 0.22 * Math.sin(s));
-    const c2y = y + a * (1.05 + 0.28 * Math.cos(s + 0.85));
-    const midY = y + a * 0.08 * Math.cos(s * 0.9 + 1.1);
-    const c5y = y - a * (0.95 + 0.2 * Math.sin(s + 1.6));
-    const c6y = y + a * (0.72 + 0.18 * Math.cos(s + 2.3));
-    const endY = y + a * 0.1 * Math.sin(s * 1.7 + 0.55);
-    return (
-      'M0,' +
-      y0.toFixed(2) +
-      ' C80,' +
-      c1y.toFixed(2) +
-      ' 160,' +
-      c2y.toFixed(2) +
-      ' 240,' +
-      midY.toFixed(2) +
-      ' C280,' +
-      c5y.toFixed(2) +
-      ' 310,' +
-      c6y.toFixed(2) +
-      ' 320,' +
-      endY.toFixed(2) +
-      ' L320,' +
-      bottomY.toFixed(2) +
-      ' L0,' +
-      bottomY.toFixed(2) +
-      ' Z'
-    );
+    const w = STREAM_SVG_W;
+    const cycles = 1.55 + 0.18 * Math.sin(seed * 0.75);
+    const phase = seed * 0.95;
+    const k = (cycles * Math.PI * 2) / w;
+
+    function yAt(x) {
+      return topY + amp * Math.sin(k * x + phase);
+    }
+    function dyAt(x) {
+      return amp * k * Math.cos(k * x + phase);
+    }
+
+    const segs = Math.max(6, Math.round(cycles * 3));
+    const segW = w / segs;
+    const cp = segW / 3;
+    let d = 'M0,' + yAt(0).toFixed(2);
+    for (let i = 0; i < segs; i++) {
+      const x0 = i * segW;
+      const x1 = i === segs - 1 ? w : (i + 1) * segW;
+      const y0 = yAt(x0);
+      const y1 = yAt(x1);
+      d +=
+        ' C' +
+        (x0 + cp).toFixed(2) +
+        ',' +
+        (y0 + dyAt(x0) * cp).toFixed(2) +
+        ' ' +
+        (x1 - cp).toFixed(2) +
+        ',' +
+        (y1 - dyAt(x1) * cp).toFixed(2) +
+        ' ' +
+        x1.toFixed(2) +
+        ',' +
+        y1.toFixed(2);
+    }
+    return d + ' L' + w + ',' + bottomY.toFixed(2) + ' L0,' + bottomY.toFixed(2) + ' Z';
   }
 
   function renderByStreamWaveChart() {
@@ -486,6 +580,8 @@
       barEl.style.paddingTop = '';
       barEl.style.display = '';
       legEl.innerHTML = '';
+      legEl.classList.remove('tide-stream-legend--enter', 'tide-stream-legend--ready');
+      barEl.classList.remove('tide-stream-chart--enter', 'tide-stream-chart--ready');
       return;
     }
 
@@ -500,11 +596,12 @@
       const bandH = heights[i];
       const topY = cursorY;
       const bottomY = cursorY + bandH;
-      const amp = Math.max(3, Math.min(11, bandH * 0.34));
+      const amp = Math.max(3.5, Math.min(11, bandH * 0.36));
       const seed = i * 1.37 + pctFrac * 4.2;
       const color = row.color;
-      const gradA = 'grad_' + row.cat + '_a';
-      const gradB = 'grad_' + row.cat + '_b';
+      const gradKey = String(normalizeCatKey(row.cat)).replace(/[^a-zA-Z0-9]/g, '_');
+      const gradA = 'grad_' + gradKey + '_a';
+      const gradB = 'grad_' + gradKey + '_b';
       const safe = String(row.cat).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
       defs +=
@@ -525,7 +622,7 @@
         '<linearGradient id="' +
         gradB +
         '" gradientUnits="userSpaceOnUse" x1="0" y1="' +
-        (topY + 8).toFixed(2) +
+        (topY + 6).toFixed(2) +
         '" x2="0" y2="' +
         bottomY.toFixed(2) +
         '">' +
@@ -548,7 +645,7 @@
           '<path fill="url(#' +
           gradB +
           ')" d="' +
-          streamBandWavePath(topY + 8, bottomY, amp * 0.9, seed + 0.55) +
+          streamBandWavePath(topY + 6, bottomY, amp * 0.82, seed + 0.4) +
           '"/>';
       }
 
@@ -613,6 +710,8 @@
         );
       })
       .join('');
+
+    fadeInByStreamChart(barEl, legEl);
   }
 
   function flowSurgeMonthMeta() {

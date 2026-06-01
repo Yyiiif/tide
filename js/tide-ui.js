@@ -71,8 +71,11 @@ window.TideUI = (function () {
     };
   }
 
-  function seamlessWaveMarkup(waves, backFill, frontFill, backOpacity) {
-    const op = backOpacity != null ? ' opacity="' + backOpacity + '"' : '';
+  function seamlessWaveMarkup(waves, backFill, frontFill, backFillOpacity, frontFillOpacity) {
+    const backOp =
+      backFillOpacity != null ? ' fill-opacity="' + backFillOpacity + '"' : '';
+    const frontOp =
+      frontFillOpacity != null ? ' fill-opacity="' + frontFillOpacity + '"' : '';
     return (
       '<g class="tide-hero-wave-a">' +
       waves.loopSizer +
@@ -81,7 +84,7 @@ window.TideUI = (function () {
       '" fill="' +
       backFill +
       '"' +
-      op +
+      backOp +
       '/></g>' +
       '<g class="tide-hero-wave-b">' +
       waves.loopSizer +
@@ -89,18 +92,120 @@ window.TideUI = (function () {
       waves.front +
       '" fill="' +
       frontFill +
-      '"/></g>'
+      '"' +
+      frontOp +
+      '/></g>'
     );
   }
 
   function heroTankVisualLevel(level, mode) {
+    if (mode === 'spent') {
+      const amt = Number(level) || 0;
+      if (window.ReflowCalc && typeof ReflowCalc.spentHeroWaterLevel === 'function') {
+        return ReflowCalc.spentHeroWaterLevel(amt);
+      }
+    }
     const raw = Math.max(0, Math.min(1, Number(level) || 0));
     if (window.ReflowCalc && typeof ReflowCalc.clampHeroWaterLevelForMode === 'function') {
       return ReflowCalc.clampHeroWaterLevelForMode(raw, mode);
     }
-    if (raw <= 0) return mode === 'spent' ? 0.3 : 0;
-    if (mode === 'spent') return Math.max(0.3, Math.min(0.8, raw));
+    if (raw <= 0) return mode === 'spent' ? 0.32 : 0;
+    if (mode === 'spent') return Math.max(0.32, Math.min(0.8, raw));
     return Math.max(0.03, Math.min(0.4, raw));
+  }
+
+  const HERO_WAVE_TILES = 8;
+
+  function tideHeroSeamlessWavePath(w, h, surfaceY, amp, freq, phase) {
+    const tileW = w;
+    const endX = tileW * HERO_WAVE_TILES;
+    const pts = [];
+    for (let x = 0; x <= endX; x += 4) {
+      const y = surfaceY + Math.sin((x / tileW) * freq * Math.PI * 2 + phase) * amp;
+      pts.push(x.toFixed(1) + ',' + y.toFixed(1));
+    }
+    return (
+      'M 0 ' +
+      (h + 8) +
+      ' L 0 ' +
+      surfaceY +
+      ' L ' +
+      pts.join(' L ') +
+      ' L ' +
+      endX +
+      ' ' +
+      (h + 8) +
+      ' Z'
+    );
+  }
+
+  function tideHeroWaveDriftAnimate(shift, dur, reverse) {
+    if (reverse) {
+      return (
+        '<animateTransform attributeName="transform" type="translate" dur="' +
+        dur +
+        's" repeatCount="indefinite" calcMode="linear" from="' +
+        shift +
+        ' 0" to="0 0"/>'
+      );
+    }
+    return (
+      '<animateTransform attributeName="transform" type="translate" dur="' +
+      dur +
+      's" repeatCount="indefinite" calcMode="linear" from="0 0" to="' +
+      shift +
+      ' 0"/>'
+    );
+  }
+
+  function tideHeroWaveLoopSizer(w) {
+    return (
+      '<rect class="tide-hero-wave-loop" x="0" y="0" width="' +
+      w * 2 +
+      '" height="1" fill="none" aria-hidden="true"/>'
+    );
+  }
+
+  function tideHeroWaveLayer(className, w, h, surfaceY, amp, freq, phase, fill, dur, reverse) {
+    const shift = -(w / freq);
+    return (
+      '<g class="' +
+      className +
+      '">' +
+      tideHeroWaveDriftAnimate(shift, dur, reverse) +
+      tideHeroWaveLoopSizer(w) +
+      '<path d="' +
+      tideHeroSeamlessWavePath(w, h, surfaceY, amp, freq, phase) +
+      '" fill="' +
+      fill +
+      '"/></g>'
+    );
+  }
+
+  function tideHeroWaveGradDefs() {
+    return (
+      '<linearGradient id="wg1" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0%" stop-color="#6E8CA4" stop-opacity="0.5"/>' +
+      '<stop offset="100%" stop-color="#6E8CA4" stop-opacity="0.12"/>' +
+      '</linearGradient>' +
+      '<linearGradient id="wg2" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0%" stop-color="#485E74" stop-opacity="0.45"/>' +
+      '<stop offset="100%" stop-color="#485E74" stop-opacity="0.1"/>' +
+      '</linearGradient>' +
+      '<linearGradient id="wg3" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0%" stop-color="#2C404E" stop-opacity="0.4"/>' +
+      '<stop offset="100%" stop-color="#2C404E" stop-opacity="0.08"/>' +
+      '</linearGradient>'
+    );
+  }
+
+  function tideHeroLayeredWavePaths(w, h, lv) {
+    const surfaceY = h - h * lv;
+    return (
+      tideHeroWaveLayer('tide-hero-wave-a', w, h, surfaceY, 14, 2, 0, 'url(#wg1)', 7, false) +
+      tideHeroWaveLayer('tide-hero-wave-b', w, h, surfaceY + 10, 10, 3, Math.PI / 2, 'url(#wg2)', 5.2, true) +
+      tideHeroWaveLayer('tide-hero-wave-c', w, h, surfaceY + 18, 8, 2, Math.PI, 'url(#wg3)', 8.5, false)
+    );
   }
 
   function tideHeroTankMarkup(level, mode) {
@@ -108,8 +213,6 @@ window.TideUI = (function () {
     const h = 320;
     const lv = heroTankVisualLevel(level, mode);
     const showWaves = lv > 0;
-    const surfaceY = h - h * lv;
-    const waves = showWaves ? seamlessWavePaths(w, h, surfaceY, 14, 10) : null;
     const ticks = [0.25, 0.5, 0.75]
       .map(function (p) {
         const y = h * (1 - p);
@@ -138,13 +241,7 @@ window.TideUI = (function () {
       h +
       '" preserveAspectRatio="none" aria-hidden="true">' +
       '<defs>' +
-      '<linearGradient id="tideHeroGrad" x1="0" x2="0" y1="0" y2="1">' +
-      '<stop offset="0" stop-color="' +
-      WAVE_LITE +
-      '" stop-opacity="0.65"/>' +
-      '<stop offset="1" stop-color="' +
-      WAVE_DEEP +
-      '" stop-opacity="0.88"/></linearGradient>' +
+      (showWaves ? tideHeroWaveGradDefs() : '') +
       '<clipPath id="tideHeroGradClip"><rect width="' +
       w +
       '" height="' +
@@ -152,7 +249,7 @@ window.TideUI = (function () {
       '" rx="22"/></clipPath>' +
       '</defs>' +
       '<g clip-path="url(#tideHeroGradClip)" color="var(--tide-ink,#101113)">' +
-      (waves ? seamlessWaveMarkup(waves, WAVE_BACK, 'url(#tideHeroGrad)', '0.85') : '') +
+      (showWaves ? tideHeroLayeredWavePaths(w, h, lv) : '') +
       ticks +
       '</g></svg>'
     );
@@ -919,14 +1016,26 @@ window.TideUI = (function () {
       .replace(/</g, '&lt;');
   }
 
-  function pulseHeatBarBg(amt, maxDaily, isFuture) {
-    if (!amt || amt <= 0) return 'var(--tide-hair)';
-    if (isFuture) return 'var(--tide-hair)';
+  const PULSE_COLORS = [
+    '#E4E8EC', // level 0 — no spending
+    '#C8D0D8', // level 1 — low
+    '#A8B4BF', // level 2 — medium
+    '#8898A8', // level 3 — high
+    '#445060', // level 4 — very high
+  ];
+
+  function pulseHeatLevel(amt, maxDaily) {
+    if (!amt || amt <= 0) return 0;
     const ratio = maxDaily > 0 ? amt / maxDaily : 0;
-    const mix = 0.18 + Math.min(1, ratio) * 0.72;
-    return (
-      'color-mix(in srgb, var(--tide-wave-deep, #101113) ' + Math.round(mix * 100) + '%, transparent)'
-    );
+    if (ratio <= 0.3) return 1;
+    if (ratio <= 0.55) return 2;
+    if (ratio <= 0.75) return 3;
+    return 4;
+  }
+
+  function pulseHeatBarBg(amt, maxDaily, isFuture) {
+    if (isFuture && (!amt || amt <= 0)) return PULSE_COLORS[0];
+    return PULSE_COLORS[pulseHeatLevel(amt, maxDaily)];
   }
 
   function pulseHeatmapMarkup(daily, todayIdx, meta) {
@@ -996,16 +1105,11 @@ window.TideUI = (function () {
         '</div></div>';
     }
 
-    const legend = [0.1, 0.3, 0.55, 0.8, 1]
-      .map(function (t) {
-        const mix = 0.18 + t * 0.72;
-        return (
-          '<span class="tide-pulse-heat-leg-swatch" style="background:color-mix(in srgb, var(--tide-wave-deep, #101113) ' +
-          Math.round(mix * 100) +
-          '%, transparent)"></span>'
-        );
-      })
-      .join('');
+    const legend = PULSE_COLORS.map(function (color) {
+      return (
+        '<span class="tide-pulse-heat-leg-swatch" style="background:' + color + '"></span>'
+      );
+    }).join('');
     return (
       '<div class="tide-pulse-heat-bars">' +
       colsHtml +
