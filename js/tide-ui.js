@@ -8,6 +8,11 @@ window.TideUI = (function () {
   const WAVE_BACK = '#ECEEF2';
   const WAVE_LITE = '#D4D6DA';
   const WAVE_DEEP = '#101113';
+  const SCAN_BG_TOP = WAVE_LITE;
+  const SCAN_BG_MID = WAVE_BACK;
+  const SCAN_WAVE_BACK = WAVE_BACK;
+  const SCAN_WAVE_TOP = WAVE_LITE;
+  const SCAN_WAVE_BOTTOM = WATER;
 
   const CORE_CAT_NAMES = ['Food', 'Transit', 'Shopping', 'Entertain', 'Health', 'Other'];
 
@@ -765,19 +770,22 @@ window.TideUI = (function () {
       '<defs>' +
       '<radialGradient id="tideScanBg" cx="50%" cy="35%" r="65%">' +
       '<stop offset="0" stop-color="' +
-      WAVE_LITE +
-      '" stop-opacity="0.4"/>' +
+      SCAN_BG_TOP +
+      '" stop-opacity="0.95"/>' +
+      '<stop offset="0.6" stop-color="' +
+      SCAN_BG_MID +
+      '" stop-opacity="0.9"/>' +
       '<stop offset="1" stop-color="' +
-      WAVE_DEEP +
-      '" stop-opacity="0.06"/>' +
+      '#FFFFFF' +
+      '" stop-opacity="0.88"/>' +
       '</radialGradient>' +
       '<linearGradient id="tideScanFront" x1="0" x2="0" y1="0" y2="1">' +
       '<stop offset="0" stop-color="' +
-      WAVE_LITE +
-      '" stop-opacity="0.75"/>' +
-      '<stop offset="1" stop-color="' +
-      WAVE_DEEP +
+      SCAN_WAVE_TOP +
       '" stop-opacity="0.9"/>' +
+      '<stop offset="1" stop-color="' +
+      SCAN_WAVE_BOTTOM +
+      '" stop-opacity="0.95"/>' +
       '</linearGradient>' +
       '<clipPath id="tideScanClip"><circle cx="' +
       w / 2 +
@@ -793,7 +801,7 @@ window.TideUI = (function () {
       '" height="' +
       h +
       '" fill="url(#tideScanBg)"/>' +
-      seamlessWaveMarkup(waves, WAVE_BACK, 'url(#tideScanFront)', '0.7') +
+      seamlessWaveMarkup(waves, SCAN_WAVE_BACK, 'url(#tideScanFront)', '0.72') +
       '</g>' +
       '</svg></div>'
     );

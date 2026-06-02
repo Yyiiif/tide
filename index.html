@@ -154,7 +154,6 @@ body:has(#ov-long-term-trend.open) #s-stat .page-month-nav.sticky-month-navigato
 body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .global-bottom-nav-bar{display:none!important}
 #s-stat .scr-pad,#s-stat .donut-card,#s-stat .leg-table,#ov-long-term-trend .donut-card,#ov-long-term-trend .leg-table{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif!important;font-variant-numeric:tabular-nums}
 #s-stat #cat-center,#s-stat .leg-pct,#s-stat .leg-r{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif!important}
-#s-home #home-cat-center,#s-home .home-donut-label-row{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif!important;font-variant-numeric:tabular-nums}
 #s-rec .rec-page-toolbar{display:flex;justify-content:flex-end;align-items:center;margin:0;padding:0}
 .rec-hdr-pills{display:none !important;background:var(--bg3);border-radius:8px;padding:2px}
 .rec-hdr-pill{padding:4px 10px;font-size:12px;border-radius:6px;border:none;background:transparent;color:var(--t3);font-family:inherit;cursor:pointer;font-weight:400}
@@ -828,27 +827,6 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
   color: #37352F;
   letter-spacing: -0.01em;
 }
-.home-donut-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  margin: 0 0 12px;
-  padding: 4px 0 0;
-  box-sizing: border-box;
-}
-.home-donut-wrap {
-  position: relative;
-  flex-shrink: 0;
-}
-#home-cat-donut {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-#home-cat-center.is-masked {
-  letter-spacing: 0.06em;
-}
 .home-divider {
   height: 0.5px;
   background: var(--border);
@@ -1091,18 +1069,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
           <button type="button" class="home-header-nav-btn" onclick="shiftGlobalMonth(1)" aria-label="下個月">›</button>
         </div>
       </div>
-      <div class="home-donut-section">
-        <div id="home-donut-wrap" class="home-donut-wrap">
-          <canvas id="home-cat-donut" width="110" height="110"></canvas>
-          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none">
-            <div class="home-donut-label-row" style="display:flex;align-items:center;gap:4px;font-size:9px;font-weight:400;color:#8E8E93;line-height:1.2;pointer-events:none">
-              <span>花多少</span>
-            </div>
-            <div id="home-cat-center" style="font-size:12px;font-weight:600;color:#1C1C1E;line-height:1.2;font-variant-numeric:tabular-nums">$0</div>
-          </div>
-        </div>
-        <div id="home-balance-snapshot-wrap"></div>
-      </div>
+      <div id="home-balance-snapshot-wrap"></div>
       <div class="donut-card" id="home-cat-donut-card">
         <div class="category-section-header-container">
           <span class="category-section-title">分類花多少</span>
@@ -3151,40 +3118,8 @@ function monthCategoryMap(rows){
   var sorted=Object.entries(cm).sort(function(a,b){return b[1]-a[1];});
   return {cm:cm,total:total,sorted:sorted};
 }
-var HOME_DONUT_BASE_PX=110;
-function getHomeDonutPx(){
-  var base=document.querySelector('.content')||document.getElementById('s-home');
-  var w=base&&base.clientWidth?base.clientWidth:(window.innerWidth||390);
-  return Math.max(96,Math.round(w*0.35));
-}
-function applyHomeDonutLayout(px){
-  var wrap=document.getElementById('home-donut-wrap');
-  var cv=document.getElementById('home-cat-donut');
-  var labelRow=document.querySelector('#s-home .home-donut-label-row');
-  var centerEl=document.getElementById('home-cat-center');
-  if(!px||px<1)px=getHomeDonutPx();
-  if(wrap&&(!px||px<1))px=wrap.clientWidth||getHomeDonutPx();
-  var scale=px/HOME_DONUT_BASE_PX;
-  if(wrap){wrap.style.width=px+'px';wrap.style.height=px+'px';}
-  if(cv){cv.width=px;cv.height=px;cv.style.width=px+'px';cv.style.height=px+'px';}
-  var labelPx=Math.max(9,Math.round(9*scale));
-  var centerPx=Math.max(12,Math.round(12*scale));
-  var gapPx=Math.max(4,Math.round(4*scale));
-  if(labelRow){labelRow.style.fontSize=labelPx+'px';labelRow.style.gap=gapPx+'px';}
-  if(centerEl)centerEl.style.fontSize=centerPx+'px';
-}
 function renderHomeDonutChart(monthRows,monthTotal){
-  if(document.body.classList.contains('tide-ui'))return;
-  applyHomeDonutLayout(getHomeDonutPx());
-  var centerEl=document.getElementById('home-cat-center');
-  if(centerEl){
-    centerEl.textContent=isAmtHidden?'$＊＊＊':fmt(monthTotal);
-    centerEl.classList.toggle('is-masked',!!isAmtHidden);
-  }
-  var built=monthCategoryMap(monthRows);
-  if(homeCatChart){try{homeCatChart.destroy()}catch(_){}homeCatChart=null}
-  var cv=document.getElementById('home-cat-donut');
-  if(cv&&built.sorted.length&&typeof Chart!=='undefined')homeCatChart=donutChart('home-cat-donut',built.sorted);
+  return;
 }
 function renderHomeMonthLabel(ym){
   var moEl=document.getElementById('home-summary-month');
@@ -4793,38 +4728,63 @@ function normalizeGeminiImportRows(raw){
 }
 async function runAIParse(file,userContext){
   // Force Re-deploy to override 401 cache: 2026-06-02 17:02 UTC+8
-  const k1 = 'AQ.Ab8RN6IA6ef08ryfXWdQgH_sbZmnHE-VdeELPM0pHfxtAlfumA';
-  const k2 = '';
-  const key = k1 + k2;
+  const key = 'PROXY';
+  if(!key||key==='MOCK_KEY_PLACEHOLDER'){
+    throw new Error('Missing API credential. Please set a valid Gemini credential.');
+  }
   const b64=await fileToBase64(file);
   const mime=(file.type&&String(file.type).startsWith('image/'))?file.type:'image/jpeg';
   const ac=new AbortController();
   window.__importAbortCtrl=ac;
   try{
-    const url='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+encodeURIComponent(key);
-    const res=await fetch(url,{
+    const url = 'https://reflow-ai-proxy.emma1127fan.workers.dev';
+    const headers = { 'Content-Type': 'application/json' };
+    const res = await fetch(url, {
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers: headers,
       body:JSON.stringify({
-        contents:[{parts:[{text:(function(){var c=String(userContext||'').trim()||'unspecified';return 'Current Context: '+c+'\n\n'+GEMINI_WALLET_PARSER_PROMPT;})()},{inline_data:{mime_type:mime,data:b64}}]}],
-        generationConfig:{temperature:0.1,responseMimeType:'application/json'}
+        contents: [{ parts: [{ text: (function(){ var c = String(userContext || '').trim() || 'unspecified'; return 'Current Context: ' + c + '\n\n' + GEMINI_WALLET_PARSER_PROMPT; })() }, { inline_data: { mime_type: mime, data: b64 } }] }],
+        generationConfig: { temperature: 0.1, responseMimeType: 'application/json' }
       }),
       signal:ac.signal
     });
     if(!res.ok){
       let errBody='';
       try{errBody=await res.text()}catch(_){}
-      throw new Error(errBody?('API '+res.status+': '+errBody.slice(0,280)):'API 錯誤 '+res.status);
+      let detail='';
+      if(errBody){
+        try{
+          const parsedErr=JSON.parse(errBody);
+          detail=String(parsedErr?.error?.message||parsedErr?.message||'').trim();
+        }catch(_){
+          detail=String(errBody).replace(/\s+/g,' ').trim();
+        }
+      }
+      const err=new Error(detail?('API '+res.status+': '+detail):('API '+res.status));
+      err.status=res.status;
+      throw err;
     }
     const data=await res.json();
     const cand=data?.candidates?.[0];
     if(!cand)throw new Error('模型未回傳有效結果');
     const text=cand?.content?.parts?.map(p=>p.text).join('')||'';
     if(!String(text).trim()&&cand.finishReason)throw new Error('模型未完成（'+cand.finishReason+'）');
-    return normalizeGeminiImportRows(extractJsonArrayFromModelText(text));
+    const normalizedRows=normalizeGeminiImportRows(extractJsonArrayFromModelText(text));
+    if(!normalizedRows.length)throw new Error('NO_TRANSACTIONS_DETECTED');
+    return normalizedRows;
   }catch(err){
     if(err&&err.name==='AbortError')throw err;
-    if(typeof alert==='function')alert('解析失敗，請檢查網路或金鑰');
+    const errMsg=String(err&&err.message||'');
+    if(typeof alert==='function'){
+      if((err&&err.status===401)||/API\s*401\b/.test(errMsg)){
+        alert('API key is invalid or expired.');
+      }else if(errMsg==='NO_TRANSACTIONS_DETECTED'){
+        alert('Could not detect transactions from this image. Please upload a clearer screenshot.');
+      }else{
+        const cleanMsg=errMsg.replace(/\s+/g,' ').trim();
+        alert(cleanMsg?('Parse failed: '+cleanMsg):'Parse failed. Please check your network or API key.');
+      }
+    }
     throw err;
   }finally{
     if(window.__importAbortCtrl===ac)window.__importAbortCtrl=null;
@@ -5037,25 +4997,14 @@ function mountImportScanLottie(){
     return window.__importScanLottie;
   }
   el=document.getElementById('lottie-scanning-container');
-  if(!el||typeof lottie==='undefined')return null;
+  if(!el)return null;
   destroyImportScanLottie();
-  var startFrame=113;
-  var endFrame=227;
-  var animationInstance=lottie.loadAnimation({
-    container:el,
-    renderer:'canvas',
-    loop:false,
-    autoplay:false,
-    path:'assets/water_wave_gray.json'
-  });
-  function playFlowSegment(){
-    animationInstance.playSegments([startFrame,endFrame],true);
-    animationInstance.loop=true;
-  }
-  animationInstance.addEventListener('DOMLoaded',playFlowSegment);
-  window.__importLottieInstance=animationInstance;
-  window.__importScanLottie=animationInstance;
-  return animationInstance;
+  // Keep fallback scan animation in the same cool blue-gray family as homepage hero.
+  el.innerHTML=importWaveScanMarkup();
+  var waveInstance={destroy:function(){if(el)el.innerHTML='';}};
+  window.__importLottieInstance=waveInstance;
+  window.__importScanLottie=waveInstance;
+  return waveInstance;
 }
 function finishImportScanAnimation(cb){
   var stage=document.querySelector('.import-parse-stage');
