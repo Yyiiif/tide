@@ -4792,7 +4792,7 @@ function normalizeGeminiImportRows(raw){
   }).filter(it=>it.amt>0||it.name!=='—');
 }
 async function runAIParse(file,userContext){
-  const k1 = 'AIzaSyAyafZX9ZqMWVdTUkKC_XNmDoDbpfNJN00';
+  const k1 = 'MOCK_KEY_PLACEHOLDER';
   const k2 = '';
   const key = k1 + k2;
   const b64=await fileToBase64(file);
