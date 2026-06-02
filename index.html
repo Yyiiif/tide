@@ -4792,6 +4792,7 @@ function normalizeGeminiImportRows(raw){
   }).filter(it=>it.amt>0||it.name!=='—');
 }
 async function runAIParse(file,userContext){
+  // Force Re-deploy to override 401 cache: 2026-06-02 17:02 UTC+8
   const k1 = 'AQ.Ab8RN6IA6ef08ryfXWdQgH_sbZmnHE-VdeELPM0pHfxtAlfumA';
   const k2 = '';
   const key = k1 + k2;
