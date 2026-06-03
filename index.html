@@ -4988,18 +4988,15 @@ function destroyImportScanLottie(){
 }
 function mountImportScanLottie(){
   var el=document.getElementById('tide-scan-circle-host')||document.getElementById('lottie-scanning-container');
-  if(el&&window.TideUI){
-    destroyImportScanLottie();
+  if(!el)return null;
+  destroyImportScanLottie();
+  if(window.TideUI){
     el.className='tide-scan-circle-host';
     window.TideUI.mountScanCircle(el);
     window.__importScanLottie={destroy:function(){if(el)el.innerHTML='';}};
     window.__importLottieInstance=window.__importScanLottie;
     return window.__importScanLottie;
   }
-  el=document.getElementById('lottie-scanning-container');
-  if(!el)return null;
-  destroyImportScanLottie();
-  // Keep fallback scan animation in the same cool blue-gray family as homepage hero.
   el.innerHTML=importWaveScanMarkup();
   var waveInstance={destroy:function(){if(el)el.innerHTML='';}};
   window.__importLottieInstance=waveInstance;

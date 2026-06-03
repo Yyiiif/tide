@@ -1808,9 +1808,11 @@ body.tide-ui .tide-scan-svg {
 }
 /* Import scan uses same wave classes as hero (.tide-hero-wave-a/b) */
 body.tide-ui .tide-scan-line {
-  display: none !important;
-  stroke: none !important;
-  animation: none !important;
+  stroke: #6e8ca4;
+  stroke-width: 0.5;
+  stroke-dasharray: 3 3;
+  opacity: 0.45;
+  animation: tideScanLine 1.8s ease-in-out infinite alternate;
 }
 @keyframes tideScanLine {
   from {
