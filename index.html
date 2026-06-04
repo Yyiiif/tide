@@ -1865,7 +1865,8 @@ const REFLOW_SETTINGS_KEYS={
   cats:'cats_v2',
   specialEvents:'special_events_v1',
   budget:'budget_v2',
-  geminiApiKey:'reflow_gemini_api_key'
+  geminiApiKey:'reflow_gemini_api_key',
+  balanceSnapshots:'balance_snapshots_v1'
 };
 const ReflowDB=(function(){
   var _dbPromise=null;
@@ -1937,6 +1938,28 @@ const ReflowDB=(function(){
   return{open:open,getAllExpenses:getAllExpenses,replaceExpenses:replaceExpenses,getSetting:getSetting,setSetting:setSetting,hasAnyData:hasAnyData};
 })();
 async function migrateLocalStorageToIndexedDB(){
+  var rawBS=localStorage.getItem('balanceSnapshots');
+  var rawLegBS=localStorage.getItem('balanceSnapshot');
+  if(rawBS!=null||rawLegBS!=null){
+    var snapsToMigrate=[];
+    if(rawBS!=null){
+      try{var parsed=JSON.parse(rawBS);if(Array.isArray(parsed))snapsToMigrate=parsed;}catch(_){}
+    }else if(rawLegBS!=null){
+      try{
+        var leg=JSON.parse(rawLegBS);
+        if(leg&&Number(leg.amount)>0&&leg.date){
+          var legNow=Date.now();
+          snapsToMigrate=[{id:'b'+legNow,amount:Number(leg.amount)||0,date:String(leg.date),forMonth:String(leg.forMonth||String(leg.date).slice(0,7)),createdAt:new Date(legNow).toISOString()}];
+        }
+      }catch(_){}
+    }
+    if(snapsToMigrate.length>0){
+      snapsToMigrate.forEach(function(s){if(s)ensureBalanceSnapshotMeta(s);});
+      await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.balanceSnapshots,snapsToMigrate);
+    }
+    localStorage.removeItem('balanceSnapshots');
+    localStorage.removeItem('balanceSnapshot');
+  }
   var legacyKeys=['expenses','cats_v2','special_events_v1','reflow_gemini_api_key','budget_v2'];
   var hasLegacy=legacyKeys.some(function(k){return localStorage.getItem(k)!=null;});
   if(!hasLegacy)return false;
@@ -1980,6 +2003,9 @@ async function loadAppStateFromIndexedDB(){
   if(!Number.isFinite(budget))budget=17000;
   var loadedEvents=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.specialEvents,[]);
   specialEvents=Array.isArray(loadedEvents)?loadedEvents:[];
+  var savedSnapshots=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.balanceSnapshots,null);
+  balanceSnapshots=Array.isArray(savedSnapshots)?savedSnapshots:[];
+  balanceSnapshots.forEach(ensureBalanceSnapshotMeta);
 }
 async function pruneExpensesAfterMay2026Once(){
   var onceKey='reflow_prune_after_2026_05_done';
@@ -2049,25 +2075,6 @@ async function normalizeExpenseIds(){
 }
 if(!Array.isArray(expenses))expenses=[];
 let balanceSnapshots=[];
-(function loadBalanceSnapshotsInit(){
-  try{
-    var raw=localStorage.getItem('balanceSnapshots');
-    if(raw){balanceSnapshots=JSON.parse(raw)||[];}
-    else{
-      var legacy=localStorage.getItem('balanceSnapshot');
-      if(legacy){
-        var o=JSON.parse(legacy);
-        if(o&&Number(o.amount)>0&&o.date){
-          var migNow=Date.now();
-          balanceSnapshots=[{id:'b'+migNow,amount:Number(o.amount)||0,date:String(o.date),forMonth:String(o.forMonth||String(o.date).slice(0,7)),createdAt:new Date(migNow).toISOString()}];
-          localStorage.setItem('balanceSnapshots',JSON.stringify(balanceSnapshots));
-        }
-      }
-    }
-  }catch(_){balanceSnapshots=[];}
-  if(!Array.isArray(balanceSnapshots))balanceSnapshots=[];
-  balanceSnapshots.forEach(ensureBalanceSnapshotMeta);
-})();
 let balanceEditIdx=-1;
 let budget=17000;
 let catBudgets=JSON.parse(localStorage.getItem('cat_budgets_v1')||'{}');
@@ -2101,7 +2108,6 @@ function projectOverlapsYm(p,ym){
 }
 function saveSpecialEvents(){
   ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.specialEvents,JSON.parse(JSON.stringify(specialEvents))).catch(function(err){console.error('saveSpecialEvents failed',err);});
-  localStorage.setItem('bufferProjects',JSON.stringify(specialEvents));
 }
 function saveProjects(){saveSpecialEvents()}
 function projectCoversDate(p,dateStr){
@@ -2523,7 +2529,7 @@ function ensureBalanceSnapshotMeta(b){
 }
 function saveBalanceSnapshots(){
   balanceSnapshots.forEach(ensureBalanceSnapshotMeta);
-  localStorage.setItem('balanceSnapshots',JSON.stringify(balanceSnapshots));
+  ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.balanceSnapshots,balanceSnapshots).catch(function(e){console.error('saveBalanceSnapshots failed',e);});
 }
 function getActiveBalanceSnapshot(){
   if(!balanceSnapshots.length)return null;
@@ -5241,11 +5247,6 @@ function normalizeGeminiImportRows(raw){
   }).filter(it=>it.amt>0||it.name!=='—');
 }
 async function runAIParse(file,userContext){
-  // Force Re-deploy to override 401 cache: 2026-06-02 17:02 UTC+8
-  const key = 'PROXY';
-  if(!key||key==='MOCK_KEY_PLACEHOLDER'){
-    throw new Error('Missing API credential. Please set a valid Gemini credential.');
-  }
   const b64=await fileToBase64(file);
   const mime=(file.type&&String(file.type).startsWith('image/'))?file.type:'image/jpeg';
   const ac=new AbortController();
@@ -5488,7 +5489,22 @@ function openCp(id){cpTargetId=id;const c=cats.find(x=>x.id===id);cpSelIdx=c?.co
 function renderCpGrid(){document.getElementById('cp-grid').innerHTML=NOTION_COLORS.map((nc,i)=>`<div class="color-swatch${cpSelIdx===i?' on':''}" style="background:${nc.bg}" onclick="cpSelIdx=${i};renderCpGrid()"><span style="font-size:10px;color:${nc.text}">${nc.name}</span></div>`).join('')}
 function confirmColor(){const c=cats.find(x=>x.id===cpTargetId);if(c){c.colorIdx=cpSelIdx;saveCats();refreshAfterCatChange()}closeOverlayEl(document.getElementById('cp-modal'))}
 function closeCpBg(e){if(e.target===document.getElementById('cp-modal'))closeOverlayEl(document.getElementById('cp-modal'))}
-function renderChips(){document.getElementById('chips').innerHTML=cats.map(c=>{const col=catColors(c.name);const isOn=c.id===selCat;return`<div class="chip" data-cat-id="${c.id}" style="${categoryChipInlineStyle(col,isOn)}" onclick="pickCat('${c.id}')">${c.name}</div>`}).join('')}
+function renderChips(){
+  var container=document.getElementById('chips');
+  if(!container)return;
+  container.innerHTML=cats.map(c=>{
+    const col=catColors(c.name);
+    const isOn=c.id===selCat;
+    return`<div class="chip" data-cat-id="${escapePhAttr(c.id)}" style="${categoryChipInlineStyle(col,isOn)}">${escapePhText(c.name)}</div>`;
+  }).join('');
+  if(!container.dataset.delegateBound){
+    container.dataset.delegateBound='1';
+    container.addEventListener('click',function(e){
+      var chip=e.target.closest('[data-cat-id]');
+      if(chip)pickCat(chip.getAttribute('data-cat-id'));
+    });
+  }
+}
 function openAddExpOv(){openModal()}
 function openImportOverlay(){document.getElementById('ai-screenshot-input')?.click()}
 function destroyImportScanLottie(){
