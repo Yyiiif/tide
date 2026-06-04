@@ -1865,8 +1865,10 @@ const REFLOW_SETTINGS_KEYS={
   cats:'cats_v2',
   specialEvents:'special_events_v1',
   budget:'budget_v2',
-  geminiApiKey:'reflow_gemini_api_key',
-  balanceSnapshots:'balance_snapshots_v1'
+  balanceSnapshots:'balance_snapshots_v1',
+  catBudgets:'cat_budgets_v1',
+  catBuffers:'cat_buffers_v1',
+  cycleConfig:'cycle_config_v2'
 };
 const ReflowDB=(function(){
   var _dbPromise=null;
@@ -1960,7 +1962,22 @@ async function migrateLocalStorageToIndexedDB(){
     localStorage.removeItem('balanceSnapshots');
     localStorage.removeItem('balanceSnapshot');
   }
-  var legacyKeys=['expenses','cats_v2','special_events_v1','reflow_gemini_api_key','budget_v2'];
+  var rawCatBudgets=localStorage.getItem('cat_budgets_v1');
+  if(rawCatBudgets!=null){
+    try{var parsedCB=JSON.parse(rawCatBudgets);if(parsedCB&&typeof parsedCB==='object'&&!Array.isArray(parsedCB))await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.catBudgets,parsedCB);}catch(_){}
+    localStorage.removeItem('cat_budgets_v1');
+  }
+  var rawCatBuffers=localStorage.getItem('catBuffers');
+  if(rawCatBuffers!=null){
+    try{var parsedCBuf=JSON.parse(rawCatBuffers);if(parsedCBuf&&typeof parsedCBuf==='object'&&!Array.isArray(parsedCBuf))await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.catBuffers,parsedCBuf);}catch(_){}
+    localStorage.removeItem('catBuffers');
+  }
+  var rawCycleConf=localStorage.getItem('cycle_config_v1');
+  if(rawCycleConf!=null){
+    try{var parsedCC=JSON.parse(rawCycleConf);if(parsedCC&&typeof parsedCC==='object')await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.cycleConfig,parsedCC);}catch(_){}
+    localStorage.removeItem('cycle_config_v1');
+  }
+  var legacyKeys=['expenses','cats_v2','special_events_v1','budget_v2'];
   var hasLegacy=legacyKeys.some(function(k){return localStorage.getItem(k)!=null;});
   if(!hasLegacy)return false;
   var migratedExpenses=[];
@@ -1980,8 +1997,6 @@ async function migrateLocalStorageToIndexedDB(){
     var legacyBudget=parseInt(rawBudget,10);
     await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.budget,Number.isFinite(legacyBudget)?legacyBudget:17000);
   }
-  var rawApiKey=localStorage.getItem('reflow_gemini_api_key');
-  if(rawApiKey!=null)await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.geminiApiKey,String(rawApiKey));
   legacyKeys.forEach(function(k){localStorage.removeItem(k);});
   return true;
 }
@@ -2006,6 +2021,13 @@ async function loadAppStateFromIndexedDB(){
   var savedSnapshots=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.balanceSnapshots,null);
   balanceSnapshots=Array.isArray(savedSnapshots)?savedSnapshots:[];
   balanceSnapshots.forEach(ensureBalanceSnapshotMeta);
+  var savedCatBudgets=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.catBudgets);
+  if(savedCatBudgets&&typeof savedCatBudgets==='object'&&!Array.isArray(savedCatBudgets))catBudgets=savedCatBudgets;
+  var savedCatBuffers=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.catBuffers);
+  if(savedCatBuffers&&typeof savedCatBuffers==='object'&&!Array.isArray(savedCatBuffers))catBuffers=savedCatBuffers;
+  var savedCycleConfig=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.cycleConfig);
+  if(savedCycleConfig&&typeof savedCycleConfig==='object')cycleConfig=Object.assign({},cycleConfig,savedCycleConfig);
+  if(!Array.isArray(cycleConfig.projectHistory))cycleConfig.projectHistory=[];
 }
 async function pruneExpensesAfterMay2026Once(){
   var onceKey='reflow_prune_after_2026_05_done';
@@ -2077,10 +2099,9 @@ if(!Array.isArray(expenses))expenses=[];
 let balanceSnapshots=[];
 let balanceEditIdx=-1;
 let budget=17000;
-let catBudgets=JSON.parse(localStorage.getItem('cat_budgets_v1')||'{}');
+let catBudgets={};
 let catBuffers={};
-try{const _cb=JSON.parse(localStorage.getItem('catBuffers')||'{}');if(_cb&&typeof _cb==='object'&&!Array.isArray(_cb))catBuffers=_cb;}catch(_){catBuffers={}}
-let cycleConfig=Object.assign({startDay:1,eventBufferEnabled:false},JSON.parse(localStorage.getItem('cycle_config_v1')||'{}'));
+let cycleConfig={startDay:1,eventBufferEnabled:false};
 if(!Array.isArray(cycleConfig.projectHistory))cycleConfig.projectHistory=[];
 let specialEvents=[];
 function monthDateRange(ym){
@@ -3037,8 +3058,9 @@ function confirmExportTransactionsCSV(){
     }
   },200);
 }
-function saveCatBudgets(){localStorage.setItem('cat_budgets_v1',JSON.stringify(catBudgets))}
-function saveCatBuffers(){localStorage.setItem('catBuffers',JSON.stringify(catBuffers))}
+function saveCatBudgets(){ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.catBudgets,catBudgets).catch(function(e){console.error('saveCatBudgets failed',e);})}
+function saveCatBuffers(){ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.catBuffers,catBuffers).catch(function(e){console.error('saveCatBuffers failed',e);})}
+
 function getCatBudgetNum(catName){const n=getDynamicCategoryBudget(catName);return Number.isFinite(n)&&n>0?n:0}
 function getCatBufferNum(catName){
   const totalBuffer=getEventBufferSumForMonth(curMonth);
@@ -3119,7 +3141,7 @@ enforceCoreCategories();
   enforceCoreCategories();
   localStorage.setItem(key,'1');
 })();
-function saveCycleConfig(){localStorage.setItem('cycle_config_v1',JSON.stringify(cycleConfig))}
+function saveCycleConfig(){ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.cycleConfig,cycleConfig).catch(function(e){console.error('saveCycleConfig failed',e);})}
 function getTargetBudget(ym){
   const y=ym==null||ym===''?curMonth:String(ym);
   return(Number(budget)||0)+getEventBufferSumForMonth(y);
