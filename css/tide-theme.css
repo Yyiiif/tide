@@ -195,16 +195,21 @@ body.tide-ui .tide-month-nav .home-header-nav-btn:active {
 body.tide-ui .sticky-month-navigator,
 body.tide-ui .homepage-sticky-navigator,
 body.tide-ui #s-home .home-summary .sticky-month-navigator,
-body.tide-ui #s-home .home-summary .homepage-sticky-navigator,
-body.tide-ui #s-rec .scr-pad .sticky-month-navigator,
-body.tide-ui #s-stat .scr-pad .sticky-month-navigator,
-body.tide-ui #s-rec #rec-monthly .sticky-month-navigator {
+body.tide-ui #s-home .home-summary .homepage-sticky-navigator {
   position: sticky !important;
   top: 0 !important;
   z-index: 110 !important;
   background: var(--tide-bg) !important;
   background-color: var(--tide-bg) !important;
   box-shadow: none !important;
+}
+/* Flow / Drops — month nav + seg control stick together in .tide-screen-header */
+body.tide-ui #s-rec .scr-pad > .page-month-nav.sticky-month-navigator,
+body.tide-ui #s-stat .scr-pad > .page-month-nav.sticky-month-navigator,
+body.tide-ui #s-rec #rec-monthly > .page-month-nav.sticky-month-navigator {
+  position: static !important;
+  top: auto !important;
+  z-index: auto !important;
 }
 /* Month row lives inside sticky .tide-screen-header — avoid nested sticky */
 body.tide-ui .tide-screen-header .page-month-nav,
@@ -550,6 +555,87 @@ body.tide-ui #s-stat .scr-pad {
 body.tide-ui #s-stat .donut-card.tide-pulse-section:last-of-type {
   margin-bottom: 4px;
 }
+
+/* Trend sub-page — match Flow pulse section cards */
+body.tide-ui #trend-view-panel .donut-card.tide-pulse-section {
+  margin: 0 22px 22px;
+  border-radius: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+body.tide-ui #trend-view-panel .donut-card.tide-pulse-section .donut-title.stat-trend-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 10px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+}
+body.tide-ui #trend-view-panel .tide-pulse-trend-card {
+  position: relative;
+  width: 100%;
+  border-radius: 14px;
+  background: var(--tide-surf);
+  border: 0.5px solid #E9E9E7;
+  padding: 14px 16px;
+  box-sizing: border-box;
+  box-shadow: none;
+}
+body.tide-ui #trend-view-panel .stat-trend-toggle {
+  display: flex;
+  background: var(--tide-chip);
+  border-radius: 999px;
+  padding: 2px;
+  flex-shrink: 0;
+}
+body.tide-ui #trend-view-panel .stat-trend-pill {
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--tide-ash);
+  border-radius: 999px;
+}
+body.tide-ui #trend-view-panel .stat-trend-pill.on {
+  background: var(--tide-surf);
+  color: var(--tide-ink);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+body.tide-ui #trend-view-panel .stat-trend-leg {
+  margin-bottom: 10px;
+}
+body.tide-ui #trend-view-panel .stat-trend-leg-item {
+  font-size: 12px;
+  color: var(--tide-ash);
+}
+body.tide-ui #trend-view-panel .stat-trend-leg-sw {
+  border-radius: 3px;
+}
+body.tide-ui #trend-view-panel .stat-trend-chart-wrap {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  margin-top: 0;
+}
+body.tide-ui #trend-view-panel .stat-trend-chart-wrap.tide-pulse-chart-wrap canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+body.tide-ui #trend-view-panel .analysis-trend-cat-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
 body.tide-ui #s-stat .donut-card.tide-pulse-hidden {
   display: none !important;
 }
@@ -728,7 +814,7 @@ body.tide-ui .tide-flow-surge-card-bar {
   width: 3px;
   height: 44px;
   border-radius: 2px;
-  background: linear-gradient(180deg, #C4A09A, #C4A09A44);
+  background: linear-gradient(180deg, #445060 0%, #8898A8 45%, #C8D0D8 100%);
   flex-shrink: 0;
 }
 body.tide-ui .tide-flow-surge-card-main {
@@ -1119,13 +1205,47 @@ body.tide-ui .tide-drops-range {
   font-variant-numeric: tabular-nums;
 }
 
-body.tide-ui #rec-monthly .rec-list-view-toggle-row {
-  padding: 18px 22px 8px;
+/* Flow/Trend & Date/Stream pills — FAB-like float, same slot & pill style */
+body.tide-ui #s-stat.active .flow-view-toggle-row.tide-view-seg-float,
+body.tide-ui #s-rec.active .rec-list-view-toggle-row.tide-view-seg-float {
+  position: fixed;
+  left: var(--tide-view-seg-left, 0);
+  width: var(--tide-view-seg-width, 100%);
+  right: auto;
+  top: var(--tide-view-seg-top, 0px);
+  z-index: 1000;
   margin: 0;
+  padding: 8px 22px 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
+  max-width: 100%;
+  box-sizing: border-box;
+  pointer-events: none;
+  background: var(--tide-bg) !important;
+  background-color: var(--tide-bg) !important;
+}
+body.tide-ui #s-stat.active .flow-view-toggle-row.tide-view-seg-float .flow-type-seg,
+body.tide-ui #s-rec.active .rec-list-view-toggle-row.tide-view-seg-float .rec-type-seg {
+  pointer-events: auto;
+}
+body.tide-ui .tide-view-seg-spacer {
+  width: 100%;
+  flex-shrink: 0;
+  margin: 0 0 12px;
+  pointer-events: none;
+}
+body.tide-ui #rec-monthly .rec-list-view-toggle-row:not(.tide-view-seg-float),
+body.tide-ui #s-stat .flow-view-toggle-row:not(.tide-view-seg-float) {
+  padding: 8px 22px 8px;
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
 }
 body.tide-ui #rec-monthly .rec-type-seg {
   width: auto;
@@ -1154,6 +1274,28 @@ body.tide-ui .rec-type-seg-btn.on {
   box-shadow: none;
 }
 body.tide-ui .rec-type-seg-btn.on {
+  color: var(--tide-ink);
+}
+body.tide-ui #s-stat .flow-type-seg {
+  width: auto;
+  max-width: 100%;
+  flex: 0 1 auto;
+  min-width: 240px;
+  margin-bottom: 0;
+  background: var(--tide-chip);
+  border-radius: 999px;
+  overflow: hidden;
+}
+body.tide-ui .flow-type-seg::before {
+  background: var(--tide-surf);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+body.tide-ui .flow-seg-btn,
+body.tide-ui .flow-seg-btn.on {
+  background: transparent;
+  box-shadow: none;
+}
+body.tide-ui .flow-seg-btn.on {
   color: var(--tide-ink);
 }
 body.tide-ui .locale-seg {
@@ -1301,10 +1443,12 @@ body.tide-ui .tide-drop-row .li-amt {
   letter-spacing: -0.2px;
   color: var(--tide-ink);
 }
-body.tide-ui #rec-input-hub-open,
-body.tide-ui #stat-cal-open {
+body.tide-ui #rec-input-hub-open {
   color: var(--tide-ash);
   border-radius: 11px;
+}
+body.tide-ui #stat-cal-open {
+  display: none !important;
 }
 
 /* Input hub — inset list rows from card edge */

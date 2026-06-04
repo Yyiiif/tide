@@ -140,7 +140,7 @@ input,select,textarea,button,.tag,.tag-chip{font-family:inherit;}
 #s-stat .scr-pad{padding:8px 16px 14px}
 /* Details + Analysis month nav — pixel clone of Homepage .home-header-* ; #s-home untouched */
 #s-rec .page-month-nav,#s-stat .page-month-nav{display:flex;flex-direction:column;align-items:center;text-align:center;width:100%;box-sizing:border-box;padding:0;margin:0;border-bottom:none;box-shadow:none}
-#s-rec .page-month-nav .home-header-month-row,#s-stat .page-month-nav .home-header-month-row{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:40px;margin:0 0 4px;padding:0;box-sizing:border-box}
+#s-rec .page-month-nav .home-header-month-row,#s-stat .page-month-nav .home-header-month-row{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:40px;margin:0;padding:0;box-sizing:border-box}
 #s-rec .page-month-nav .home-header-nav-btn,#s-stat .page-month-nav .home-header-nav-btn{width:44px;height:44px;border:none;background:none;padding:0;margin:0 -8px;font-size:22px;color:#ABABAB;line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit;flex-shrink:0;-webkit-tap-highlight-color:transparent}
 #s-rec .page-month-nav .home-header-month-label,#s-rec .page-month-nav .home-header-month-row .home-summary-month,#s-stat .page-month-nav .home-header-month-label,#s-stat .page-month-nav .home-header-month-row .home-summary-month,#s-rec #rec-month-lbl,#s-stat #stat-month-lbl{flex:1;min-width:0;text-align:center;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif!important;font-size:15px;font-weight:400!important;color:#37352F;letter-spacing:-0.01em;line-height:1.2;font-synthesis:none;-webkit-font-smoothing:antialiased}
 .sticky-month-navigator,.homepage-sticky-navigator{position:sticky!important;top:0!important;z-index:100!important;background:var(--card)!important}
@@ -370,6 +370,58 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
 .event-buffer-chevron i{font-size:18px;line-height:1}
 .event-buffer-title-txt{font-size:14px;font-weight:600;color:#37352F}
 .event-buffer-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-top:0.5px solid var(--border)}
+.event-buffer-switch--locked{display:inline-flex;align-items:center;gap:6px;opacity:0.45;width:auto}
+.event-buffer-switch-lock{font-size:13px;color:#9CA0A8;line-height:1;flex-shrink:0}
+.event-buffer-toggle-note{font-size:11px;color:#9CA0A8;margin-top:4px;padding:0 14px 10px;line-height:1.4}
+#s-stat .flow-view-toggle-row{margin-bottom:12px;width:100%;box-sizing:border-box}
+.flow-type-seg{
+  display:flex;
+  width:100%;
+  background:#F1F1EF;
+  border-radius:999px;
+  padding:3px;
+  box-sizing:border-box;
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  -webkit-tap-highlight-color:transparent;
+}
+.flow-type-seg::before{
+  content:'';
+  position:absolute;
+  top:3px;
+  left:3px;
+  width:calc((100% - 6px) / 2);
+  height:calc(100% - 6px);
+  background:#FFFFFF;
+  border-radius:999px;
+  box-shadow:0 1px 3px rgba(0,0,0,0.08);
+  transition:transform 0.28s cubic-bezier(0.4,0,0.2,1);
+  pointer-events:none;
+  will-change:transform;
+  z-index:0;
+}
+.flow-type-seg[data-active="trend"]::before{transform:translateX(100%)}
+.flow-seg-btn{
+  flex:1;
+  min-width:0;
+  border:none;
+  background:transparent;
+  border-radius:999px;
+  padding:8px 12px;
+  font-size:13px;
+  font-weight:500;
+  color:#ABABAB;
+  font-family:inherit;
+  cursor:pointer;
+  line-height:1.2;
+  position:relative;
+  z-index:1;
+  box-shadow:none;
+  transition:color 0.22s ease;
+  -webkit-tap-highlight-color:transparent;
+}
+.flow-seg-btn.on{color:#37352F;background:transparent;box-shadow:none}
 .project-history-sheet{display:none;position:fixed;inset:0;z-index:1001;background:rgba(0,0,0,0.35);align-items:flex-end;justify-content:stretch}
 .project-history-sheet.open{display:flex}
 .project-history-panel{background:#FFFFFF;border-radius:12px 12px 0 0;padding:0;width:100%;max-height:85dvh;height:min(85vh,640px);display:flex;flex-direction:column;box-sizing:border-box;position:relative;transform:translateY(100%);will-change:transform;overflow:hidden}
@@ -1187,7 +1239,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
   </div>
 
   <div class="scr" id="s-stat">
-    <div class="simple-hdr details-header-title-row"><span class="page-title">分析</span><button type="button" class="mn-btn" id="stat-cal-open" onclick="openLongTermTrend()" aria-label="長期趨勢"><i class="ti ti-chart-line"></i></button></div>
+    <div class="simple-hdr details-header-title-row"><span class="page-title">分析</span></div>
     <div class="scr-pad">
       <div class="page-month-nav sticky-month-navigator">
         <div class="home-header-month-row">
@@ -1196,6 +1248,13 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
           <button type="button" class="home-header-nav-btn" onclick="shiftGlobalMonth(1)" aria-label="下個月">›</button>
         </div>
       </div>
+      <div class="flow-view-toggle-row">
+        <div class="flow-type-seg" data-active="flow" role="group" aria-label="Monthly view">
+          <button type="button" class="flow-seg-btn on" data-mode="flow">Monthly</button>
+          <button type="button" class="flow-seg-btn" data-mode="trend">Trend</button>
+        </div>
+      </div>
+      <div id="flow-view-panel">
       <div class="donut-card">
         <div class="donut-title" id="analysis-cat-breakdown-title"><span>本月分類</span></div>
         <div id="analysis-cat-bar" style="height:12px;border-radius:6px;display:flex;overflow:hidden;margin:10px 0 8px"></div>
@@ -1209,12 +1268,41 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
         <div class="donut-title">消費密度</div>
         <div id="analysis-heatmap-strip"></div>
       </div>
+      </div>
+      <div id="trend-view-panel" style="display:none">
+        <div class="donut-card tide-pulse-section">
+          <div class="donut-title stat-trend-head">
+            <span class="tide-pulse-sec-lbl">CATEGORY TREND</span>
+            <div class="stat-trend-toggle" id="analysis-stat-trend-range-toggle" role="group" aria-label="Category Trend range">
+              <button type="button" class="stat-trend-pill on" onclick="setAnalysisCatTrendRange(6,this)">6M</button>
+              <button type="button" class="stat-trend-pill" onclick="setAnalysisCatTrendRange(12,this)">12M</button>
+            </div>
+          </div>
+          <div class="tide-pulse-trend-card">
+            <div class="stat-trend-leg" id="analysis-stat-trend-leg"></div>
+            <div class="stat-trend-chart-wrap tide-pulse-chart-wrap"><canvas id="analysis-stat-trend-chart"></canvas></div>
+          </div>
+        </div>
+        <div class="donut-card tide-pulse-section" id="analysis-monthly-trend-card">
+          <div class="donut-title stat-trend-head">
+            <span class="tide-pulse-sec-lbl">MONTHLY TREND</span>
+            <div class="stat-trend-toggle" id="analysis-monthly-range-toggle" role="group" aria-label="Trend range">
+              <button type="button" class="stat-trend-pill on" onclick="setAnalysisTrendRange(6,this)">6M</button>
+              <button type="button" class="stat-trend-pill" onclick="setAnalysisTrendRange(12,this)">12M</button>
+            </div>
+          </div>
+          <div class="tide-pulse-trend-card">
+            <div class="stat-trend-chart-wrap tide-pulse-chart-wrap"><canvas id="analysis-monthly-trend-chart" aria-label="Monthly spend trend"></canvas></div>
+            <div class="analysis-trend-cat-filters" id="analysis-monthly-trend-cats" role="group" aria-label="Trend stream filter"></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
 
   <div class="scr" id="s-rec">
-    <div class="simple-hdr details-header-title-row"><span class="page-title">明細</span><button type="button" class="mn-btn" id="rec-input-hub-open" onclick="openInputHub()" aria-label="輸入中心"><i class="ti ti-archive"></i></button></div>
+    <div class="simple-hdr details-header-title-row"><span class="page-title">明細</span><button type="button" class="mn-btn" id="rec-input-hub-open" onclick="openInputHub()" aria-label="輸入中心"><i class="ti ti-folder-open"></i></button></div>
     <div class="scr-pad">
       <div id="rec-daily" style="display:none">
         <div class="hdr-top">
@@ -1302,8 +1390,12 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
         </div>
         <div class="event-buffer-toggle-row" onclick="event.stopPropagation()">
           <span class="budget-label">啟用緩衝</span>
-          <label class="buffer-switch" aria-label="啟用特殊事件緩衝（依專案日期自動）"><input type="checkbox" id="event-buffer-enabled" disabled><span class="buffer-slider"></span></label>
+          <div style="display:flex;align-items:center;gap:6px;opacity:0.45">
+            <i class="ti ti-lock" style="font-size:13px;color:#9CA0A8;margin-right:4px"></i>
+            <label class="buffer-switch" aria-label="啟用特殊事件緩衝（依專案日期自動）"><input type="checkbox" id="event-buffer-enabled" disabled><span class="buffer-slider"></span></label>
+          </div>
         </div>
+        <div style="font-size:11px;color:#9CA0A8;margin-top:4px">Automatically managed based on your active events</div>
       </div>
       <div class="set-section event-buffer-card balance-buffer-card" id="balance-snapshot-section">
         <div class="event-buffer-tap" role="button" tabindex="0" onclick="openBalanceList()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openBalanceList()}">
@@ -1385,30 +1477,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
     <span class="ov-title">長期趨勢</span>
     <span style="width:44px;flex-shrink:0"></span>
   </div>
-  <div class="ov-body" id="long-term-trend-body">
-    <div class="donut-card">
-      <div class="donut-title stat-trend-head">
-        <span>Category Trend</span>
-        <div class="stat-trend-toggle" id="analysis-stat-trend-range-toggle" role="group" aria-label="Category Trend range">
-          <button type="button" class="stat-trend-pill on" onclick="setAnalysisCatTrendRange(6,this)">6M</button>
-          <button type="button" class="stat-trend-pill" onclick="setAnalysisCatTrendRange(12,this)">12M</button>
-        </div>
-      </div>
-      <div class="stat-trend-leg" id="analysis-stat-trend-leg"></div>
-      <div class="stat-trend-chart-wrap"><canvas id="analysis-stat-trend-chart"></canvas></div>
-    </div>
-    <div class="donut-card" id="analysis-monthly-trend-card">
-      <div class="donut-title stat-trend-head">
-        <span>Monthly Trend</span>
-        <div class="stat-trend-toggle" id="analysis-monthly-range-toggle" role="group" aria-label="Trend range">
-          <button type="button" class="stat-trend-pill on" onclick="setAnalysisTrendRange(6,this)">6M</button>
-          <button type="button" class="stat-trend-pill" onclick="setAnalysisTrendRange(12,this)">12M</button>
-        </div>
-      </div>
-      <div class="stat-trend-chart-wrap"><canvas id="analysis-monthly-trend-chart" aria-label="Monthly spend trend"></canvas></div>
-      <div class="analysis-trend-cat-filters" id="analysis-monthly-trend-cats" role="group" aria-label="Trend stream filter"></div>
-    </div>
-  </div>
+  <div class="ov-body" id="long-term-trend-body"></div>
 </div>
 <div class="full-ov" id="ov-input-hub">
   <div class="input-hub-shell">
@@ -4777,6 +4846,19 @@ async function initApp(){
   renderRec();
   var initSeg=document.querySelector('#rec-monthly .rec-type-seg');
   if(initSeg)initSeg.setAttribute('data-active','date');
+  document.querySelectorAll('.flow-seg-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var mode = this.getAttribute('data-mode');
+      var seg = this.closest('.flow-type-seg');
+      seg.setAttribute('data-active', mode);
+      document.querySelectorAll('.flow-seg-btn').forEach(function(b) {
+        b.classList.toggle('on', b.getAttribute('data-mode') === mode);
+      });
+      document.getElementById('flow-view-panel').style.display = mode === 'flow' ? '' : 'none';
+      document.getElementById('trend-view-panel').style.display = mode === 'trend' ? '' : 'none';
+      if(mode==='trend'&&typeof refreshLongTermTrendCharts==='function')refreshLongTermTrendCharts();
+    });
+  });
   renderStat();
   renderSet();
   renderUnalloc();

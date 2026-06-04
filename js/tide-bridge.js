@@ -360,7 +360,12 @@
     }
     tag.textContent = label;
     if (nav) nav.classList.add('tide-month-nav');
-    if (!actionId) return;
+    if (!actionId) {
+      Array.from(row.children).forEach(function (el) {
+        if (!el.classList.contains('tide-eyebrow-tag')) el.remove();
+      });
+      return;
+    }
     let btn = document.getElementById(actionId);
     if (!btn) {
       btn = restoreActionButton(actionId);
@@ -927,9 +932,10 @@
   function renderTidePulse() {
     const stat = document.getElementById('s-stat');
     if (!stat) return;
-    ensureEyebrow(stat, 'FLOW', 'stat-cal-open');
+    ensureEyebrow(stat, 'FLOW');
     if (window.TideUI && window.TideUI.layoutScreenHeader) window.TideUI.layoutScreenHeader(stat);
     if (window.TideUI && window.TideUI.applyPulseDropsMonthNav) window.TideUI.applyPulseDropsMonthNav(stat);
+    if (window.TideUI && window.TideUI.syncViewSegFloat) window.TideUI.syncViewSegFloat(stat);
     applyEnglishIn(stat);
     if (window.TideUI && window.TideUI.stylePulsePage) {
       window.TideUI.stylePulsePage();
@@ -963,6 +969,7 @@
     ensureEyebrow(rec, 'DROPS', 'rec-input-hub-open');
     if (window.TideUI && window.TideUI.layoutScreenHeader) window.TideUI.layoutScreenHeader(rec);
     if (window.TideUI && window.TideUI.applyPulseDropsMonthNav) window.TideUI.applyPulseDropsMonthNav(rec);
+    if (window.TideUI && window.TideUI.syncViewSegFloat) window.TideUI.syncViewSegFloat(rec);
     applyEnglishIn(rec);
     renderTideDropsRange();
 
