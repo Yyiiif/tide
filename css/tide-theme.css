@@ -531,7 +531,7 @@ body.tide-ui .fab-sub.fab-main {
   border: 0.5px solid var(--tide-hair) !important;
   background: var(--tide-surf) !important;
   color: var(--tide-ink) !important;
-  box-shadow: none !important;
+  box-shadow: 0 2px 8px rgba(14, 15, 18, 0.06), 0 1px 3px rgba(14, 15, 18, 0.04) !important;
 }
 body.tide-ui .fab-sub i,
 body.tide-ui .fab-sub.fab-main i {

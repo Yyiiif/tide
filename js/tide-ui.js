@@ -1900,6 +1900,19 @@ window.TideUI = (function () {
       if (window.TideI18n) TideI18n.syncLocaleSwitcher();
     }
 
+    if (guideSec) {
+      guideSec.className = 'tide-me-block';
+      guideSec.innerHTML =
+        '<div class="tide-me-card">' +
+        meRowHtml({
+          icon: false,
+          label: 'How to use Reflow',
+          onclick: 'openOnboarding()',
+          divider: false,
+        }) +
+        '</div>';
+    }
+
     if (dataBlock) {
       dataBlock.className = 'tide-me-data-block';
       if (!dataBlock.querySelector('.tide-me-sec-hdr')) {
