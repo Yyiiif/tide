@@ -2054,23 +2054,7 @@ async function loadAppStateFromIndexedDB(){
   if(savedCycleConfig&&typeof savedCycleConfig==='object')cycleConfig=Object.assign({},cycleConfig,savedCycleConfig);
   if(!Array.isArray(cycleConfig.projectHistory))cycleConfig.projectHistory=[];
 }
-async function pruneExpensesAfterMay2026Once(){
-  var onceKey='reflow_prune_after_2026_05_done';
-  try{
-    if(localStorage.getItem(onceKey)==='1')return;
-  }catch(_){}
-  if(!Array.isArray(expenses))expenses=[];
-  var pruned=expenses.filter(function(e){
-    var d=normalizeISODate(e&&e.date);
-    if(!d)return true;
-    return d.slice(0,7)<='2026-05';
-  });
-  if(pruned.length!==expenses.length){
-    expenses=pruned;
-    await ReflowDB.replaceExpenses(expenses);
-  }
-  try{localStorage.setItem(onceKey,'1');}catch(_){}
-}
+
 async function applyTideDemoData(){
   var d=window.TIDE_DEMO;
   if(!d||!d.ENABLED)return false;
@@ -2106,7 +2090,6 @@ async function initializeReflowData(){
   }
   await ensureInitialIndexedDBSeed();
   await loadAppStateFromIndexedDB();
-  await pruneExpensesAfterMay2026Once();
 }
 let cats=JSON.parse(JSON.stringify(DEFAULT_CATS));
 let expenses=[];
@@ -2386,17 +2369,21 @@ let aiContextTags=[];
   },0);
 })();
 let activePage='home';
-var __bodyScrollLockY=0,__overlayLockDepth=0;
+var AppState={
+  import:{abortCtrl:null,parseTimer:null,previewRows:null,pendingFile:null,scanLottie:null,lottieInstance:null},
+  csv:{pendingRows:null},
+  chart:{cumulativeMeta:null,popupDayIdx:null,popupDocBound:null}
+};
+var __overlayLockDepth=0;
 function lockBodyScroll(){
-  if(__overlayLockDepth===0){
-    __bodyScrollLockY=window.scrollY||window.pageYOffset||0;
-    document.body.style.position='fixed';
-    document.body.style.top='-'+__bodyScrollLockY+'px';
-    document.body.style.width='100%';
-    document.body.style.overflow='hidden';
-    document.body.dataset.scrollLocked='1';
+  var app=document.getElementById('app')||document.querySelector('.app');
+  if(!app)return;
+  __overlayLockDepth=(__overlayLockDepth||0)+1;
+  if(__overlayLockDepth===1){
+    app.style.overflow='hidden';
+    app.style.touchAction='none';
+    app.style.overscrollBehavior='none';
   }
-  __overlayLockDepth++;
 }
 function blurOverlayInputs(rootEl){
   try{
@@ -2407,22 +2394,20 @@ function blurOverlayInputs(rootEl){
 }
 function resetIosLayoutAfterOverlay(rootEl){
   blurOverlayInputs(rootEl);
-  document.body.style.position='';
-  document.body.style.top='';
-  document.body.style.width='';
-  document.body.style.overflow='';
-  delete document.body.dataset.scrollLocked;
-  __bodyScrollLockY=0;
-  window.scrollTo(0,0);
   var prevDisplay=document.body.style.display;
   document.body.style.display='none';
   void document.body.offsetHeight;
   document.body.style.display=prevDisplay||'';
 }
-function unlockBodyScroll(rootEl){
-  if(__overlayLockDepth>0)__overlayLockDepth--;
-  if(__overlayLockDepth>0)return;
-  resetIosLayoutAfterOverlay(rootEl);
+function unlockBodyScroll(){
+  __overlayLockDepth=Math.max(0,(__overlayLockDepth||1)-1);
+  if(__overlayLockDepth===0){
+    var app=document.getElementById('app')||document.querySelector('.app');
+    if(!app)return;
+    app.style.overflow='';
+    app.style.touchAction='';
+    app.style.overscrollBehavior='';
+  }
 }
 function openOverlayEl(el){
   if(!el)return;
@@ -2440,11 +2425,11 @@ function closeOverlayEl(el){
   el.classList.remove('open');
 }
 function teardownImportFlowState(){
-  if(window.__importAbortCtrl){try{window.__importAbortCtrl.abort()}catch(_){}window.__importAbortCtrl=null}
-  if(window.__importParseT){clearTimeout(window.__importParseT);window.__importParseT=null}
+  if(AppState.import.abortCtrl){try{AppState.import.abortCtrl.abort()}catch(_){}AppState.import.abortCtrl=null}
+  if(AppState.import.parseTimer){clearTimeout(AppState.import.parseTimer);AppState.import.parseTimer=null}
   destroyImportScanLottie();
-  window.__importPreviewRows=null;
-  window.__importPendingFile=null;
+  AppState.import.previewRows=null;
+  AppState.import.pendingFile=null;
   currentSelectedContext='';
   var inp=document.getElementById('ai-screenshot-input');
   if(inp)inp.value='';
@@ -2855,7 +2840,7 @@ function resetCsvExportStepUi(){
   if(btn)btn.disabled=nExp===0&&nBal===0;
 }
 function resetCsvImportStepUi(){
-  window.__csvImportPendingRows=null;
+  AppState.csv.pendingRows=null;
   var sub=document.getElementById('import-csv-confirm-sub');
   if(sub)sub.textContent='選擇 CSV 檔案以匯入消費紀錄與帳戶餘額';
   var status=document.getElementById('import-csv-overlay-status');
@@ -2996,7 +2981,7 @@ function onCsvImportFileSelected(ev){
   reader.onload=function(){
     try{
       var parsed=parseCsvImportRows(reader.result);
-      window.__csvImportPendingRows=parsed;
+      AppState.csv.pendingRows=parsed;
       var nExp=parsed.expenses.length,nBal=parsed.balances.length,nTotal=nExp+nBal;
       var sub=document.getElementById('import-csv-confirm-sub');
       if(sub){
@@ -3013,7 +2998,7 @@ function onCsvImportFileSelected(ev){
         openOverlayEl(ov);
       }
     }catch(_){
-      window.__csvImportPendingRows=null;
+      AppState.csv.pendingRows=null;
       var subErr=document.getElementById('import-csv-confirm-sub');
       if(subErr)subErr.textContent='無法讀取 CSV 檔案，請確認格式後再試';
       var btnErr=document.getElementById('import-csv-confirm-btn');
@@ -3024,7 +3009,7 @@ function onCsvImportFileSelected(ev){
   reader.readAsText(file,'UTF-8');
 }
 function confirmImportTransactionsCSV(){
-  var pending=window.__csvImportPendingRows;
+  var pending=AppState.csv.pendingRows;
   var expRows=pending&&Array.isArray(pending.expenses)?pending.expenses:[];
   var balRows=pending&&Array.isArray(pending.balances)?pending.balances:[];
   if(!expRows.length&&!balRows.length)return;
@@ -3287,10 +3272,18 @@ function czUpdateDisplay(val){
   }
   czUpdateAllocPreview(n);
 }
+var _czRafPending=false;
 function onCzSliderInput(sl){
   var val=parseInt(sl.value,10)||0;
   czUpdateSliderFill(sl,val);
   czUpdateDisplay(val);
+  if(!_czRafPending){
+    _czRafPending=true;
+    requestAnimationFrame(function(){
+      czUpdateAllocPreview(val);
+      _czRafPending=false;
+    });
+  }
 }
 function czUpdateAllocPreview(total){
   var grid=document.getElementById('cz-alloc-grid');
@@ -4346,7 +4339,7 @@ function trendNiceYAxisMax(raw){
 function closeCumulativePopup(){
   const pop=document.getElementById('cumulative-popup');
   if(pop){pop.style.display='none';pop.style.pointerEvents='none';}
-  window.__cumulativePopupDayIdx=null;
+  AppState.chart.popupDayIdx=null;
 }
 function flashCumulativeMarkerDot(chart,dayIdx){
   if(!chart)return;
@@ -4424,7 +4417,7 @@ function showCumulativePopupForDay(dayIdx,evt,y,m){
   pop.style.pointerEvents='auto';
   pop.style.left=Math.max(0,Math.min(x,rect.width-(pop.offsetWidth||140)))+'px';
   pop.style.top=Math.max(0,yPos-8)+'px';
-  window.__cumulativePopupDayIdx=dayIdx;
+  AppState.chart.popupDayIdx=dayIdx;
 }
 function analysisCumulativeMarkerValueLabelsPlugin(){
   return{id:'analysisCumulativeMarkerValueLabels',afterDatasetsDraw:function(chart){
@@ -4432,7 +4425,7 @@ function analysisCumulativeMarkerValueLabelsPlugin(){
     var lineData=chart.data.datasets[0]&&chart.data.datasets[0].data;
     var markerData=chart.data.datasets[1]&&chart.data.datasets[1].data;
     if(!lineData)return;
-    var chartMeta=window.__cumulativeChartMeta;
+    var chartMeta=AppState.chart.cumulativeMeta;
     var indices=chartMeta&&chartMeta.accelerationDays?chartMeta.accelerationDays.slice():[];
     if(chartMeta&&chartMeta.lastIsEndpoint&&typeof chartMeta.lastIdx==='number'&&indices.indexOf(chartMeta.lastIdx)<0)indices.push(chartMeta.lastIdx);
     var ctx=chart.ctx;
@@ -4571,24 +4564,24 @@ function renderAnalysisCumulativeChart(){
     })(),
     plugins:[analysisCumulativeMarkerValueLabelsPlugin()]
   });
-  window.__cumulativeChartMeta={y:y,m:m,accelerationDays:accelerationDays,lastIdx:data.length-1,lastIsEndpoint:accelerationDays.indexOf(data.length-1)<0};
+  AppState.chart.cumulativeMeta={y:y,m:m,accelerationDays:accelerationDays,lastIdx:data.length-1,lastIsEndpoint:accelerationDays.indexOf(data.length-1)<0};
   if(!canvas.dataset.cumulativeClickBound){
     canvas.dataset.cumulativeClickBound='1';
     canvas.addEventListener('click',function(evt){
       const chart=analysisCumulativeChart;
-      const meta=window.__cumulativeChartMeta;
+      const meta=AppState.chart.cumulativeMeta;
       if(!chart||!meta)return;
       var markerHit=findCumulativeMarkerHitAtEvent(chart,meta,evt);
       if(!markerHit)return;
       evt.stopPropagation();
       var pop=document.getElementById('cumulative-popup');
-      if(pop&&pop.style.display!=='none'&&window.__cumulativePopupDayIdx!=null&&window.__cumulativePopupDayIdx!==markerHit.index)closeCumulativePopup();
+      if(pop&&pop.style.display!=='none'&&AppState.chart.popupDayIdx!=null&&AppState.chart.popupDayIdx!==markerHit.index)closeCumulativePopup();
       flashCumulativeMarkerDot(chart,markerHit.index);
       showCumulativePopupForDay(markerHit.index,evt,meta.y,meta.m);
     });
   }
-  if(!window.__cumulativePopupDocBound){
-    window.__cumulativePopupDocBound=true;
+  if(!AppState.chart.popupDocBound){
+    AppState.chart.popupDocBound=true;
     document.addEventListener('click',function(e){
       const pop=document.getElementById('cumulative-popup');
       if(!pop||pop.style.display==='none')return;
@@ -5334,7 +5327,7 @@ async function runAIParse(file,userContext){
   const b64=await fileToBase64(file);
   const mime=(file.type&&String(file.type).startsWith('image/'))?file.type:'image/jpeg';
   const ac=new AbortController();
-  window.__importAbortCtrl=ac;
+  AppState.import.abortCtrl=ac;
   try{
     const url = 'https://reflow-ai-proxy.emma1127fan.workers.dev';
     const headers = { 'Content-Type': 'application/json' };
@@ -5384,11 +5377,11 @@ async function runAIParse(file,userContext){
     }
     throw err;
   }finally{
-    if(window.__importAbortCtrl===ac)window.__importAbortCtrl=null;
+    if(AppState.import.abortCtrl===ac)AppState.import.abortCtrl=null;
   }
 }
 async function confirmAndSaveImport(){
-  const rows=window.__importPreviewRows;
+  const rows=AppState.import.previewRows;
   if(!Array.isArray(rows)||!rows.length){closeImportSheet();return}
   const checks=document.querySelectorAll('.import-row-sel:checked');
   let added=0;
@@ -5434,12 +5427,12 @@ function renderImportParseResults(items){
   const arr=Array.isArray(items)?items:[];
   const filtered=arr.filter(x=>!(pref==='auto_hide'&&x.isPotentialTransfer));
   if(!filtered.length){
-    window.__importPreviewRows=[];
+    AppState.import.previewRows=[];
     const b=document.getElementById('import-sheet-body');
     if(b)b.innerHTML='<div class="import-done-title import-done-title--parse-complete">解析完成</div><div class="import-done-dummy">'+(arr.length?'此檢視已依偏好隱藏可能為轉帳／儲值的列。':'未辨識到可匯入的列。')+'</div><button type="button" class="import-done-btn" onclick="closeImportSheet()">關閉</button>';
     return;
   }
-  window.__importPreviewRows=filtered;
+  AppState.import.previewRows=filtered;
   let html='<div class="import-done-title import-done-title--parse-complete">解析完成</div><div class="import-items"><div class="import-select-all-row"><input type="checkbox" id="import-select-all-master" class="import-item-chk" checked aria-label="全選" onchange="onImportSelectAllMasterChange()"></div>';
   filtered.forEach((it,idx)=>{
     const askHighlight=(pref==='ask'&&it.isPotentialTransfer);
@@ -5589,10 +5582,10 @@ function renderChips(){
 function openAddExpOv(){openModal()}
 function openImportOverlay(){document.getElementById('ai-screenshot-input')?.click()}
 function destroyImportScanLottie(){
-  window.__importScanLottie=null;
-  if(window.__importLottieInstance){
-    try{window.__importLottieInstance.destroy()}catch(_){}
-    window.__importLottieInstance=null;
+  AppState.import.scanLottie=null;
+  if(AppState.import.lottieInstance){
+    try{AppState.import.lottieInstance.destroy()}catch(_){}
+    AppState.import.lottieInstance=null;
   }
   var el=document.getElementById('lottie-scanning-container');
   if(el)el.innerHTML='';
@@ -5604,14 +5597,14 @@ function mountImportScanLottie(){
   if(window.TideUI){
     el.className='tide-scan-circle-host';
     window.TideUI.mountScanCircle(el);
-    window.__importScanLottie={destroy:function(){if(el)el.innerHTML='';}};
-    window.__importLottieInstance=window.__importScanLottie;
-    return window.__importScanLottie;
+    AppState.import.scanLottie={destroy:function(){if(el)el.innerHTML='';}};
+    AppState.import.lottieInstance=AppState.import.scanLottie;
+    return AppState.import.scanLottie;
   }
   el.innerHTML=importWaveScanMarkup();
   var waveInstance={destroy:function(){if(el)el.innerHTML='';}};
-  window.__importLottieInstance=waveInstance;
-  window.__importScanLottie=waveInstance;
+  AppState.import.lottieInstance=waveInstance;
+  AppState.import.scanLottie=waveInstance;
   return waveInstance;
 }
 function finishImportScanAnimation(cb){
@@ -5648,7 +5641,7 @@ function selectImportContextChip(btn){
 }
 function openImportSheet(){openImportOverlay()}
 function showImportContextSelector(file){
-  window.__importPendingFile=file;
+  AppState.import.pendingFile=file;
   currentSelectedContext='';
   var sheet=document.getElementById('import-sheet');
   var body=document.getElementById('import-sheet-body');
@@ -5658,14 +5651,14 @@ function showImportContextSelector(file){
   openOverlayEl(sheet);
 }
 function startImportParse(){
-  var f=window.__importPendingFile;
+  var f=AppState.import.pendingFile;
   if(!f)return;
   var sheet=document.getElementById('import-sheet');
   var body=document.getElementById('import-sheet-body');
   if(!sheet||!body)return;
   var context=buildImportContextString();
-  if(window.__importAbortCtrl){try{window.__importAbortCtrl.abort()}catch(_){}window.__importAbortCtrl=null}
-  if(window.__importParseT){clearTimeout(window.__importParseT);window.__importParseT=null}
+  if(AppState.import.abortCtrl){try{AppState.import.abortCtrl.abort()}catch(_){}AppState.import.abortCtrl=null}
+  if(AppState.import.parseTimer){clearTimeout(AppState.import.parseTimer);AppState.import.parseTimer=null}
   if(window.TideUI){
     body.innerHTML=window.TideUI.importScanStageMarkup();
     window.TideUI.mountScanCircle(document.getElementById('tide-scan-circle-host'));
@@ -5834,7 +5827,20 @@ function renderPersonal(){
   try{if(document.getElementById('s-set')?.classList.contains('active'))renderSet()}catch(e){}
 }
 async function expenseTrackerWindowLoad(){
-  try{await initApp();}catch(err){console.error('initApp failed',err);}
+  try{await initApp();}catch(err){
+    console.error('initApp failed',err);
+    var app=document.getElementById('app')||document.querySelector('.app');
+    if(app){
+      app.innerHTML='<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;padding:32px;text-align:center">'+
+        '<svg width="48" height="32" viewBox="0 0 48 32" fill="none" xmlns="http://www.w3.org/2000/svg">'+
+        '<path d="M0,16 C8,6 16,22 24,12 C32,2 40,18 48,10" stroke="#9CA8B4" stroke-width="2" stroke-linecap="round"/>'+
+        '</svg>'+
+        '<div style="font-size:15px;font-weight:600;color:#44474F">Unable to load Reflow</div>'+
+        '<div style="font-size:12px;color:#9CA0A8;line-height:1.5">Something went wrong while starting up.<br>Please refresh to try again.</div>'+
+        '<button onclick="window.location.reload()" style="margin-top:8px;padding:10px 24px;background:#44474F;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:500;font-family:inherit;cursor:pointer">Refresh</button>'+
+        '</div>';
+    }
+  }
   await normalizeExpenseIds();
   initExpenseRowClickDelegation();
   ensureEditExpenseOverlayOnBody();
