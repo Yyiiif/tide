@@ -1307,6 +1307,34 @@ body.tide-ui #stat-cal-open {
   border-radius: 11px;
 }
 
+/* Input hub — inset list rows from card edge */
+body.tide-ui #ov-input-hub .input-hub-list-wrap {
+  padding-left: 22px !important;
+  padding-right: 22px !important;
+}
+body.tide-ui #input-hub-recent-list.tide-drops-list {
+  padding: 10px 14px 12px;
+  box-sizing: border-box;
+}
+body.tide-ui #input-hub-recent-list .rec-item.tide-drop-row {
+  padding-left: 0;
+  padding-right: 0;
+}
+body.tide-ui #input-hub-recent-list .input-hub-batch-hdr {
+  margin-left: 0;
+  margin-right: 0;
+  padding: 16px 0 8px;
+}
+body.tide-ui #input-hub-recent-list .input-hub-batch-block:first-child .input-hub-batch-hdr {
+  padding-top: 4px;
+}
+body.tide-ui #input-hub-recent-list .input-hub-batch-block--highlight {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
 /* ── Me (set) — matches prototype DirectionTideMe ── */
 body.tide-ui #s-set .scr-pad {
   padding-top: 0;
@@ -1726,6 +1754,12 @@ body.tide-ui .fab-stack {
   right: 16px;
   bottom: calc(var(--nav-bar-block) + 12px) !important;
   gap: 10px;
+}
+body.tide-ui:has(#ov-input-hub.open) .fab-stack {
+  z-index: 1100 !important;
+}
+body.tide-ui:has(#ov-input-hub.open) #ov-input-hub .input-hub-list-wrap {
+  padding-bottom: calc(110px + env(safe-area-inset-bottom, 0px)) !important;
 }
 
 body.tide-ui .save-btn,

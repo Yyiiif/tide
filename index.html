@@ -667,13 +667,14 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
 #ov-input-hub .input-hub-hdr .ov-back{min-width:44px;min-height:44px;margin:-8px 0 -8px -6px;border-radius:10px;flex-shrink:0}
 .input-hub-shell{display:flex;flex-direction:column;height:100%;min-height:0;flex:1}
 .input-hub-hdr .ov-title{flex:1;text-align:center}
-.input-hub-list-wrap{flex:1;min-height:0;overflow-y:auto;padding:12px 14px 8px;-webkit-overflow-scrolling:touch}
+.input-hub-list-wrap{flex:1;min-height:0;overflow-y:auto;padding:12px 22px 8px;-webkit-overflow-scrolling:touch}
 .input-hub-sec-lbl{color:#37352F!important;margin-top:0}
-.input-hub-log{border:0.5px solid #E8E8E5!important;background:#FFFFFF!important}
+.input-hub-log{border:0.5px solid #E8E8E5!important;background:#FFFFFF!important;padding:10px 14px 12px;box-sizing:border-box}
 .input-hub-bottom-bar{flex-shrink:0;padding:12px 14px calc(12px + env(safe-area-inset-bottom));border-top:0.5px solid #E8E8E5;background:rgba(255,255,255,0.98);display:flex;flex-direction:column;gap:10px}
 .input-hub-action-btn{width:100%;padding:14px 16px;border-radius:10px;border:0.5px solid #E8E8E5;background:#FFFFFF;color:#37352F;font-size:15px;font-weight:500;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
 .input-hub-action-btn:active{opacity:.92}
-.input-hub-batch-hdr{font-size:12px;font-weight:600;color:#787774;margin:20px 0 10px 4px}
+.input-hub-batch-hdr{font-size:12px;font-weight:600;color:#787774;margin:0;padding:16px 0 8px}
+.input-hub-batch-block:first-child .input-hub-batch-hdr{padding-top:4px}
 .input-hub-batch-rows{display:flex;flex-direction:column;gap:0}
 .ov-hdr{background:var(--bg);padding:calc(12px + env(safe-area-inset-top)) 16px 12px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0}
 .ov-back{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:none;background:none;cursor:pointer;color:var(--t1);border-radius:8px;flex-shrink:0;transition:background 0.15s}
@@ -709,6 +710,8 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
   align-items:flex-end;
   gap:10px;
 }
+body:has(#ov-input-hub.open) .fab-stack{z-index:1100}
+body:has(#ov-input-hub.open) #ov-input-hub .input-hub-list-wrap{padding-bottom:calc(110px + env(safe-area-inset-bottom, 0px))}
 .fab-stack.hidden{display:none!important}
 .fab-sub{
   width:44px;
@@ -824,7 +827,7 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
 .import-ctx-start{width:100%;padding:10px;border-radius:6px;border:0.5px solid #37352F;background:#37352F;color:#fff;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;transition:opacity 0.15s;-webkit-tap-highlight-color:transparent;box-shadow:none!important}
 .import-ctx-start:hover{opacity:0.88}
 .input-hub-batch-block--highlight .input-hub-batch-hdr{color:#37352F;font-weight:600}
-.input-hub-batch-block--highlight{background:#F7F7F5;border-radius:10px;margin:0 -4px;padding:0 4px}
+.input-hub-batch-block--highlight{background:#F7F7F5;border-radius:10px;margin:0;padding:0 10px}
 .ai-pref-pills{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px 14px}
 .ai-pref-pill{padding:8px 12px;border-radius:8px;border:0.5px solid #E8E8E5;background:#FFFFFF;color:#37352F;font-size:13px;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;font-weight:400}
 .ai-pref-pill.on{border-color:#37352F;background:#F7F7F5;font-weight:500}
@@ -3892,6 +3895,7 @@ function openInputHub(session){
   void ov.offsetWidth;
   requestAnimationFrame(function(){
     openOverlayEl(ov);
+    syncFabVisibility();
     if(highlightMs!=null){
       requestAnimationFrame(function(){
         var block=document.querySelector('#input-hub-recent-list .input-hub-batch-block--highlight');
@@ -3900,7 +3904,7 @@ function openInputHub(session){
     }
   });
 }
-function closeInputHub(){closeOverlayEl(document.getElementById('ov-input-hub'));var t=document.getElementById('input-hub-ov-title');if(t)t.textContent='輸入中心'}
+function closeInputHub(){closeOverlayEl(document.getElementById('ov-input-hub'));syncFabVisibility();var t=document.getElementById('input-hub-ov-title');if(t)t.textContent='輸入中心'}
 function closeOvs(){['ov-today','ov-week','ov-input-hub','ov-rec-daily'].forEach(function(id){closeOverlayEl(document.getElementById(id));});var t=document.getElementById('input-hub-ov-title');if(t)t.textContent='輸入中心'}
 function donutChart(id,sorted){return new Chart(document.getElementById(id),{type:'doughnut',data:{labels:sorted.map(x=>x[0]),datasets:[{data:sorted.map(x=>x[1]),backgroundColor:sorted.map(x=>catColors(x[0]).mid),borderWidth:2,borderColor:'#FFFFFF'}]},options:{responsive:false,cutout:'66%',plugins:{legend:{display:false}}}})}
 function legHTML(sorted,total){return sorted.slice(0,5).map(([k,v])=>`<div class="leg-row"><div class="leg-l"><div class="leg-dot" style="background:${catColors(k).mid}"></div><span style="color:${catColors(k).text}">${k}</span></div><div style="display:flex;align-items:center;gap:6px"><span class="leg-pct">${Math.round(v/(total||1)*100)}%</span><span class="leg-r">${fmt(v)}</span></div></div>`).join('')}

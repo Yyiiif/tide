@@ -1462,13 +1462,6 @@ window.TideUI = (function () {
     );
   }
 
-  function meMonthSpentForCat(catZh) {
-    if (window.ReflowCalc && typeof ReflowCalc.catSpent === 'function') {
-      return ReflowCalc.catSpent(catZh, curMonth);
-    }
-    return 0;
-  }
-
   function meFormatBalanceDate(ds) {
     if (!ds) return '—';
     const p = String(ds).split('-').map(Number);
@@ -1720,7 +1713,6 @@ window.TideUI = (function () {
       const rows = coreCats
         .map(function (c, i) {
           const catZh = c.name;
-          const spent = meMonthSpentForCat(catZh);
           const isOpen = openIdx === i;
           const mistIdx =
             typeof getCatMistIdx === 'function' ? getCatMistIdx(c) : i % palette.length;
@@ -1768,12 +1760,6 @@ window.TideUI = (function () {
             '<div class="tide-me-row-main"><div class="tide-me-row-lbl">' +
             catLabel(catZh) +
             '</div></div>' +
-            '<div class="tide-me-row-val">' +
-            (mask ? '$＊＊＊' : fmtFn(spent)) +
-            '</div>' +
-            '<svg class="tide-me-stream-chev" width="6" height="10" viewBox="0 0 6 10" aria-hidden="true"' +
-            (isOpen ? ' style="transform:rotate(90deg)"' : '') +
-            '><path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>' +
             '</div>' +
             (isOpen
               ? '<div class="tide-me-cat-panel">' +
