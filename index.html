@@ -550,6 +550,21 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
 /* Confirm button */
 .cz-confirm-btn{width:100%;background:#44474F;color:#FFFFFF;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;margin-top:16px;transition:opacity 0.15s;box-shadow:none!important}
 .cz-confirm-btn:active{opacity:0.88}
+#rf-confirm-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(55,53,47,0.38);align-items:flex-end;justify-content:stretch}
+#rf-confirm-modal.open{display:flex}
+.rf-confirm-box{width:100%;background:#FFFFFF;border-radius:12px 12px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));box-sizing:border-box}
+.rf-confirm-msg{font-size:14px;font-weight:500;color:#37352F;line-height:1.5;margin-bottom:16px}
+.rf-confirm-actions{display:flex;flex-direction:column;gap:8px}
+.rf-confirm-ok{width:100%;padding:12px;background:#44474F;color:#FFFFFF;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
+.rf-confirm-ok:active{opacity:0.88}
+.rf-confirm-cancel{width:100%;padding:12px;background:transparent;color:#787774;border:0.5px solid #E8E8E5;border-radius:8px;font-size:14px;font-weight:400;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent}
+.rf-confirm-cancel:active{background:#F7F7F5}
+#rf-toast-container{position:fixed;top:calc(env(safe-area-inset-top,0px) + 16px);left:50%;transform:translateX(-50%);z-index:10000;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}
+.rf-toast{font-size:12px;font-weight:500;padding:8px 14px;border-radius:8px;color:#FFFFFF;opacity:0;transform:translateY(-8px);transition:opacity 0.2s ease,transform 0.2s ease;max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;box-sizing:border-box}
+.rf-toast.rf-toast--in{opacity:1;transform:translateY(0)}
+.rf-toast--error{background:#C4A09A}
+.rf-toast--success{background:#8AAF9C}
+.rf-toast--info{background:#9CA0A8}
 .cycle-mini-input{width:48px;padding:4px 6px;font-size:12px;border:0.5px solid var(--border);border-radius:5px;background:var(--bg2);color:var(--t1);outline:none;font-family:inherit;text-align:center}
 .cycle-mini-input:focus{border-color:var(--t2);background:var(--card)}
 .cb-row {
@@ -1740,6 +1755,17 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
   </div>
 </div>
 
+<div id="rf-confirm-modal" onclick="if(event.target===this)closeRfConfirm()">
+  <div class="rf-confirm-box" onclick="event.stopPropagation()">
+    <div class="rf-confirm-msg" id="rf-confirm-msg"></div>
+    <div class="rf-confirm-actions">
+      <button type="button" class="rf-confirm-ok" id="rf-confirm-ok">Confirm</button>
+      <button type="button" class="rf-confirm-cancel" id="rf-confirm-cancel">Cancel</button>
+    </div>
+  </div>
+</div>
+<div id="rf-toast-container"></div>
+
 <div class="modal-bg" id="add-event-overlay" onclick="closeAddEventOverlayBg(event)">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-title">新增事件<button type="button" class="mn-btn" onclick="closeAddEventOverlay()" aria-label="關閉"><i class="ti ti-x"></i></button></div>
@@ -2705,10 +2731,12 @@ function saveBalanceRecord(){
 }
 function deleteBalanceRecord(){
   if(balanceEditIdx<0||balanceEditIdx>=balanceSnapshots.length)return;
-  if(!confirm(window.TideI18n?TideI18n.confirmMsg('確定要刪除此餘額紀錄嗎？'):'確定要刪除此餘額紀錄嗎？'))return;
-  balanceSnapshots.splice(balanceEditIdx,1);
-  finishBalanceSync();
-  closeBalanceRecordOverlay();
+  var msg=window.TideI18n?TideI18n.confirmMsg('確定要刪除此餘額紀錄嗎？'):'確定要刪除此餘額紀錄嗎？';
+  showConfirm(msg,function(){
+    balanceSnapshots.splice(balanceEditIdx,1);
+    finishBalanceSync();
+    closeBalanceRecordOverlay();
+  });
 }
 function finishBalanceSync(){
   saveBalanceSnapshots();
@@ -3306,6 +3334,38 @@ function applyCzAvg(){
   var sl=document.getElementById('cz-slider');
   if(sl){sl.value=__czAvg;czUpdateSliderFill(sl,__czAvg);}
   czUpdateDisplay(__czAvg);
+}
+var __rfConfirmCb=null,__rfCancelCb=null;
+function showConfirm(msg,onConfirm,onCancel){
+  var msgEl=document.getElementById('rf-confirm-msg');
+  if(msgEl)msgEl.textContent=msg;
+  __rfConfirmCb=onConfirm||null;
+  __rfCancelCb=onCancel||null;
+  var okBtn=document.getElementById('rf-confirm-ok');
+  var cancelBtn=document.getElementById('rf-confirm-cancel');
+  if(okBtn)okBtn.onclick=function(){closeRfConfirm();if(__rfConfirmCb)__rfConfirmCb();};
+  if(cancelBtn)cancelBtn.onclick=function(){closeRfConfirm();if(__rfCancelCb)__rfCancelCb();};
+  var ov=document.getElementById('rf-confirm-modal');
+  if(ov){lockBodyScroll();ov.classList.add('open');}
+}
+function closeRfConfirm(){
+  var ov=document.getElementById('rf-confirm-modal');
+  if(ov&&ov.classList.contains('open')){ov.classList.remove('open');unlockBodyScroll(ov);}
+}
+function showToast(msg,type){
+  var container=document.getElementById('rf-toast-container');
+  if(!container)return;
+  var toast=document.createElement('div');
+  toast.className='rf-toast rf-toast--'+(type||'info');
+  toast.textContent=msg;
+  container.appendChild(toast);
+  requestAnimationFrame(function(){
+    requestAnimationFrame(function(){toast.classList.add('rf-toast--in');});
+  });
+  setTimeout(function(){
+    toast.classList.remove('rf-toast--in');
+    setTimeout(function(){if(toast.parentNode)toast.parentNode.removeChild(toast);},250);
+  },3000);
 }
 function saveComfortZone(){
   var sl=document.getElementById('cz-slider');
@@ -5040,10 +5100,12 @@ function saveEventEdit(){
 }
 function deleteEventEdit(){
   if(eventEditIdx<0||eventEditIdx>=specialEvents.length)return;
-  if(!confirm(window.TideI18n?TideI18n.confirmMsg('確定要刪除此事件嗎？'):'確定要刪除此事件嗎？'))return;
-  specialEvents.splice(eventEditIdx,1);
-  closeEditEventModal();
-  finishEventEditSync();
+  var msg=window.TideI18n?TideI18n.confirmMsg('確定要刪除此事件嗎？'):'確定要刪除此事件嗎？';
+  showConfirm(msg,function(){
+    specialEvents.splice(eventEditIdx,1);
+    closeEditEventModal();
+    finishEventEditSync();
+  });
 }
 function renderProjectHistoryContent(){renderEventList()}
 function openEventList(){
@@ -5312,15 +5374,13 @@ async function runAIParse(file,userContext){
   }catch(err){
     if(err&&err.name==='AbortError')throw err;
     const errMsg=String(err&&err.message||'');
-    if(typeof alert==='function'){
-      if((err&&err.status===401)||/API\s*401\b/.test(errMsg)){
-        alert('API key is invalid or expired.');
-      }else if(errMsg==='NO_TRANSACTIONS_DETECTED'){
-        alert('Could not detect transactions from this image. Please upload a clearer screenshot.');
-      }else{
-        const cleanMsg=errMsg.replace(/\s+/g,' ').trim();
-        alert(cleanMsg?('Parse failed: '+cleanMsg):'Parse failed. Please check your network or API key.');
-      }
+    if((err&&err.status===401)||/API\s*401\b/.test(errMsg)){
+      showToast('API key is invalid or expired.','error');
+    }else if(errMsg==='NO_TRANSACTIONS_DETECTED'){
+      showToast('Could not detect transactions from this image. Please upload a clearer screenshot.','error');
+    }else{
+      const cleanMsg=errMsg.replace(/\s+/g,' ').trim();
+      showToast(cleanMsg?('Parse failed: '+cleanMsg):'Parse failed. Please check your network or API key.','error');
     }
     throw err;
   }finally{
@@ -5439,14 +5499,13 @@ function reorderCats(fromIdx,toIdx){
   window.openCatIdx=null;
   dragSrcIdx=null;
   refreshAfterCatChange();
-  var saveDefault=window.confirm('Save this as your default stream order?');
-  if(saveDefault){
+  showConfirm('Save this as your default stream order?',function(){
     saveCategoryOrderFromCats();
     saveCats();
-  }else{
+  },function(){
     applyCategoryOrderIds(persisted);
     refreshAfterCatChange();
-  }
+  });
   return true;
 }
 function catMgrDrop(e){
@@ -5636,7 +5695,7 @@ function startImportParse(){
         var b=document.getElementById('import-sheet-body');
         if(!b)return;
         var raw=err&&err.message?String(err.message):String(err);
-        if(raw.indexOf('請先設定 API 金鑰')>=0){if(typeof alert==='function')alert('請先設定 API 金鑰')}
+        if(raw.indexOf('請先設定 API 金鑰')>=0){showToast('請先設定 API 金鑰','error');}
         var msg=escImportTxt(raw);
         b.innerHTML='<div class="import-done-title">辨識失敗</div><div class="import-done-dummy">'+msg+'</div><button type="button" class="import-done-btn" onclick="closeImportSheet()">關閉</button>';
       });
@@ -5713,7 +5772,16 @@ async function saveExp(){
   if(am===null)am=Date.now();
   openInputHubAfterSave({anchorMs:am,count:1});
 }
-async function deleteExp(){if(editingId==null)return;if(!confirm('確定要刪除這筆紀錄嗎？'))return;const sid=String(editingId);expenses=expenses.filter(function(x){return String(x.id)!==sid;});await saveExpenses();closeModal();await refreshCurrentScreen()}
+function deleteExp(){
+  if(editingId==null)return;
+  var sid=String(editingId);
+  showConfirm('確定要刪除這筆紀錄嗎？',async function(){
+    expenses=expenses.filter(function(x){return String(x.id)!==sid;});
+    await saveExpenses();
+    closeModal();
+    await refreshCurrentScreen();
+  });
+}
 async function refreshCurrentScreen(){
   if(document.getElementById('s-home').classList.contains('active')){activePage='home';renderHome()}
   else if(document.getElementById('s-rec').classList.contains('active')){activePage='detail';renderRec()}
