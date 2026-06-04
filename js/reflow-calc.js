@@ -25,7 +25,9 @@
 
   function monthRows(ym) {
     const key = resolveMonth(ym);
-    if (!key || typeof expensesInCalendarMonth !== 'function') return [];
+    if (!key) return [];
+    if (typeof expensesInBudgetCycle === 'function') return expensesInBudgetCycle(key);
+    if (typeof expensesInCalendarMonth !== 'function') return [];
     return expensesInCalendarMonth(key);
   }
 
@@ -77,13 +79,25 @@
     return Math.round((b - a) / 86400000) + 1;
   }
 
-  /** 這個月還剩幾天要過（依畫面上檢視的月份 curMonth / ym）。 */
+  /** Days left in the budget cycle for the viewed month (30-day rolling or calendar fallback). */
   function daysLeftForMonth(ym) {
     const monthKey = resolveMonth(ym);
     const td = typeof today === 'function' ? today() : new Date().toISOString().slice(0, 10);
     const todayIso = String(td).trim().slice(0, 10);
     if (!monthKey || !/^\d{4}-\d{2}$/.test(monthKey) || !/^\d{4}-\d{2}-\d{2}$/.test(todayIso)) {
       return 0;
+    }
+    if (
+      typeof getBudgetPeriodForDate === 'function' &&
+      typeof budgetCycleReferenceDate === 'function'
+    ) {
+      const r = getBudgetPeriodForDate(budgetCycleReferenceDate(monthKey));
+      const start = String(r.start || '').slice(0, 10);
+      const end = String(r.end || '').slice(0, 10);
+      if (!start || !end) return 0;
+      if (todayIso > end) return 0;
+      if (todayIso < start) return daysInclusive(start, end);
+      return daysInclusive(todayIso, end);
     }
     if (typeof monthDateRange !== 'function') return 0;
 
@@ -210,12 +224,27 @@
     return mode === 'spent' ? clampHeroSpentWaterLevel(raw) : clampHeroWaterLevel(raw);
   }
 
-  /** past = month ended; current = in progress; future = not started */
+  /** past = cycle ended; current = in progress; future = not started */
   function monthPhase(ym) {
     const monthKey = resolveMonth(ym);
     const td = typeof today === 'function' ? today() : new Date().toISOString().slice(0, 10);
     const todayIso = String(td).trim().slice(0, 10);
-    if (!monthKey || !/^\d{4}-\d{2}$/.test(monthKey) || typeof monthDateRange !== 'function') {
+    if (!monthKey || !/^\d{4}-\d{2}$/.test(monthKey)) {
+      return 'current';
+    }
+    if (
+      typeof getBudgetPeriodForDate === 'function' &&
+      typeof budgetCycleReferenceDate === 'function'
+    ) {
+      const r = getBudgetPeriodForDate(budgetCycleReferenceDate(monthKey));
+      const start = String(r.start || '').slice(0, 10);
+      const end = String(r.end || '').slice(0, 10);
+      if (!start || !end) return 'current';
+      if (todayIso > end) return 'past';
+      if (todayIso < start) return 'future';
+      return 'current';
+    }
+    if (typeof monthDateRange !== 'function') {
       return 'current';
     }
     const r = monthDateRange(monthKey);
@@ -230,7 +259,16 @@
   function activeBalanceSnapshotForMonth(ym) {
     const monthKey = resolveMonth(ym);
     const td = typeof today === 'function' ? today() : new Date().toISOString().slice(0, 10);
-    const liveMonth = monthKey === String(td).slice(0, 7) && monthPhase(monthKey) === 'current';
+    let liveMonth = monthKey === String(td).slice(0, 7) && monthPhase(monthKey) === 'current';
+    if (
+      typeof getBudgetPeriodForDate === 'function' &&
+      typeof budgetCycleReferenceDate === 'function' &&
+      typeof getCurrentBudgetPeriod === 'function'
+    ) {
+      const viewP = getBudgetPeriodForDate(budgetCycleReferenceDate(monthKey));
+      const todayP = getCurrentBudgetPeriod();
+      liveMonth = viewP.start === todayP.start && monthPhase(monthKey) === 'current';
+    }
     if (!liveMonth || typeof getActiveBalanceSnapshot !== 'function') return null;
     return getActiveBalanceSnapshot();
   }

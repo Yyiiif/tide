@@ -1571,9 +1571,7 @@ window.TideUI = (function () {
     const profile = ensureMeProfile(pad);
 
     const budgetSec = resolveMeBlock('tide-me-budget-block', function () {
-      const inp = document.getElementById('budget-val');
-      if (!inp) return null;
-      return inp.closest('.tide-me-block') || inp.closest('.set-section');
+      return document.getElementById('budget-cycle-section');
     });
     const streamsSec = resolveMeBlock('tide-me-streams-block', function () {
       const list = document.getElementById('cat-mgr-list');
@@ -1637,28 +1635,45 @@ window.TideUI = (function () {
     };
     if (budgetSec) {
       budgetSec.className = 'tide-me-block';
-      const monthSpentVal =
-        window.ReflowCalc && typeof ReflowCalc.monthSpentTotal === 'function'
-          ? ReflowCalc.monthSpentTotal(curMonth)
-          : typeof monthSpent === 'function'
-            ? monthSpent()
-            : 0;
-      const capVal = typeof budget !== 'undefined' ? budget : '';
+      const viewedCycle =
+        typeof getViewedBudgetCycle === 'function' ? getViewedBudgetCycle(curMonth) : null;
+      const monthBudgetVal =
+        viewedCycle && viewedCycle.amount != null
+          ? Number(viewedCycle.amount) || 0
+          : window.ReflowCalc && typeof ReflowCalc.monthBudgetTotal === 'function'
+            ? ReflowCalc.monthBudgetTotal(curMonth)
+            : typeof getTargetBudget === 'function'
+              ? getTargetBudget(curMonth)
+              : typeof budget !== 'undefined'
+                ? Number(budget) || 0
+                : 0;
+      const budgetPeriod =
+        typeof getBudgetPeriodForDate === 'function' &&
+        typeof budgetCycleReferenceDate === 'function'
+          ? getBudgetPeriodForDate(budgetCycleReferenceDate(curMonth))
+          : null;
+      const tl = function (zh) {
+        return window.TideI18n ? TideI18n.t(zh) : zh;
+      };
       budgetSec.innerHTML =
         meSecHdr('BUDGET') +
         '<div class="tide-me-card">' +
         meRowHtml({
           icon: false,
-          label: window.TideI18n ? TideI18n.t('本月支出') : 'Spent this month',
-          sub: '',
-          value: mask ? '$＊＊＊' : fmtFn(monthSpentVal),
+          accent: '#487CA5',
+          label: tl('本期預算'),
+          sub: budgetPeriod ? budgetPeriod.label : '—',
+          value: mask ? '$＊＊＊' : fmtFn(monthBudgetVal),
+          onclick: 'openBudgetCycleList()',
           divider: false,
-          chevron: false,
         }) +
         '</div>' +
-        '<input type="number" id="budget-val" class="tide-me-budget-inp tide-me-budget-inp--sr" value="' +
-        (capVal === '' ? '' : String(capVal)) +
-        '" aria-hidden="true" tabindex="-1" onchange="saveBudget()">';
+        '<input type="number" id="budget-val" tabindex="-1" aria-hidden="true" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none" value="' +
+        (monthBudgetVal === '' ? '' : String(monthBudgetVal)) +
+        '">' +
+        '<input type="date" id="budget-cycle-start" tabindex="-1" aria-hidden="true" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none" value="' +
+        (viewedCycle && viewedCycle.start ? viewedCycle.start : '') +
+        '">';
     }
 
     if (streamsSec) {

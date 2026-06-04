@@ -1142,11 +1142,19 @@ body.tide-ui #rec-sec-lbl {
 body.tide-ui .rec-type-seg {
   background: var(--tide-chip);
   border-radius: 999px;
+  overflow: hidden;
+}
+body.tide-ui .rec-type-seg::before {
+  background: var(--tide-surf);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+body.tide-ui .rec-type-seg-btn,
+body.tide-ui .rec-type-seg-btn.on {
+  background: transparent;
+  box-shadow: none;
 }
 body.tide-ui .rec-type-seg-btn.on {
-  background: var(--tide-surf);
   color: var(--tide-ink);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 body.tide-ui .locale-seg {
   display: flex;
@@ -1540,6 +1548,19 @@ body.tide-ui .tide-me-budget-inp--sr {
   clip: rect(0, 0, 0, 0) !important;
   white-space: nowrap !important;
   border: 0 !important;
+}
+body.tide-ui .tide-me-add-cycle-btn {
+  display: block;
+  width: calc(100% - 24px);
+  margin: 4px 12px 12px;
+  padding: 10px;
+  border: 0.5px dashed var(--tide-hair);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--tide-ash);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
 }
 body.tide-ui .tide-me-budget-inp {
   width: 96px;

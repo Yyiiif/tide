@@ -7,7 +7,7 @@
 
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Reflow v.2">
+<meta name="apple-mobile-web-app-title" content="Reflow">
 <meta name="application-name" content="Reflow v.2">
 <meta name="theme-color" content="#37352F">
 
@@ -242,9 +242,64 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
 #rec-monthly .rec-list-view-hdr-updated{font-size:10px;color:#ABABAB;line-height:1.3;flex-shrink:0}
 #rec-monthly .rec-list-view-hdr .sec-lbl{margin:0;color:#37352F;flex-shrink:0;text-align:left}
 #rec-monthly #rec-list>.rec-day-group:first-child .rec-day-hdr{margin-top:4px}
-.rec-type-seg{display:flex;width:100%;background:#F1F1EF;border-radius:999px;padding:3px;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-.rec-type-seg-btn{flex:1;border:none;background:transparent;border-radius:999px;padding:8px 12px;font-size:13px;font-weight:500;color:#ABABAB;font-family:inherit;cursor:pointer;line-height:1.2;transition:color 0.2s ease,background 0.2s ease,box-shadow 0.2s ease}
-.rec-type-seg-btn.on{background:#FFFFFF;color:#37352F;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+.rec-type-seg {
+  display: flex;
+  width: 100%;
+  background: #F1F1EF;
+  border-radius: 999px;
+  padding: 3px;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rec-type-seg::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / 2);
+  height: calc(100% - 6px);
+  background: #FFFFFF;
+  border-radius: 999px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  will-change: transform;
+  z-index: 0;
+}
+
+.rec-type-seg[data-active="cat"]::before {
+  transform: translateX(100%);
+}
+
+.rec-type-seg-btn {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #ABABAB;
+  font-family: inherit;
+  cursor: pointer;
+  line-height: 1.2;
+  position: relative;
+  z-index: 1;
+  box-shadow: none;
+  transition: color 0.22s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.rec-type-seg-btn.on {
+  color: #37352F;
+  background: transparent;
+  box-shadow: none;
+}
 .rec-day-group{margin-bottom:12px}
 .rec-day-hdr{display:flex;justify-content:space-between;align-items:center;padding:0 2px;margin-bottom:6px}
 .rec-day-date{font-size:12px;font-weight:500;color:var(--t2)}
@@ -319,7 +374,7 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
 .event-buffer-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-top:0.5px solid var(--border)}
 .project-history-sheet{display:none;position:fixed;inset:0;z-index:1001;background:rgba(0,0,0,0.35);align-items:flex-end;justify-content:stretch}
 .project-history-sheet.open{display:flex}
-.project-history-panel{background:#FFFFFF;border-radius:12px 12px 0 0;padding:0;width:100%;max-height:85vh;height:min(85vh,640px);display:flex;flex-direction:column;box-sizing:border-box;position:relative;transform:translateY(100%);will-change:transform;overflow:hidden}
+.project-history-panel{background:#FFFFFF;border-radius:12px 12px 0 0;padding:0;width:100%;max-height:85dvh;height:min(85vh,640px);display:flex;flex-direction:column;box-sizing:border-box;position:relative;transform:translateY(100%);will-change:transform;overflow:hidden}
 .project-history-sheet.open .project-history-panel{animation:phSheetSlideUp 0.28s ease-out forwards}
 .ph-proj-list-wrap{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 0 8px}
 .ph-proj-list-empty{padding:24px 20px;font-size:13px;color:#787774;text-align:center}
@@ -491,7 +546,7 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
 #add-event-overlay.modal-bg,#fine-tune-event-overlay.modal-bg,#balance-record-overlay.modal-bg,#ov-edit-expense.modal-bg,#ov-export-csv.modal-bg,#ov-tag-edit.tag-edit-sheet,#ov-edit-event.event-edit-sheet,#ov-event-edit.event-edit-sheet{display:none;position:fixed;inset:0;align-items:flex-end;justify-content:stretch;background:rgba(55,53,47,0.38)}
 #add-event-overlay.modal-bg.open,#fine-tune-event-overlay.modal-bg.open,#add-event-overlay.modal-bg.active,#fine-tune-event-overlay.modal-bg.active,#balance-record-overlay.modal-bg.open,#ov-edit-expense.modal-bg.open,#ov-export-csv.modal-bg.open,#ov-tag-edit.tag-edit-sheet.open,#ov-edit-event.event-edit-sheet.open,#ov-edit-event.event-edit-sheet.active,#ov-event-edit.event-edit-sheet.open{display:flex}
 #balance-record-overlay{z-index:5100}
-#balance-record-overlay .modal{padding:20px 24px calc(20px + env(safe-area-inset-bottom));max-height:85vh}
+#balance-record-overlay .modal{padding:20px 24px calc(20px + env(safe-area-inset-bottom));max-height:85dvh}
 #ov-edit-expense,#ov-export-csv{z-index:3000}
 #ov-edit-expense.modal-bg.open{z-index:10050;-webkit-transform:translateZ(0);transform:translateZ(0)}
 .rec-item[data-expense-id],.li[data-expense-id]{cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -506,7 +561,7 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
 #ov-edit-event.event-edit-sheet,#ov-event-edit.event-edit-sheet{z-index:5200}
 #ov-tag-edit.tag-edit-sheet{z-index:6000}
 #add-event-overlay .modal,#fine-tune-event-overlay .modal,#ov-edit-expense .modal,#ov-export-csv .modal,#ov-tag-edit .tag-edit-panel,#ov-edit-event .event-edit-panel,#ov-event-edit .event-edit-panel{width:100%;background:#FFFFFF;border-radius:20px 20px 0 0;display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden;box-shadow:none!important;color:#37352F}
-#add-event-overlay .modal{padding:20px 24px calc(20px + env(safe-area-inset-bottom));max-height:85vh}
+#add-event-overlay .modal{padding:20px 24px calc(20px + env(safe-area-inset-bottom));max-height:85dvh}
 #fine-tune-event-overlay .fine-tune-event-modal.allocation-modal-container{height:auto!important;max-height:92vh!important;overflow:visible!important;flex:0 1 auto;padding:0;padding-bottom:0}
 #fine-tune-event-overlay .fine-tune-hdr{padding:20px 24px 0;flex-shrink:0}
 #fine-tune-event-overlay .fine-tune-hdr-row{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:4px;margin-bottom:8px}
@@ -545,7 +600,7 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
 #ov-tag-edit .tag-edit-panel{max-height:48vh;transform:translateY(100%);will-change:transform;transition:transform 0.32s cubic-bezier(0.22,1,0.36,1)}
 #ov-edit-event .event-edit-panel,#ov-event-edit .event-edit-panel{max-height:55vh;transform:translateY(100%);will-change:transform;transition:transform 0.32s cubic-bezier(0.22,1,0.36,1)}
 #ov-tag-edit.open .tag-edit-panel,#ov-edit-event.open .event-edit-panel,#ov-event-edit.open .event-edit-panel{transform:translateY(0)}
-#ov-edit-expense .modal,#ov-export-csv .modal{padding:20px 24px calc(20px + env(safe-area-inset-bottom));max-height:85vh}
+#ov-edit-expense .modal,#ov-export-csv .modal{padding:20px 24px calc(20px + env(safe-area-inset-bottom));max-height:85dvh}
 #ov-tag-edit .tag-edit-panel,#ov-edit-event .event-edit-panel,#ov-event-edit .event-edit-panel{padding:20px 24px calc(20px + env(safe-area-inset-bottom))}
 #ov-edit-expense .modal-title,#ov-export-csv .modal-title,#ov-tag-edit .modal-title,#ov-edit-event .modal-title,#ov-event-edit .modal-title{font-size:15px;font-weight:500;color:var(--t1);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;width:100%;box-shadow:none!important}
 #ov-tag-edit .edit-sheet-body,#ov-edit-event .edit-sheet-body,#ov-event-edit .edit-sheet-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-bottom:8px;box-shadow:none!important}
@@ -635,7 +690,7 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
 .import-ctx-chip:active{opacity:.92}
 .import-sheet{display:none;position:fixed;inset:0;z-index:3000;background:rgba(0,0,0,0.35);align-items:flex-end;justify-content:stretch}
 .import-sheet.open{display:flex}
-.import-sheet-panel{background:#FFFFFF;border-radius:12px 12px 0 0;padding:0 20px calc(24px + env(safe-area-inset-bottom));width:100%;max-height:85vh;overflow-y:auto;box-sizing:border-box;position:relative;z-index:3001;transform:translateY(100%);will-change:transform}
+.import-sheet-panel{background:#FFFFFF;border-radius:12px 12px 0 0;padding:0 20px calc(24px + env(safe-area-inset-bottom));width:100%;max-height:85dvh;overflow-y:auto;box-sizing:border-box;position:relative;z-index:3001;transform:translateY(100%);will-change:transform}
 .import-sheet.open .import-sheet-panel{animation:phSheetSlideUp 0.28s ease-out forwards}
 .import-sheet-hdr{position:relative;display:flex;align-items:center;justify-content:center;min-height:48px;margin:0 -20px 20px;padding:8px 20px 12px;border-bottom:0.5px solid #E8E8E5}
 .import-sheet-x{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:0;border:none;background:none;cursor:pointer;color:#37352F;font-family:inherit;-webkit-tap-highlight-color:transparent;border-radius:8px}
@@ -732,7 +787,7 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
 .add-circle svg{width:20px;height:20px;color:#fff}
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);align-items:flex-end;z-index:3000}
 .modal-bg.open{display:flex}
-.modal{background:#FFFFFF;border-radius:12px 12px 0 0;padding:20px 20px calc(60px + env(safe-area-inset-bottom));width:100%;max-height:85vh;overflow-y:auto;position:relative;z-index:3001;color:#37352F}
+.modal{background:#FFFFFF;border-radius:12px 12px 0 0;padding:20px 20px calc(60px + env(safe-area-inset-bottom));width:100%;max-height:85dvh;overflow-y:auto;position:relative;z-index:3001;color:#37352F}
 .modal-title{font-size:15px;font-weight:500;color:var(--t1);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
 .form-lbl{font-size:11px;color:var(--t3);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.04em;font-weight:500}
 .form-grp{margin-bottom:10px;min-width:0}
@@ -979,7 +1034,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
   width: 100%;
   box-sizing: border-box;
   position: relative;
-  max-height: 85vh;
+  max-height: 85dvh;
   overflow-y: auto;
 }
 .cat-alert-x {
@@ -1159,7 +1214,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
         </div>
       </div>
       <div class="rec-list-view-toggle-row">
-        <div class="rec-type-seg" role="group" aria-label="花多少明細顯示方式">
+        <div class="rec-type-seg" data-active="date" role="group" aria-label="花多少明細顯示方式">
           <button type="button" class="rec-type-seg-btn on" id="rec-list-view-date" aria-selected="true" onclick="setRecListViewMode('date',this)">日期</button>
           <button type="button" class="rec-type-seg-btn" id="rec-list-view-cat" aria-selected="false" onclick="setRecListViewMode('cat',this)">分類</button>
         </div>
@@ -1212,12 +1267,11 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
         <div id="cat-mgr-list"></div>
         <div class="cb-unalloc" id="cb-unalloc">未分配 $0</div>
       </div>
-      <div class="set-section">
-        <div class="set-section-title">總預算</div>
-        <div class="budget-row-info" id="budget-period-info"></div>
+      <div class="set-section" id="budget-section">
+        <div class="set-section-title">每月預算</div>
         <div class="budget-row">
-          <span class="budget-label" id="total-budget-label">每月預算</span>
-          <input type="number" class="budget-input" id="budget-val" placeholder="17000" onchange="saveBudget()">
+          <span class="budget-label">月預算 NT$</span>
+          <input type="number" class="budget-input" id="budget-val" placeholder="17000" inputmode="numeric" onchange="saveBudget()">
         </div>
       </div>
       <div class="set-export-wrap">
@@ -1481,6 +1535,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
   </div>
 </div>
 
+
 <div class="full-ov" id="ov-balance-list">
   <div class="balance-ov-shell">
     <div class="ov-hdr balance-ov-hdr">
@@ -1515,6 +1570,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
     <button type="button" class="save-btn" onclick="saveEventNew()">儲存事件</button>
   </div>
 </div>
+
 
 <div id="ov-edit-event" class="event-edit-sheet" onclick="closeEditEventModalBg(event)">
   <div class="event-edit-panel" onclick="event.stopPropagation()">
@@ -1769,8 +1825,10 @@ async function applyTideDemoData(){
   await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.cats,JSON.parse(JSON.stringify(DEFAULT_CATS)));
   await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.specialEvents,[]);
   saveCatBudgets();
+  const demoYm=d.month||'2026-11';
+  saveCycleConfig();
   enforceCoreCategories();
-  setGlobalMonth(d.month||'2026-11',{syncViewDate:true});
+  setGlobalMonth(demoYm,{syncViewDate:true});
   viewDate=d.today||today();
   calPickMonth=(d.month||viewDate.slice(0,7));
   syncAllMonthNavigatorUITexts();
@@ -1826,8 +1884,7 @@ let budget=17000;
 let catBudgets=JSON.parse(localStorage.getItem('cat_budgets_v1')||'{}');
 let catBuffers={};
 try{const _cb=JSON.parse(localStorage.getItem('catBuffers')||'{}');if(_cb&&typeof _cb==='object'&&!Array.isArray(_cb))catBuffers=_cb;}catch(_){catBuffers={}}
-let cycleConfig=Object.assign({type:'month',startDay:1,eventBufferEnabled:false,eventBufferName:'',eventBufferAmount:0,projectHistory:[]},JSON.parse(localStorage.getItem('cycle_config_v1')||'{}'));
-cycleConfig.type='month';
+let cycleConfig=Object.assign({startDay:1,eventBufferEnabled:false},JSON.parse(localStorage.getItem('cycle_config_v1')||'{}'));
 if(!Array.isArray(cycleConfig.projectHistory))cycleConfig.projectHistory=[];
 let specialEvents=[];
 function monthDateRange(ym){
@@ -1974,6 +2031,11 @@ function parseEventDate(ds){
 function getEventsOverlappingMonth(ym){
   const y=ym==null||ym===''?curMonth:String(ym);
   return specialEvents.filter(function(p){return !p.archived&&projectOverlapsYm(p,y);});
+}
+function refreshBudgetUi(){
+  renderHome();
+  renderUnalloc();
+  if(document.getElementById('s-set')?.classList.contains('active')&&typeof renderSet==='function')renderSet();
 }
 function getEventBufferSumForMonth(ym){
   const y=ym==null||ym===''?curMonth:String(ym);
@@ -2150,7 +2212,7 @@ function teardownImportFlowState(){
 function forceDismissAllEntryOverlays(){
   teardownImportFlowState();
   editingId=null;
-  ['import-sheet','ov-edit-expense','ov-export-csv','ov-input-hub','ov-today','ov-week','ov-rec-daily','ov-balance-list','cal-pick','cp-modal','add-event-overlay','balance-record-overlay'].forEach(function(id){
+  ['import-sheet','ov-edit-expense','ov-export-csv','ov-input-hub','ov-today','ov-week','ov-rec-daily','ov-balance-list','cal-pick','cp-modal','add-event-overlay','balance-record-overlay','ov-edit-event'].forEach(function(id){
     var el=document.getElementById(id);
     if(!el)return;
     el.classList.remove('open');
@@ -2214,6 +2276,9 @@ function applyGlobalMonthChange(){
   renderHome();
   renderRec();
   renderStat();
+  if(typeof renderUnalloc==='function')renderUnalloc();
+  const setEl=document.getElementById('s-set');
+  if(setEl&&setEl.classList.contains('active')&&typeof renderSet==='function')renderSet();
 }
 function shiftGlobalMonth(delta){
   const parts=String(curMonth||'').split('-').map(Number);
@@ -2781,8 +2846,10 @@ function saveCatBudgets(){localStorage.setItem('cat_budgets_v1',JSON.stringify(c
 function saveCatBuffers(){localStorage.setItem('catBuffers',JSON.stringify(catBuffers))}
 function getCatBudgetNum(catName){const n=getDynamicCategoryBudget(catName);return Number.isFinite(n)&&n>0?n:0}
 function getCatBufferNum(catName){
-  void catName;
-  return 0;
+  const totalBuffer=getEventBufferSumForMonth(curMonth);
+  if(!totalBuffer)return 0;
+  const pct=Number(catBuffers[normalizeCoreCatName(catName)])||0;
+  return pct>0?Math.round(totalBuffer*pct/100):0;
 }
 function getCatBufferStatus(spent,budget,buffer){
   if(!(budget>0))return'normal';
@@ -2858,22 +2925,31 @@ enforceCoreCategories();
   localStorage.setItem(key,'1');
 })();
 function saveCycleConfig(){localStorage.setItem('cycle_config_v1',JSON.stringify(cycleConfig))}
-function getBufferExtraForMonth(ym){
-  if(!cycleConfig.eventBufferEnabled)return 0;
-  return 0;
+function getTargetBudget(ym){
+  const y=ym==null||ym===''?curMonth:String(ym);
+  return(Number(budget)||0)+getEventBufferSumForMonth(y);
 }
-function getTargetBudget(ym){const y=ym===undefined||ym===null||ym===''?today().slice(0,7):ym;return(Number(budget)||0)+getBufferExtraForMonth(y)}
 function getHomeCategoryHeaderTotalBudget(){
-  var base=Number(budget)||0;
   syncSpecialEventActiveFlags();
-  return base+getEventBufferSumForMonth(curMonth);
+  return(Number(budget)||0)+getEventBufferSumForMonth(curMonth);
 }
 function updateHomeCategoryTotalBudgetLabel(){
   var el=document.getElementById('home-category-total-budget');
   if(!el)return;
   el.textContent='總預算 '+fmt(getHomeCategoryHeaderTotalBudget());
 }
-function saveBudget(){budget=parseInt(document.getElementById('budget-val').value)||0;ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.budget,budget).catch(function(err){console.error('saveBudget failed',err);});renderHome();renderUnalloc()}
+function renderBudgetSummary(){
+  const bv=document.getElementById('budget-val');
+  if(bv)bv.value=String(Number(budget)||0);
+}
+function saveBudget(){
+  const el=document.getElementById('budget-val');
+  budget=parseInt(el&&el.value,10)||0;
+  ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.budget,budget).catch(function(err){console.error('saveBudget failed',err);});
+  saveCycleConfig();
+  renderHome();
+  renderUnalloc();
+}
 function fmt(n){return '$'+Math.round(n).toLocaleString()}
 function formatAmount(n){const x=Number(n);return'$'+Math.round(Number.isFinite(x)?x:0).toLocaleString()}
 function today(){
@@ -2887,13 +2963,7 @@ function weekPeriodLabel(date){const d=new Date(String(date||today())+'T12:00:00
 function catColors(name){const n=(name==null||name==='')?'Other':String(name);if(CAT_COLOR_MAP[n])return CAT_COLOR_MAP[n];const c=cats.find(x=>x.name===n)||cats[cats.length-1];const idx=c?.colorIdx??1;const nc=NOTION_COLORS[idx]||NOTION_COLORS[1];return{bg:nc.bg,text:nc.text,mid:(MID[idx]!==undefined?MID[idx]:'#A3A29F')}}
 function shiftDate(ds,days){const d=new Date(ds+'T12:00:00');d.setDate(d.getDate()+days);return d.toISOString().slice(0,10)}
 function getCurrentBudgetPeriod(){
-  const td=today();const t=new Date(td+'T12:00:00');
-  const y=t.getFullYear(),m=t.getMonth();
-  const mm=String(m+1).padStart(2,'0');
-  const lastD=new Date(y,m+1,0).getDate();
-  const startStr=`${y}-${mm}-01`;
-  const endStr=`${y}-${mm}-${String(lastD).padStart(2,'0')}`;
-  return{start:startStr,end:endStr,label:'本月'};
+  return monthDateRange(curMonth);
 }
 function getCycleLabel(){return'每月預算'}
 function fmtWeekRangeLabel(monStr,sunStr){
@@ -3239,8 +3309,11 @@ function openCatOv(catName){
   const safeCol=n=>{try{return catColors(safeName(n))}catch(e){return{bg:'#F1F1EF',text:'#787774',mid:'#A3A29F'}}};
   const t=document.getElementById('cat-ov-title');if(t)t.textContent=catName;
   const catKey=normalizeCoreCatName(catName);
+  const catPeriod=monthDateRange(curMonth);
   const catRowsForCat=expenses.filter(function(e){
-    return e.date&&e.date.startsWith(curMonth)&&normalizeCoreCatName(e.cat)===catKey;
+    if(!e||!e.date||normalizeCoreCatName(e.cat)!==catKey)return false;
+    const d=String(e.date).trim().slice(0,10);
+    return d>=catPeriod.start&&d<=catPeriod.end;
   }).slice().sort(function(a,b){return(b.date||'').localeCompare(a.date||'');});
   const spent=window.ReflowCalc?ReflowCalc.catSpent(catName,curMonth):catRowsForCat.reduce(function(s,e){return s+(e.amt||0);},0);
   const catBudgetNum=getCatBudgetNum(catName);
@@ -3375,6 +3448,7 @@ function setRecListViewMode(mode,btn){
   var wrap=btn&&btn.closest('.rec-type-seg');
   if(!wrap)wrap=document.querySelector('#rec-monthly .rec-type-seg');
   if(!wrap)return;
+  wrap.setAttribute('data-active', mode);
   wrap.querySelectorAll('.rec-type-seg-btn').forEach(function(b){b.classList.remove('on');b.setAttribute('aria-selected','false');});
   if(mode==='date'){var d=document.getElementById('rec-list-view-date');if(d){d.classList.add('on');d.setAttribute('aria-selected','true');}}
   else if(mode==='cat'){var c=document.getElementById('rec-list-view-cat');if(c){c.classList.add('on');c.setAttribute('aria-selected','true');}}
@@ -3564,7 +3638,7 @@ function renderAnalysisCatBreakdown(){
   })();
   const sorted=Object.entries(cm).sort(function(a,b){return b[1]-a[1];});
   const monthTotal=sorted.reduce(function(s,x){return s+x[1];},0);
-  if(titleEl)titleEl.innerHTML='<span>本月分類</span><span style="font-size:13px;color:#ABABAB;font-weight:400;text-transform:none;letter-spacing:0">'+fmt(monthTotal)+'</span>';
+  if(titleEl)titleEl.innerHTML='<span>BY STREAM</span><span style="font-size:13px;color:#ABABAB;font-weight:400;text-transform:none;letter-spacing:0">'+fmt(monthTotal)+'</span>';
   if(!(monthTotal>0)){barEl.innerHTML='';legEl.innerHTML='';return;}
   barEl.innerHTML=sorted.map(function(entry){
     const cat=entry[0],amt=entry[1];
@@ -4402,6 +4476,8 @@ async function initApp(){
   syncAutoEventBuffer();
   renderHome();
   renderRec();
+  var initSeg=document.querySelector('#rec-monthly .rec-type-seg');
+  if(initSeg)initSeg.setAttribute('data-active','date');
   renderStat();
   renderSet();
   renderUnalloc();
@@ -4624,12 +4700,8 @@ function renderUnalloc(){
 function renderSet(){
   syncAutoEventBuffer();
   if(document.getElementById('ov-balance-list')?.classList.contains('open'))renderBalanceList();
-  document.getElementById('budget-val').value=budget||'';
-  document.getElementById('total-budget-label').textContent=getCycleLabel();
-  const period=getCurrentBudgetPeriod();const fmtP=d=>{const dt=new Date(d+'T12:00:00');return`${dt.getMonth()+1}/${dt.getDate()}`};
   if(document.getElementById('ov-event-list')?.classList.contains('open'))renderEventList();
-  const pInfo=document.getElementById('budget-period-info');
-  if(pInfo)pInfo.textContent=`目前期間：${fmtP(period.start)} – ${fmtP(period.end)}`;
+  renderBudgetSummary();
   const coreCats=getCoreCatsOrdered();
   const catMgrEl=document.getElementById('cat-mgr-list');
   if(catMgrEl&&!document.body.classList.contains('tide-ui')){

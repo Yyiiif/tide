@@ -1054,7 +1054,7 @@
   function patchCycleLabel() {
     if (typeof getCycleLabel === 'function') {
       window.getCycleLabel = function () {
-        return window.TideI18n ? TideI18n.t('每月預算') : 'Monthly cap';
+        return window.TideI18n ? TideI18n.t('30 天預算') : '30-day budget';
       };
     }
   }
