@@ -1205,41 +1205,17 @@ body.tide-ui .tide-drops-range {
   font-variant-numeric: tabular-nums;
 }
 
-/* Flow/Trend & Date/Stream pills — FAB-like float, same slot & pill style */
-body.tide-ui #s-stat.active .flow-view-toggle-row.tide-view-seg-float,
-body.tide-ui #s-rec.active .rec-list-view-toggle-row.tide-view-seg-float {
-  position: fixed;
-  left: var(--tide-view-seg-left, 0);
-  width: var(--tide-view-seg-width, 100%);
-  right: auto;
-  top: var(--tide-view-seg-top, 0px);
-  z-index: 1000;
-  margin: 0;
+/* Flow/Trend & Date/Stream pills — sticky with month header */
+body.tide-ui .tide-screen-header-seg {
   padding: 8px 22px 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  max-width: 100%;
   box-sizing: border-box;
-  pointer-events: none;
-  background: var(--tide-bg) !important;
-  background-color: var(--tide-bg) !important;
-}
-body.tide-ui #s-stat.active .flow-view-toggle-row.tide-view-seg-float .flow-type-seg,
-body.tide-ui #s-rec.active .rec-list-view-toggle-row.tide-view-seg-float .rec-type-seg {
-  pointer-events: auto;
-}
-body.tide-ui .tide-view-seg-spacer {
-  width: 100%;
+  background: var(--tide-bg);
   flex-shrink: 0;
-  margin: 0 0 12px;
-  pointer-events: none;
 }
-body.tide-ui #rec-monthly .rec-list-view-toggle-row:not(.tide-view-seg-float),
-body.tide-ui #s-stat .flow-view-toggle-row:not(.tide-view-seg-float) {
-  padding: 8px 22px 8px;
-  margin: 0 0 12px;
+body.tide-ui .tide-screen-header-seg .rec-list-view-toggle-row,
+body.tide-ui .tide-screen-header-seg .flow-view-toggle-row {
+  padding: 0;
+  margin: 0;
   display: flex;
   align-items: center;
   justify-content: center;

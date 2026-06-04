@@ -395,111 +395,24 @@ window.TideUI = (function () {
     if (nav.parentNode !== monthWrap) monthWrap.appendChild(nav);
 
     if (isRec || isStat) {
-      placeViewSegFloat(screenEl, pad, header);
+      const toggleRow =
+        pad.querySelector('.flow-view-toggle-row') || pad.querySelector('.rec-list-view-toggle-row');
+      if (toggleRow) {
+        toggleRow.classList.remove('tide-view-seg-float');
+        const spacer = toggleRow.nextElementSibling;
+        if (spacer && spacer.classList.contains('tide-view-seg-spacer')) spacer.remove();
+        let segWrap = header.querySelector('.tide-screen-header-seg');
+        if (!segWrap) {
+          segWrap = document.createElement('div');
+          segWrap.className = 'tide-screen-header-seg';
+          header.appendChild(segWrap);
+        }
+        if (toggleRow.parentNode !== segWrap) segWrap.appendChild(toggleRow);
+      }
     }
 
     applyTideMonthNavChevrons(nav);
     applyTideMonthNavClass(screenEl);
-  }
-
-  function placeViewSegFloat(screenEl, pad, header) {
-    const toggleRow =
-      pad.querySelector('.flow-view-toggle-row') || pad.querySelector('.rec-list-view-toggle-row');
-    if (!toggleRow) return;
-
-    const segWrap = header && header.querySelector('.tide-screen-header-seg');
-    if (segWrap && toggleRow.parentNode === segWrap) {
-      header.insertAdjacentElement('afterend', toggleRow);
-      if (!segWrap.childElementCount) segWrap.remove();
-    } else if (header && toggleRow.parentNode === header) {
-      header.insertAdjacentElement('afterend', toggleRow);
-    }
-
-    toggleRow.classList.add('tide-view-seg-float');
-
-    let spacer = toggleRow.nextElementSibling;
-    if (!spacer || !spacer.classList.contains('tide-view-seg-spacer')) {
-      spacer = document.createElement('div');
-      spacer.className = 'tide-view-seg-spacer';
-      spacer.setAttribute('aria-hidden', 'true');
-      toggleRow.insertAdjacentElement('afterend', spacer);
-    }
-
-    syncViewSegFloat(screenEl);
-    ensureViewSegFloatListeners();
-  }
-
-  let viewSegFloatListening = false;
-  function ensureViewSegFloatListeners() {
-    if (viewSegFloatListening) return;
-    viewSegFloatListening = true;
-    const onSync = function () {
-      syncViewSegFloat(document.getElementById('s-stat'));
-      syncViewSegFloat(document.getElementById('s-rec'));
-    };
-    window.addEventListener('resize', onSync, { passive: true });
-    window.addEventListener('scroll', onSync, { passive: true });
-    if (typeof ResizeObserver !== 'undefined') {
-      const ro = new ResizeObserver(onSync);
-      const content = document.querySelector('.content');
-      if (content) ro.observe(content);
-      ['s-stat', 's-rec'].forEach(function (id) {
-        const el = document.getElementById(id);
-        const pad =
-          id === 's-rec'
-            ? el && (el.querySelector('#rec-monthly') || el.querySelector('.scr-pad'))
-            : el && el.querySelector('.scr-pad');
-        const hdr = pad && pad.querySelector(':scope > .tide-screen-header');
-        if (hdr) ro.observe(hdr);
-      });
-    }
-  }
-
-  function applyViewSegFloatBounds(row) {
-    const content = document.querySelector('.content');
-    if (!content || !row) return;
-    const rect = content.getBoundingClientRect();
-    row.style.setProperty('--tide-view-seg-left', rect.left + 'px');
-    row.style.setProperty('--tide-view-seg-width', content.clientWidth + 'px');
-  }
-
-  function clearViewSegFloatBounds(row) {
-    if (!row) return;
-    row.style.removeProperty('--tide-view-seg-left');
-    row.style.removeProperty('--tide-view-seg-width');
-  }
-
-  function syncViewSegFloat(screenEl) {
-    if (!screenEl || !document.body.classList.contains('tide-ui')) return;
-    const id = screenEl.id;
-    if (id !== 's-stat' && id !== 's-rec') return;
-
-    const pad =
-      id === 's-rec'
-        ? screenEl.querySelector('#rec-monthly') || screenEl.querySelector('.scr-pad')
-        : screenEl.querySelector('.scr-pad');
-    if (!pad) return;
-
-    const row = pad.querySelector('.tide-view-seg-float');
-    if (!row) return;
-
-    const spacer = row.nextElementSibling;
-    const active = screenEl.classList.contains('active');
-    const header = pad.querySelector(':scope > .tide-screen-header');
-    const anchor = header || pad.querySelector('.page-month-nav');
-
-    if (!active || !anchor) {
-      row.style.removeProperty('--tide-view-seg-top');
-      clearViewSegFloatBounds(row);
-      if (spacer && spacer.classList.contains('tide-view-seg-spacer')) spacer.style.height = '0px';
-      return;
-    }
-
-    const top = anchor.getBoundingClientRect().bottom;
-    row.style.setProperty('--tide-view-seg-top', top + 'px');
-    applyViewSegFloatBounds(row);
-    const h = row.offsetHeight;
-    if (spacer && spacer.classList.contains('tide-view-seg-spacer')) spacer.style.height = h + 'px';
   }
 
   function applyTideMonthNavChevrons(nav) {
@@ -2034,7 +1947,6 @@ window.TideUI = (function () {
     homeHeroMarkup: homeHeroMarkup,
     layoutHomeHeader: layoutHomeHeader,
     layoutScreenHeader: layoutScreenHeader,
-    syncViewSegFloat: syncViewSegFloat,
     applyPulseDropsMonthNav: applyPulseDropsMonthNav,
     applyTideMonthNavClass: applyTideMonthNavClass,
     styleHomeStreams: styleHomeStreams,
