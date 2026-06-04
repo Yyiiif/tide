@@ -550,6 +550,29 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
 /* Confirm button */
 .cz-confirm-btn{width:100%;background:#44474F;color:#FFFFFF;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;margin-top:16px;transition:opacity 0.15s;box-shadow:none!important}
 .cz-confirm-btn:active{opacity:0.88}
+/* ── Onboarding ──────────────────────────────── */
+#onboarding-overlay{display:none;position:fixed;inset:0;z-index:20000;background:#FFFFFF;flex-direction:column;overflow:hidden}
+#onboarding-overlay.open{display:flex}
+.ob-header{flex-shrink:0;display:flex;align-items:center;justify-content:flex-end;padding:calc(16px + env(safe-area-inset-top,0px)) 20px 0}
+.ob-skip{border:none;background:none;font-size:13px;font-weight:400;color:#ABABAB;cursor:pointer;font-family:inherit;padding:8px 0;-webkit-tap-highlight-color:transparent}
+.ob-track-wrap{flex:1;min-height:0;overflow:hidden;position:relative;user-select:none}
+.ob-track{display:flex;height:100%;will-change:transform}
+.ob-track.ob-animated{transition:transform 0.38s cubic-bezier(0.4,0,0.2,1)}
+.ob-slide{flex:0 0 100%;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 36px 8px;box-sizing:border-box;text-align:center}
+.ob-illus{flex-shrink:0;margin-bottom:28px}
+.ob-headline{font-size:22px;font-weight:700;color:#37352F;letter-spacing:-0.03em;line-height:1.25;margin-bottom:12px;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif}
+.ob-body{font-size:14px;font-weight:400;color:#787774;line-height:1.65;max-width:288px}
+.ob-footer{flex-shrink:0;padding:16px 24px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;align-items:center;gap:14px}
+.ob-dots{display:flex;gap:6px;align-items:center;height:8px}
+.ob-dot{height:6px;border-radius:3px;background:#E8E8E5;transition:width 0.25s ease,background 0.25s ease;width:6px}
+.ob-dot.on{width:20px;background:#37352F}
+.ob-actions{display:flex;align-items:center;gap:10px;width:100%}
+.ob-btn-back{flex-shrink:0;border:0.5px solid #E8E8E5;background:#FFFFFF;color:#787774;border-radius:10px;padding:13px 20px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;min-width:80px}
+.ob-btn-back:active{background:#F7F7F5}
+.ob-btn-next{flex:1;border:none;background:#44474F;color:#FFFFFF;border-radius:10px;padding:13px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;letter-spacing:-0.01em}
+.ob-btn-next:active{opacity:0.88}
+.ob-how-to-btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:11px 14px;border:0.5px solid var(--border);border-radius:8px;background:#FFFFFF;color:#787774;font-size:13px;font-weight:400;font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;margin-top:2px}
+.ob-how-to-btn:active{background:#F7F7F5}
 #rf-confirm-modal{display:none;position:fixed;inset:0;z-index:9999;background:rgba(55,53,47,0.38);align-items:flex-end;justify-content:stretch}
 #rf-confirm-modal.open{display:flex}
 .rf-confirm-box{width:100%;background:#FFFFFF;border-radius:12px 12px 0 0;padding:20px 20px calc(20px + env(safe-area-inset-bottom));box-sizing:border-box}
@@ -1365,13 +1388,8 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
   <div class="scr" id="s-set">
     <div class="simple-hdr"><span class="page-title">個人</span></div>
     <div class="scr-pad">
-      <div class="set-section" id="locale-section">
-        <div class="set-section-title">語言</div>
-        <div class="locale-seg" role="group" aria-label="語言">
-          <button type="button" class="locale-seg-btn" data-locale="zh-TW" data-locale-fixed="1">中文</button>
-          <button type="button" class="locale-seg-btn" data-locale="en" data-locale-fixed="1">English</button>
-        </div>
-      </div>
+      <!-- locale-section removed; re-add when Chinese UI is ready -->
+      <div id="locale-section" style="display:none"></div>
       <div class="set-section event-buffer-card" id="event-buffer-section">
         <div class="event-buffer-tap" role="button" tabindex="0" onclick="openEventList()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openEventList()}">
           <span class="event-buffer-chevron" aria-hidden="true"><i class="ti ti-chevron-right"></i></span>
@@ -1409,6 +1427,15 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
             <span class="cz-mode-badge" id="cz-mode-badge"></span>
           </div>
           <span class="cz-summary-amt" id="cz-summary-amt">$—</span>
+        </div>
+      </div>
+      <div class="set-section event-buffer-card" id="guide-section">
+        <div class="event-buffer-tap" role="button" tabindex="0" onclick="openOnboarding()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openOnboarding()}">
+          <span class="event-buffer-chevron" aria-hidden="true"><i class="ti ti-chevron-right"></i></span>
+          <div class="event-buffer-title-row" style="gap:8px">
+            <i class="ti ti-help-circle" style="font-size:14px;color:#9CA0A8;flex-shrink:0" aria-hidden="true"></i>
+            <span class="event-buffer-title-txt">How to use Reflow</span>
+          </div>
         </div>
       </div>
       <div class="set-export-wrap">
@@ -3146,7 +3173,7 @@ function renderBudgetSummary(){
   var el=document.getElementById('cz-summary-amt');
   if(el)el.textContent=fmt(Number(budget)||0);
   var badge=document.getElementById('cz-mode-badge');
-  if(badge){var labels={less:'· 節省',similar:'· Similar',special:'· 特別'};badge.textContent=(cycleConfig.comfortZoneMode&&labels[cycleConfig.comfortZoneMode])||'';}
+  if(badge){var labels={less:'· less',similar:'· similar',special:'· special'};badge.textContent=(cycleConfig.comfortZoneMode&&labels[cycleConfig.comfortZoneMode])||'';}
 }
 function saveBudget(){
   ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.budget,budget).catch(function(err){console.error('saveBudget failed',err);});
@@ -3333,6 +3360,52 @@ function showToast(msg,type){
     toast.classList.remove('rf-toast--in');
     setTimeout(function(){if(toast.parentNode)toast.parentNode.removeChild(toast);},250);
   },3000);
+}
+var __obIdx=0,__obTotal=7;
+function openOnboarding(){
+  __obIdx=0;
+  var ov=document.getElementById('onboarding-overlay');
+  if(ov){lockBodyScroll();ov.classList.add('open');}
+  obRender();
+  obBindSwipe();
+}
+function closeOnboarding(){
+  localStorage.setItem('reflow_onboarding_done','1');
+  var ov=document.getElementById('onboarding-overlay');
+  if(ov&&ov.classList.contains('open')){ov.classList.remove('open');unlockBodyScroll();}
+}
+function obRender(){
+  var track=document.getElementById('ob-track');
+  if(track){track.classList.remove('ob-animated');void track.offsetWidth;track.classList.add('ob-animated');track.style.transform='translateX(-'+(__obIdx*100)+'%)';}
+  var dotsEl=document.getElementById('ob-dots');
+  if(dotsEl)dotsEl.innerHTML=Array.from({length:__obTotal},function(_,i){return'<div class="ob-dot'+(i===__obIdx?' on':'')+'"></div>';}).join('');
+  var back=document.getElementById('ob-btn-back');
+  var next=document.getElementById('ob-btn-next');
+  var skip=document.getElementById('ob-skip');
+  if(back)back.style.visibility=__obIdx===0?'hidden':'';
+  if(next)next.textContent=__obIdx===__obTotal-1?'Get started':'Next';
+  if(skip)skip.style.visibility=__obIdx===__obTotal-1?'hidden':'';
+}
+function obNext(){
+  if(__obIdx>=__obTotal-1){closeOnboarding();return;}
+  __obIdx++;obRender();
+}
+function obPrev(){
+  if(__obIdx<=0)return;
+  __obIdx--;obRender();
+}
+function obBindSwipe(){
+  var wrap=document.getElementById('ob-track-wrap');
+  if(!wrap||wrap.dataset.obSwipeBound)return;
+  wrap.dataset.obSwipeBound='1';
+  var sx=null,sy=null;
+  wrap.addEventListener('touchstart',function(e){if(e.touches.length===1){sx=e.touches[0].clientX;sy=e.touches[0].clientY;}},{passive:true});
+  wrap.addEventListener('touchend',function(e){
+    if(sx===null)return;
+    var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+    if(Math.abs(dx)>44&&Math.abs(dx)>Math.abs(dy)*1.2){if(dx<0)obNext();else obPrev();}
+    sx=null;sy=null;
+  },{passive:true});
 }
 function saveComfortZone(){
   var sl=document.getElementById('cz-slider');
@@ -5826,6 +5899,7 @@ async function expenseTrackerWindowLoad(){
   syncNavIcons('home');
   activePage='home';
   syncFabVisibility();
+  if(!localStorage.getItem('reflow_onboarding_done'))setTimeout(openOnboarding,400);
 }
 attachSwipe(document.getElementById('s-home'));
 attachSwipe(document.getElementById('rec-daily'));
@@ -5843,5 +5917,153 @@ if(document.readyState==='complete')expenseTrackerWindowLoad();
 <script src="js/i18n.js"></script>
 <script src="js/tide-ui.js"></script>
 <script src="js/tide-bridge.js"></script>
+
+<div id="onboarding-overlay">
+  <div class="ob-header">
+    <button type="button" class="ob-skip" id="ob-skip" onclick="closeOnboarding()">Skip</button>
+  </div>
+  <div class="ob-track-wrap" id="ob-track-wrap">
+    <div class="ob-track" id="ob-track">
+
+      <!-- Slide 1: Welcome -->
+      <div class="ob-slide">
+        <img class="ob-illus" src="icon.png" alt="Reflow icon" style="width:120px;height:120px;border-radius:26px;object-fit:cover;margin-bottom:28px">
+        <div class="ob-headline">Welcome to Reflow</div>
+        <div class="ob-body">Your spending, your way. No judgements — just clarity on where your money actually flows.</div>
+      </div>
+
+      <!-- Slide 2: Comfort Zone -->
+      <div class="ob-slide">
+        <svg class="ob-illus" width="220" height="140" viewBox="0 0 220 140" fill="none" aria-hidden="true">
+          <rect x="20" y="72" width="180" height="4" rx="2" fill="#EFEFED"/>
+          <rect x="20" y="72" width="108" height="4" rx="2" fill="#44474F"/>
+          <circle cx="128" cy="74" r="12" fill="#44474F" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.15))"/>
+          <rect x="68" y="36" width="84" height="28" rx="8" fill="#F7F7F5" stroke="#E8E8E5" stroke-width="1"/>
+          <text x="110" y="55" text-anchor="middle" font-size="13" font-weight="700" fill="#37352F" font-family="Inter,-apple-system,sans-serif">$17,000</text>
+          <line x1="128" x2="128" y1="64" y2="56" stroke="#BDBDBD" stroke-width="1"/>
+          <text x="24" y="96" font-size="10" fill="#ABABAB" font-family="Inter,-apple-system,sans-serif">$0</text>
+          <text x="186" y="96" font-size="10" fill="#ABABAB" font-family="Inter,-apple-system,sans-serif">$34K</text>
+          <text x="110" y="118" text-anchor="middle" font-size="10" fill="#9CA8B4" font-family="Inter,-apple-system,sans-serif">avg $19,200</text>
+          <line x1="140" x2="140" y1="108" y2="112" stroke="#9CA8B4" stroke-width="1"/>
+        </svg>
+        <div class="ob-headline">Set your Comfort Zone</div>
+        <div class="ob-body">Go to <b style="color:#44474F;font-weight:600">Base → Comfort Zone</b> and drag the slider to a number that feels right for this month. Not a hard limit — just your guide.</div>
+      </div>
+
+      <!-- Slide 3: Log drops -->
+      <div class="ob-slide">
+        <div class="ob-illus" style="display:flex;align-items:flex-end;gap:28px;margin-bottom:28px" aria-hidden="true">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+            <div style="width:60px;height:60px;border-radius:50%;background:#FFFFFF;border:0.5px solid #E9E9E7;box-shadow:0 2px 8px rgba(0,0,0,0.12);display:flex;align-items:center;justify-content:center">
+              <i class="ti ti-pencil" style="font-size:22px;color:#37352F"></i>
+            </div>
+            <span style="font-size:10px;color:#ABABAB;font-family:inherit">Manual</span>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:10px">
+            <div style="width:60px;height:60px;border-radius:50%;background:#FFFFFF;border:0.5px solid #E9E9E7;box-shadow:0 2px 8px rgba(0,0,0,0.12);display:flex;align-items:center;justify-content:center">
+              <i class="ti ti-photo-plus" style="font-size:22px;color:#37352F"></i>
+            </div>
+            <span style="font-size:10px;color:#ABABAB;font-family:inherit">AI Scan</span>
+          </div>
+        </div>
+        <div class="ob-headline">Log your drops</div>
+        <div class="ob-body">Tap the floating button on the <b style="color:#44474F;font-weight:600">Drops</b> tab. Type an expense manually, or scan a payment app screenshot with AI.</div>
+      </div>
+
+      <!-- Slide 4: Streams -->
+      <div class="ob-slide">
+        <svg class="ob-illus" width="220" height="148" viewBox="0 0 220 148" fill="none" aria-hidden="true">
+          <rect x="40" y="16" width="140" height="18" rx="5" fill="#EFEFED"/>
+          <rect x="40" y="16" width="112" height="18" rx="5" fill="#C4A09A"/>
+          <text x="36" y="28" text-anchor="end" font-size="10" fill="#787774" font-family="Inter,-apple-system,sans-serif">Food</text>
+          <rect x="40" y="42" width="140" height="18" rx="5" fill="#EFEFED"/>
+          <rect x="40" y="42" width="84" height="18" rx="5" fill="#8AAF9C"/>
+          <text x="36" y="54" text-anchor="end" font-size="10" fill="#787774" font-family="Inter,-apple-system,sans-serif">Shop</text>
+          <rect x="40" y="68" width="140" height="18" rx="5" fill="#EFEFED"/>
+          <rect x="40" y="68" width="56" height="18" rx="5" fill="#8AAABF"/>
+          <text x="36" y="80" text-anchor="end" font-size="10" fill="#787774" font-family="Inter,-apple-system,sans-serif">Transit</text>
+          <rect x="40" y="94" width="140" height="18" rx="5" fill="#EFEFED"/>
+          <rect x="40" y="94" width="42" height="18" rx="5" fill="#A898C4"/>
+          <text x="36" y="106" text-anchor="end" font-size="10" fill="#787774" font-family="Inter,-apple-system,sans-serif">Fun</text>
+          <rect x="40" y="120" width="140" height="18" rx="5" fill="#EFEFED"/>
+          <rect x="40" y="120" width="28" height="18" rx="5" fill="#C49AB0"/>
+          <text x="36" y="132" text-anchor="end" font-size="10" fill="#787774" font-family="Inter,-apple-system,sans-serif">Health</text>
+        </svg>
+        <div class="ob-headline">See your streams</div>
+        <div class="ob-body">The <b style="color:#44474F;font-weight:600">Reflow</b> home screen shows each category as a bar. Tap any stream to see every expense inside it.</div>
+      </div>
+
+      <!-- Slide 5: Balance Snapshot -->
+      <div class="ob-slide">
+        <svg class="ob-illus" width="220" height="148" viewBox="0 0 220 148" fill="none" aria-hidden="true">
+          <!-- Card -->
+          <rect x="30" y="14" width="160" height="90" rx="12" fill="#F7F7F5" stroke="#E8E8E5" stroke-width="1"/>
+          <!-- Balance label -->
+          <text x="48" y="38" font-size="9" font-weight="500" fill="#ABABAB" font-family="Inter,-apple-system,sans-serif" letter-spacing="0.04em">BALANCE SNAPSHOT</text>
+          <!-- Balance amount -->
+          <text x="48" y="60" font-size="20" font-weight="700" fill="#37352F" font-family="Inter,-apple-system,sans-serif" letter-spacing="-0.03em">$84,200</text>
+          <!-- Date -->
+          <text x="48" y="74" font-size="9" fill="#ABABAB" font-family="Inter,-apple-system,sans-serif">recorded Jun 1</text>
+          <!-- Divider -->
+          <line x1="30" x2="190" y1="88" y2="88" stroke="#E8E8E5" stroke-width="0.5"/>
+          <!-- Spent since label + amount -->
+          <text x="48" y="103" font-size="9" fill="#ABABAB" font-family="Inter,-apple-system,sans-serif">spent since</text>
+          <text x="155" y="103" text-anchor="end" font-size="11" font-weight="600" fill="#C4554D" font-family="Inter,-apple-system,sans-serif">−$3,840</text>
+          <!-- Arrow hinting "add" -->
+          <circle cx="175" cy="45" r="12" fill="#EFEFED"/>
+          <path d="M175 39 L175 51 M169 45 L181 45" stroke="#9CA0A8" stroke-width="1.5" stroke-linecap="round"/>
+          <!-- Dotted line below card suggesting flow -->
+          <line x1="110" x2="110" y1="104" y2="124" stroke="#E8E8E5" stroke-width="1" stroke-dasharray="3 3"/>
+          <circle cx="110" cy="132" r="6" fill="#EFEFED" stroke="#E8E8E5" stroke-width="1"/>
+          <text x="110" y="136" text-anchor="middle" font-size="7" fill="#ABABAB" font-family="Inter,-apple-system,sans-serif">now</text>
+        </svg>
+        <div class="ob-headline">Track your real balance</div>
+        <div class="ob-body">Log your bank balance once in <b style="color:#44474F;font-weight:600">Base → Balance</b>. Reflow will track exactly how much you've spent since that snapshot — no bank linking needed.</div>
+      </div>
+
+      <!-- Slide 6: Events -->
+      <div class="ob-slide">
+        <svg class="ob-illus" width="180" height="148" viewBox="0 0 180 148" fill="none" aria-hidden="true">
+          <rect x="24" y="30" width="132" height="104" rx="12" fill="#F7F7F5" stroke="#E8E8E5" stroke-width="1"/>
+          <rect x="24" y="30" width="132" height="32" rx="12" fill="#EFEFED"/>
+          <rect x="24" y="50" width="132" height="12" fill="#EFEFED"/>
+          <text x="90" y="52" text-anchor="middle" font-size="11" font-weight="600" fill="#37352F" font-family="Inter,-apple-system,sans-serif">June</text>
+          <rect x="36" y="76" width="16" height="16" rx="4" fill="#FFFFFF" stroke="#E8E8E5" stroke-width="0.5"/>
+          <rect x="60" y="76" width="16" height="16" rx="4" fill="#FFFFFF" stroke="#E8E8E5" stroke-width="0.5"/>
+          <rect x="84" y="76" width="16" height="16" rx="4" fill="#44474F"/>
+          <rect x="108" y="76" width="16" height="16" rx="4" fill="#44474F" opacity="0.3"/>
+          <rect x="132" y="76" width="16" height="16" rx="4" fill="#44474F" opacity="0.15"/>
+          <rect x="36" y="100" width="16" height="16" rx="4" fill="#44474F" opacity="0.08"/>
+          <text x="92" y="88" text-anchor="middle" font-size="9" fill="#FFFFFF" font-family="Inter,-apple-system,sans-serif">Trip</text>
+          <path d="M118 56 L120 62 L126 62 L121 66 L123 72 L118 68 L113 72 L115 66 L110 62 L116 62 Z" fill="#9CA8B4"/>
+        </svg>
+        <div class="ob-headline">Big month? Add an event</div>
+        <div class="ob-body">Travelling, moving, celebrating? Go to <b style="color:#44474F;font-weight:600">Base → Event list</b> to add a special event — and give yourself extra room, automatically.</div>
+      </div>
+
+      <!-- Slide 6: Ready -->
+      <div class="ob-slide">
+        <svg class="ob-illus" width="140" height="140" viewBox="0 0 140 140" fill="none" aria-hidden="true">
+          <circle cx="70" cy="70" r="50" fill="#F7F7F5"/>
+          <circle cx="70" cy="70" r="50" stroke="#EFEFED" stroke-width="1"/>
+          <path d="M46 70 L62 86 L94 54" stroke="#44474F" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="70" cy="70" r="62" stroke="#EFEFED" stroke-width="0.75" stroke-dasharray="3 4"/>
+        </svg>
+        <div class="ob-headline">You're all set</div>
+        <div class="ob-body">Start with one drop — anything you spent today. The picture will build itself from there.</div>
+      </div>
+
+    </div><!-- /ob-track -->
+  </div><!-- /ob-track-wrap -->
+
+  <div class="ob-footer">
+    <div class="ob-dots" id="ob-dots"></div>
+    <div class="ob-actions">
+      <button type="button" class="ob-btn-back" id="ob-btn-back" onclick="obPrev()">Back</button>
+      <button type="button" class="ob-btn-next" id="ob-btn-next" onclick="obNext()">Next</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

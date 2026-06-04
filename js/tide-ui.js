@@ -1604,6 +1604,7 @@ window.TideUI = (function () {
       return document.getElementById('comfort-zone-section');
     });
     const localeSec = document.getElementById('locale-section');
+    const guideSec = document.getElementById('guide-section');
     let exportWrap = pad.querySelector('.set-export-wrap');
 
     if (exportWrap && !pad.querySelector('.tide-me-data-block')) {
@@ -1618,11 +1619,11 @@ window.TideUI = (function () {
       document.getElementById('tide-me-eyebrow'),
       profile,
       comfortZoneSec,
-      budgetSec,
-      streamsSec,
-      eventsSec,
       balanceSec,
+      eventsSec,
+      streamsSec,
       localeSec,
+      guideSec,
       dataBlock,
     ].filter(Boolean);
     order.forEach(function (el) {
@@ -1655,10 +1656,7 @@ window.TideUI = (function () {
     };
     if (comfortZoneSec) {
       comfortZoneSec.className = 'tide-me-block';
-      const tl = function (zh) {
-        return window.TideI18n ? TideI18n.t(zh) : zh;
-      };
-      const modeLabels = { less: tl('節省'), similar: 'Similar', special: tl('特別') };
+      const modeLabels = { less: 'less', similar: 'similar', special: 'special' };
       const czMode =
         typeof cycleConfig !== 'undefined' && cycleConfig.comfortZoneMode
           ? cycleConfig.comfortZoneMode
