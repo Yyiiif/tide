@@ -1447,6 +1447,7 @@ window.TideUI = (function () {
       STREAMS: '類別管理',
       EVENTS: '事件',
       BALANCE: '帳戶餘額',
+      COMFORT: 'Comfort Zone',
       DATA: '資料',
       LANGUAGE: '語言',
     };
@@ -1584,6 +1585,9 @@ window.TideUI = (function () {
     const balanceSec = resolveMeBlock('tide-me-balance-block', function () {
       return document.getElementById('balance-snapshot-section');
     });
+    const comfortZoneSec = resolveMeBlock('tide-me-comfort-block', function () {
+      return document.getElementById('comfort-zone-section');
+    });
     const localeSec = document.getElementById('locale-section');
     let exportWrap = pad.querySelector('.set-export-wrap');
 
@@ -1598,6 +1602,7 @@ window.TideUI = (function () {
     const order = [
       document.getElementById('tide-me-eyebrow'),
       profile,
+      comfortZoneSec,
       budgetSec,
       streamsSec,
       eventsSec,
@@ -1633,6 +1638,32 @@ window.TideUI = (function () {
     const fmtFn = typeof fmt === 'function' ? fmt : function (n) {
       return '$' + Math.round(n);
     };
+    if (comfortZoneSec) {
+      comfortZoneSec.className = 'tide-me-block';
+      const tl = function (zh) {
+        return window.TideI18n ? TideI18n.t(zh) : zh;
+      };
+      const modeLabels = { less: tl('節省'), similar: 'Similar', special: tl('特別') };
+      const czMode =
+        typeof cycleConfig !== 'undefined' && cycleConfig.comfortZoneMode
+          ? cycleConfig.comfortZoneMode
+          : 'similar';
+      const czSub = modeLabels[czMode] || modeLabels.similar;
+      const czAmt = typeof budget !== 'undefined' ? Number(budget) || 0 : 0;
+      comfortZoneSec.innerHTML =
+        meSecHdr('COMFORT') +
+        '<div class="tide-me-card">' +
+        meRowHtml({
+          icon: false,
+          accent: '#6E8CA4',
+          label: 'Comfort Zone',
+          sub: czSub,
+          value: mask ? '$＊＊＊' : fmtFn(czAmt),
+          onclick: 'openComfortZoneModal()',
+          divider: false,
+        }) +
+        '</div>';
+    }
     if (budgetSec) {
       budgetSec.className = 'tide-me-block';
       const viewedCycle =

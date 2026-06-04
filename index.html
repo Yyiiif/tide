@@ -53,8 +53,6 @@ body{
   line-height:1.5;
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
-  padding-top:env(safe-area-inset-top);
-  padding-bottom:env(safe-area-inset-bottom);
   overflow: hidden; /* 防止捲動條出現 */
 }
 input,select,textarea,button,.tag,.tag-chip{font-family:inherit;}
@@ -111,7 +109,7 @@ input,select,textarea,button,.tag,.tag-chip{font-family:inherit;}
 #rec-daily .week-view-hdr-week,#ov-rec-daily .week-view-hdr-week{font-size:14px;font-weight:400;color:#BDBDBD;line-height:1}
 .simple-hdr{
   background:var(--bg);
-  padding:14px 16px 16px;
+  padding:calc(14px + env(safe-area-inset-top, 0px)) 16px 16px;
   border-bottom:0.5px solid var(--border);
   flex-shrink:0;
   display:flex;
@@ -447,6 +445,57 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
 .budget-label{font-size:13px;flex-shrink:0}
 .budget-input{border:none;background:transparent;font-size:13px;color:var(--t2);text-align:right;width:90px;outline:none;font-family:inherit}
 .budget-row-info{font-size:11px;color:var(--t3);padding:6px 14px 10px;line-height:1.5}
+/* Comfort Zone — settings row */
+.cz-summary-amt{font-size:15px;font-weight:500;color:var(--t1);font-variant-numeric:tabular-nums;flex-shrink:0;margin-left:8px;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif!important}
+.cz-mode-badge{font-size:10px;font-weight:400;color:var(--t3);margin-left:5px;align-self:center}
+/* Comfort Zone — modal shell */
+#comfort-zone-overlay .modal{padding:0;max-height:90dvh;overflow:hidden;display:flex!important;flex-direction:column}
+.cz-modal{padding:0!important;overflow:hidden!important}
+/* Header */
+.cz-modal-hdr{display:flex;align-items:flex-start;justify-content:space-between;padding:20px 20px 14px;flex-shrink:0;border-bottom:0.5px solid var(--border)}
+.cz-modal-hdr-text{display:flex;flex-direction:column;gap:3px}
+.cz-modal-title{font-size:15px;font-weight:600;color:var(--t1)}
+.cz-modal-sub{font-size:11px;color:var(--t3);font-weight:400}
+/* Scrollable body */
+.cz-modal-body{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 20px calc(20px + env(safe-area-inset-bottom))}
+/* Intent list */
+.cz-intent-list{display:flex;flex-direction:column;gap:8px}
+.cz-intent-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:0.5px solid var(--border);background:var(--card);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:border-color 0.15s,background 0.15s}
+.cz-intent-item--on{border:1px solid #44474F!important;background:#F7F7F5!important}
+.cz-item-icon{font-size:16px;color:var(--t3);flex-shrink:0;width:20px;text-align:center;line-height:1}
+.cz-intent-item--on .cz-item-icon{color:#44474F}
+.cz-item-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.cz-item-label{font-size:12px;font-weight:400;color:var(--t2);line-height:1.3}
+.cz-item-label--on{font-weight:500;color:#44474F}
+.cz-item-sub{font-size:10px;color:var(--t3);line-height:1.3;font-variant-numeric:tabular-nums}
+.cz-radio{width:16px;height:16px;border-radius:50%;border:1.5px solid #C7C7CC;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-sizing:border-box;transition:background 0.15s,border-color 0.15s}
+.cz-radio--on{background:#44474F;border-color:#44474F;color:#FFFFFF}
+.cz-radio--on i{font-size:9px;line-height:1}
+/* Divider */
+.cz-divider{height:0.5px;background:var(--border);margin:14px 0}
+/* Fine-tune section */
+.cz-finetune-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cz-finetune-label{font-size:11px;font-weight:500;color:var(--t3);text-transform:uppercase;letter-spacing:0.05em}
+.cz-finetune-val{font-size:22px;font-weight:700;color:var(--t1);letter-spacing:-0.03em;font-variant-numeric:tabular-nums;line-height:1;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif!important}
+/* Slider */
+.cz-slider-wrap{position:relative;padding-bottom:18px;margin:0 2px}
+.cz-slider{-webkit-appearance:none;appearance:none;width:100%;height:3px;border-radius:2px;outline:none;cursor:pointer;transition:background 0.1s}
+.cz-slider::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#44474F;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,0.14),0 0 0 3px rgba(68,71,79,0.08)}
+.cz-slider::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#44474F;cursor:pointer;border:none;box-shadow:0 1px 3px rgba(0,0,0,0.14)}
+.cz-avg-marker{position:absolute;bottom:0;pointer-events:none;transform:translateX(-50%)}
+.cz-avg-label-txt{font-size:10px;color:#9CA8B4;white-space:nowrap;font-variant-numeric:tabular-nums;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif!important}
+/* Auto-alloc */
+.cz-alloc-section{margin-bottom:0}
+.cz-alloc-label{font-size:10px;font-weight:500;color:var(--t3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px}
+.cz-alloc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px}
+.cz-alloc-item{display:flex;align-items:center;justify-content:space-between;min-width:0;gap:4px}
+.cz-alloc-item-left{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
+.cz-alloc-dot{width:6px;height:6px;border-radius:2px;flex-shrink:0}
+.cz-alloc-cat{font-size:12px;color:var(--t2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cz-alloc-amt{font-size:12px;color:var(--t3);white-space:nowrap;font-variant-numeric:tabular-nums;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif!important;flex-shrink:0}
+/* Confirm button */
+.cz-confirm-btn{width:100%;background:#44474F;color:#FFFFFF;border:none;border-radius:10px;padding:12px;font-size:15px;font-weight:500;cursor:pointer;font-family:inherit;-webkit-tap-highlight-color:transparent;margin-top:16px;transition:opacity 0.15s;box-shadow:none!important}
+.cz-confirm-btn:active{opacity:0.88}
 .cycle-mini-input{width:48px;padding:4px 6px;font-size:12px;border:0.5px solid var(--border);border-radius:5px;background:var(--bg2);color:var(--t1);outline:none;font-family:inherit;text-align:center}
 .cycle-mini-input:focus{border-color:var(--t2);background:var(--card)}
 .cb-row {
@@ -542,9 +591,9 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
 .fab-dark-flat:active{opacity:0.92}
 #add-event-overlay,#project-record-modal-bg{z-index:5100}
 #fine-tune-event-overlay{z-index:5110}
-#add-event-overlay.modal-bg,#fine-tune-event-overlay.modal-bg,#balance-record-overlay.modal-bg,#ov-edit-expense.modal-bg,#ov-export-csv.modal-bg,#ov-tag-edit.tag-edit-sheet,#ov-edit-event.event-edit-sheet,#ov-event-edit.event-edit-sheet{box-shadow:none!important}
-#add-event-overlay.modal-bg,#fine-tune-event-overlay.modal-bg,#balance-record-overlay.modal-bg,#ov-edit-expense.modal-bg,#ov-export-csv.modal-bg,#ov-tag-edit.tag-edit-sheet,#ov-edit-event.event-edit-sheet,#ov-event-edit.event-edit-sheet{display:none;position:fixed;inset:0;align-items:flex-end;justify-content:stretch;background:rgba(55,53,47,0.38)}
-#add-event-overlay.modal-bg.open,#fine-tune-event-overlay.modal-bg.open,#add-event-overlay.modal-bg.active,#fine-tune-event-overlay.modal-bg.active,#balance-record-overlay.modal-bg.open,#ov-edit-expense.modal-bg.open,#ov-export-csv.modal-bg.open,#ov-tag-edit.tag-edit-sheet.open,#ov-edit-event.event-edit-sheet.open,#ov-edit-event.event-edit-sheet.active,#ov-event-edit.event-edit-sheet.open{display:flex}
+#comfort-zone-overlay.modal-bg,#add-event-overlay.modal-bg,#fine-tune-event-overlay.modal-bg,#balance-record-overlay.modal-bg,#ov-edit-expense.modal-bg,#ov-export-csv.modal-bg,#ov-tag-edit.tag-edit-sheet,#ov-edit-event.event-edit-sheet,#ov-event-edit.event-edit-sheet{box-shadow:none!important}
+#comfort-zone-overlay.modal-bg,#add-event-overlay.modal-bg,#fine-tune-event-overlay.modal-bg,#balance-record-overlay.modal-bg,#ov-edit-expense.modal-bg,#ov-export-csv.modal-bg,#ov-tag-edit.tag-edit-sheet,#ov-edit-event.event-edit-sheet,#ov-event-edit.event-edit-sheet{display:none;position:fixed;inset:0;align-items:flex-end;justify-content:stretch;background:rgba(55,53,47,0.38)}
+#comfort-zone-overlay.modal-bg.open,#add-event-overlay.modal-bg.open,#fine-tune-event-overlay.modal-bg.open,#add-event-overlay.modal-bg.active,#fine-tune-event-overlay.modal-bg.active,#balance-record-overlay.modal-bg.open,#ov-edit-expense.modal-bg.open,#ov-export-csv.modal-bg.open,#ov-tag-edit.tag-edit-sheet.open,#ov-edit-event.event-edit-sheet.open,#ov-edit-event.event-edit-sheet.active,#ov-event-edit.event-edit-sheet.open{display:flex}
 #balance-record-overlay{z-index:5100}
 #balance-record-overlay .modal{padding:20px 24px calc(20px + env(safe-area-inset-bottom));max-height:85dvh}
 #ov-edit-expense,#ov-export-csv{z-index:3000}
@@ -560,7 +609,7 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
 #ov-export-csv .export-csv-overlay-status{display:none;text-align:center;margin-bottom:2px;font-family:"SF Pro Display",-apple-system,"PingFang TC",sans-serif;font-size:13px;font-weight:400;color:#ABABAB;line-height:1.3;opacity:0;transition:opacity 0.2s ease}
 #ov-edit-event.event-edit-sheet,#ov-event-edit.event-edit-sheet{z-index:5200}
 #ov-tag-edit.tag-edit-sheet{z-index:6000}
-#add-event-overlay .modal,#fine-tune-event-overlay .modal,#ov-edit-expense .modal,#ov-export-csv .modal,#ov-tag-edit .tag-edit-panel,#ov-edit-event .event-edit-panel,#ov-event-edit .event-edit-panel{width:100%;background:#FFFFFF;border-radius:20px 20px 0 0;display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden;box-shadow:none!important;color:#37352F}
+#comfort-zone-overlay .modal,#add-event-overlay .modal,#fine-tune-event-overlay .modal,#ov-edit-expense .modal,#ov-export-csv .modal,#ov-tag-edit .tag-edit-panel,#ov-edit-event .event-edit-panel,#ov-event-edit .event-edit-panel{width:100%;background:#FFFFFF;border-radius:20px 20px 0 0;display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden;box-shadow:none!important;color:#37352F}
 #add-event-overlay .modal{padding:20px 24px calc(20px + env(safe-area-inset-bottom));max-height:85dvh}
 #fine-tune-event-overlay .fine-tune-event-modal.allocation-modal-container{height:auto!important;max-height:92vh!important;overflow:visible!important;flex:0 1 auto;padding:0;padding-bottom:0}
 #fine-tune-event-overlay .fine-tune-hdr{padding:20px 24px 0;flex-shrink:0}
@@ -1265,13 +1314,15 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
       <div class="set-section">
         <div class="set-section-title">類別管理</div>
         <div id="cat-mgr-list"></div>
-        <div class="cb-unalloc" id="cb-unalloc">未分配 $0</div>
       </div>
-      <div class="set-section" id="budget-section">
-        <div class="set-section-title">每月預算</div>
-        <div class="budget-row">
-          <span class="budget-label">月預算 NT$</span>
-          <input type="number" class="budget-input" id="budget-val" placeholder="17000" inputmode="numeric" onchange="saveBudget()">
+      <div class="set-section event-buffer-card" id="comfort-zone-section">
+        <div class="event-buffer-tap" role="button" tabindex="0" onclick="openComfortZoneModal()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openComfortZoneModal()}">
+          <span class="event-buffer-chevron" aria-hidden="true"><i class="ti ti-chevron-right"></i></span>
+          <div class="event-buffer-title-row">
+            <span class="event-buffer-title-txt">Comfort Zone</span>
+            <span class="cz-mode-badge" id="cz-mode-badge"></span>
+          </div>
+          <span class="cz-summary-amt" id="cz-summary-amt">$—</span>
         </div>
       </div>
       <div class="set-export-wrap">
@@ -1555,6 +1606,63 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
     <div class="form-grp"><label class="form-lbl">記錄日期</label><input type="date" id="balance-record-date"></div>
     <button type="button" class="balance-snapshot-save-btn" onclick="saveBalanceRecord()">儲存</button>
     <button type="button" class="del-btn" id="balance-record-del-btn" onclick="deleteBalanceRecord()" style="display:none;margin-top:8px">刪除紀錄</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="comfort-zone-overlay" onclick="closeComfortZoneBg(event)">
+  <div class="modal cz-modal" onclick="event.stopPropagation()">
+    <div class="cz-modal-hdr">
+      <div class="cz-modal-hdr-text">
+        <span class="cz-modal-title">Comfort zone</span>
+        <span class="cz-modal-sub">This month I want to...</span>
+      </div>
+      <button type="button" class="mn-btn" onclick="closeComfortZoneModal()" aria-label="Close"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="cz-modal-body">
+      <div class="cz-intent-list" id="cz-intent-row" role="radiogroup" aria-label="Spending intent">
+        <div class="cz-intent-item" data-mode="less" role="radio" tabindex="0" aria-pressed="false" onclick="setComfortZoneIntent('less')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setComfortZoneIntent('less')}">
+          <i class="ti ti-trending-down cz-item-icon" aria-hidden="true"></i>
+          <div class="cz-item-text">
+            <span class="cz-item-label">Spend less</span>
+            <span class="cz-item-sub" id="cz-hint-less"></span>
+          </div>
+          <div class="cz-radio" id="cz-radio-less"></div>
+        </div>
+        <div class="cz-intent-item" data-mode="similar" role="radio" tabindex="0" aria-pressed="false" onclick="setComfortZoneIntent('similar')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setComfortZoneIntent('similar')}">
+          <i class="ti ti-equal cz-item-icon" aria-hidden="true"></i>
+          <div class="cz-item-text">
+            <span class="cz-item-label">Keep it similar</span>
+            <span class="cz-item-sub" id="cz-hint-similar">Around my avg $—</span>
+          </div>
+          <div class="cz-radio" id="cz-radio-similar"></div>
+        </div>
+        <div class="cz-intent-item" data-mode="special" role="radio" tabindex="0" aria-pressed="false" onclick="setComfortZoneIntent('special')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();setComfortZoneIntent('special')}">
+          <i class="ti ti-sparkles cz-item-icon" aria-hidden="true"></i>
+          <div class="cz-item-text">
+            <span class="cz-item-label">Special month</span>
+            <span class="cz-item-sub" id="cz-hint-special">More room, no stress</span>
+          </div>
+          <div class="cz-radio" id="cz-radio-special"></div>
+        </div>
+      </div>
+      <div class="cz-divider"></div>
+      <div class="cz-finetune-top">
+        <span class="cz-finetune-label">Fine-tune</span>
+        <span class="cz-finetune-val" id="cz-current-val">$0</span>
+      </div>
+      <div class="cz-slider-wrap">
+        <input type="range" class="cz-slider" id="cz-slider" min="10000" max="60000" step="500" oninput="onCzSliderInput(this)">
+        <div class="cz-avg-marker" id="cz-avg-marker" aria-hidden="true">
+          <span class="cz-avg-label-txt" id="cz-avg-label-txt">avg $—</span>
+        </div>
+      </div>
+      <div class="cz-divider"></div>
+      <div class="cz-alloc-section" id="cz-alloc-section">
+        <div class="cz-alloc-label">Auto-allocated</div>
+        <div class="cz-alloc-grid" id="cz-alloc-grid"></div>
+      </div>
+      <button type="button" class="cz-confirm-btn" onclick="saveComfortZone()">Set comfort zone</button>
+    </div>
   </div>
 </div>
 
@@ -2212,7 +2320,7 @@ function teardownImportFlowState(){
 function forceDismissAllEntryOverlays(){
   teardownImportFlowState();
   editingId=null;
-  ['import-sheet','ov-edit-expense','ov-export-csv','ov-input-hub','ov-today','ov-week','ov-rec-daily','ov-balance-list','cal-pick','cp-modal','add-event-overlay','balance-record-overlay','ov-edit-event'].forEach(function(id){
+  ['import-sheet','ov-edit-expense','ov-export-csv','ov-input-hub','ov-today','ov-week','ov-rec-daily','ov-balance-list','cal-pick','cp-modal','comfort-zone-overlay','add-event-overlay','balance-record-overlay','ov-edit-event'].forEach(function(id){
     var el=document.getElementById(id);
     if(!el)return;
     el.classList.remove('open');
@@ -2939,16 +3047,202 @@ function updateHomeCategoryTotalBudgetLabel(){
   el.textContent='總預算 '+fmt(getHomeCategoryHeaderTotalBudget());
 }
 function renderBudgetSummary(){
-  const bv=document.getElementById('budget-val');
-  if(bv)bv.value=String(Number(budget)||0);
+  var el=document.getElementById('cz-summary-amt');
+  if(el)el.textContent=fmt(Number(budget)||0);
+  var badge=document.getElementById('cz-mode-badge');
+  if(badge){var labels={less:'· 節省',similar:'· Similar',special:'· 特別'};badge.textContent=(cycleConfig.comfortZoneMode&&labels[cycleConfig.comfortZoneMode])||'';}
 }
 function saveBudget(){
-  const el=document.getElementById('budget-val');
-  budget=parseInt(el&&el.value,10)||0;
   ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.budget,budget).catch(function(err){console.error('saveBudget failed',err);});
   saveCycleConfig();
   renderHome();
   renderUnalloc();
+}
+var __czAvg=0,__czCatRatios={},__czMode='similar';
+function czGetThreeMonthData(){
+  var now=curMonth||today().slice(0,7);
+  var parts=now.split('-').map(Number);
+  var y=parts[0],m=parts[1];
+  var months=[];
+  for(var i=1;i<=3;i++){var mo=m-i,yr=y;if(mo<=0){mo+=12;yr--;}months.push(yr+'-'+String(mo).padStart(2,'0'));}
+  var catSpend={};var monthTotals=[];
+  months.forEach(function(ym){
+    var rows=expensesInCalendarMonth(ym);var mTotal=0;
+    rows.forEach(function(e){var cat=normalizeCoreCatName(e.cat||'Other');catSpend[cat]=(catSpend[cat]||0)+(e.amt||0);mTotal+=(e.amt||0);});
+    if(mTotal>0)monthTotals.push(mTotal);
+  });
+  var avg=monthTotals.length?Math.round(monthTotals.reduce(function(s,v){return s+v;},0)/monthTotals.length):0;
+  var grandTotal=Object.values(catSpend).reduce(function(s,v){return s+v;},0);
+  var catRatios={};
+  if(grandTotal>0)Object.keys(catSpend).forEach(function(cat){catRatios[cat]=catSpend[cat]/grandTotal;});
+  return{avg:avg,catRatios:catRatios};
+}
+function czRound(n){return Math.max(0,Math.round(n/500)*500);}
+function czSuggest(mode,avg){
+  if(!avg)return Number(budget)||17000;
+  if(mode==='less')return czRound(avg*0.85);
+  if(mode==='special')return czRound(avg*1.3);
+  return czRound(avg);
+}
+function openComfortZoneModal(){
+  var d=czGetThreeMonthData();
+  __czAvg=d.avg;__czCatRatios=d.catRatios;
+  var sliderMax=__czAvg>0?czRound(__czAvg*2):60000;
+  if(sliderMax<20000)sliderMax=20000;
+  var sl=document.getElementById('cz-slider');
+  if(sl){sl.max=sliderMax;sl.min=10000;sl.step=500;}
+  var avgLbl=document.getElementById('cz-avg-label-txt');
+  if(avgLbl)avgLbl.textContent=__czAvg>0?'avg '+fmt(__czAvg):'no data yet';
+  var lessHint=document.getElementById('cz-hint-less');
+  if(lessHint)lessHint.textContent=__czAvg>0?fmt(czSuggest('less',__czAvg)):'';
+  var simHint=document.getElementById('cz-hint-similar');
+  if(simHint)simHint.textContent=__czAvg>0?'Around my avg '+fmt(__czAvg):'Based on your history';
+  var spHint=document.getElementById('cz-hint-special');
+  if(spHint)spHint.textContent='More room, no stress';
+  var activeMode=cycleConfig.comfortZoneMode||'similar';
+  __czMode=activeMode;
+  czApplyMode(activeMode);
+  var ov=document.getElementById('comfort-zone-overlay');
+  if(ov){lockBodyScroll();ov.classList.add('open');}
+}
+function closeComfortZoneModal(){
+  var ov=document.getElementById('comfort-zone-overlay');
+  if(ov&&ov.classList.contains('open')){ov.classList.remove('open');unlockBodyScroll(ov);}
+}
+function closeComfortZoneBg(e){if(e.target===document.getElementById('comfort-zone-overlay'))closeComfortZoneModal();}
+function czApplyMode(mode){
+  __czMode=mode;
+  var val=czSuggest(mode,__czAvg)||Number(budget)||17000;
+  var sl=document.getElementById('cz-slider');
+  if(sl){sl.value=val;czUpdateSliderFill(sl,val);}
+  czUpdateDisplay(val);
+  document.querySelectorAll('.cz-intent-item').forEach(function(item){
+    var on=item.getAttribute('data-mode')===mode;
+    item.classList.toggle('cz-intent-item--on',on);
+    item.setAttribute('aria-pressed',on?'true':'false');
+    var lbl=item.querySelector('.cz-item-label');
+    if(lbl)lbl.classList.toggle('cz-item-label--on',on);
+    var radio=item.querySelector('.cz-radio');
+    if(radio){
+      radio.classList.toggle('cz-radio--on',on);
+      radio.innerHTML=on?'<i class="ti ti-check" aria-hidden="true"></i>':'';
+    }
+  });
+}
+function setComfortZoneIntent(mode){czApplyMode(mode);}
+function czUpdateSliderFill(sl,val){
+  var min=parseFloat(sl.min)||0,max=parseFloat(sl.max)||1;
+  var pct=Math.min(100,Math.max(0,(val-min)/(max-min)*100));
+  sl.style.background='linear-gradient(to right,#44474F '+pct+'%,#EFEFED '+pct+'%)';
+}
+function czUpdateDisplay(val){
+  var n=parseInt(val,10)||0;
+  var vEl=document.getElementById('cz-current-val');
+  if(vEl)vEl.textContent=fmt(n);
+  var marker=document.getElementById('cz-avg-marker');
+  if(marker){
+    var sl=document.getElementById('cz-slider');
+    if(__czAvg&&sl){
+      var min=parseFloat(sl.min)||0,max=parseFloat(sl.max)||1;
+      var pct=Math.min(100,Math.max(0,(__czAvg-min)/(max-min)*100));
+      marker.style.display='';marker.style.left=pct+'%';
+    }else{marker.style.display='none';}
+  }
+  czUpdateAllocPreview(n);
+}
+function onCzSliderInput(sl){
+  var val=parseInt(sl.value,10)||0;
+  czUpdateSliderFill(sl,val);
+  czUpdateDisplay(val);
+}
+function czUpdateAllocPreview(total){
+  var grid=document.getElementById('cz-alloc-grid');
+  if(!grid)return;
+  var cats=getCoreCatsOrdered();
+  var hasRatios=Object.keys(__czCatRatios).length>0;
+  if(!total||!hasRatios){
+    grid.innerHTML='<span style="font-size:11px;color:var(--t3);grid-column:1/-1">Add some entries to see auto-allocations</span>';
+    return;
+  }
+  var items=cats.filter(function(c){
+    return(__czCatRatios[normalizeCoreCatName(c.name)]||0)>0;
+  }).map(function(c){
+    var cat=normalizeCoreCatName(c.name);
+    var ratio=__czCatRatios[cat]||0;
+    var amt=Math.round(total*ratio/100)*100;
+    var col=catColors(c.name);
+    var name=window.TideI18n?TideI18n.displayCat(c.name):c.name;
+    return'<div class="cz-alloc-item">'+
+      '<div class="cz-alloc-item-left">'+
+      '<span class="cz-alloc-dot" style="background:'+col.text+'"></span>'+
+      '<span class="cz-alloc-cat">'+escapePhText(name)+'</span>'+
+      '</div>'+
+      '<span class="cz-alloc-amt">'+(amt>0?fmt(amt):'—')+'</span>'+
+    '</div>';
+  });
+  if(!items.length){
+    grid.innerHTML='<span style="font-size:11px;color:var(--t3);grid-column:1/-1">Add some entries to see auto-allocations</span>';
+    return;
+  }
+  grid.innerHTML=items.join('');
+}
+function applyCzSuggested(){
+  var val=czSuggest(__czMode,__czAvg);
+  var sl=document.getElementById('cz-slider');
+  if(sl){sl.value=val;czUpdateSliderFill(sl,val);}
+  czUpdateDisplay(val);
+}
+function applyCzAvg(){
+  if(!__czAvg)return;
+  var sl=document.getElementById('cz-slider');
+  if(sl){sl.value=__czAvg;czUpdateSliderFill(sl,__czAvg);}
+  czUpdateDisplay(__czAvg);
+}
+function saveComfortZone(){
+  var sl=document.getElementById('cz-slider');
+  var total=parseInt(sl&&sl.value,10)||0;
+  if(!total){closeComfortZoneModal();return;}
+  budget=total;
+  cycleConfig.comfortZoneMode=__czMode;
+  cycleConfig.comfortZoneLastApplied=curMonth;
+  var cats=getCoreCatsOrdered();
+  var hasRatios=Object.keys(__czCatRatios).length>0&&total>0;
+  if(hasRatios){
+    cats.forEach(function(c){
+      var cat=normalizeCoreCatName(c.name);
+      var ratio=__czCatRatios[cat]||0;
+      var amt=Math.round(total*ratio/100)*100;
+      if(amt>0)catBudgets[cat]=amt;else delete catBudgets[cat];
+    });
+    saveCatBudgets();
+  }
+  saveBudget();
+  renderBudgetSummary();
+  closeComfortZoneModal();
+}
+function maybeAutoApplyComfortZone(){
+  var mode=cycleConfig.comfortZoneMode;
+  var lastApplied=cycleConfig.comfortZoneLastApplied;
+  if(!mode||lastApplied===curMonth)return;
+  var d=czGetThreeMonthData();
+  if(!d.avg)return;
+  var total=czSuggest(mode,d.avg);
+  if(!total)return;
+  budget=total;
+  cycleConfig.comfortZoneLastApplied=curMonth;
+  var cats=getCoreCatsOrdered();
+  var hasRatios=Object.keys(d.catRatios).length>0;
+  if(hasRatios){
+    cats.forEach(function(c){
+      var cat=normalizeCoreCatName(c.name);
+      var ratio=d.catRatios[cat]||0;
+      var amt=Math.round(total*ratio/100)*100;
+      if(amt>0)catBudgets[cat]=amt;else delete catBudgets[cat];
+    });
+    saveCatBudgets();
+  }
+  ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.budget,budget).catch(function(err){console.error('autoApply CZ failed',err);});
+  saveCycleConfig();
 }
 function fmt(n){return '$'+Math.round(n).toLocaleString()}
 function formatAmount(n){const x=Number(n);return'$'+Math.round(Number.isFinite(x)?x:0).toLocaleString()}
@@ -4473,6 +4767,7 @@ async function initApp(){
   await initializeReflowData();
   if(typeof window.rebuildTideCatMap==='function')window.rebuildTideCatMap();
   migrateMealShopCatColorsIfNeeded();
+  maybeAutoApplyComfortZone();
   syncAutoEventBuffer();
   renderHome();
   renderRec();
@@ -4693,9 +4988,14 @@ function submitAiContextTag(){
   refreshImportContextChips();
 }
 function renderUnalloc(){
-  const total=CORE_CATEGORY_NAMES.reduce(function(s,n){return s+(Number(catBudgets[n])||0);},0);const tgt=getTargetBudget();const unalloc=tgt-total;const el=document.getElementById('cb-unalloc');
-  if(unalloc>=0){el.textContent=`未分配 ${fmt(unalloc)} / 總預算 ${fmt(tgt)}`;el.classList.remove('warn')}
-  else{el.textContent=`超出預算 ${fmt(-unalloc)} / 總預算 ${fmt(tgt)}`;el.classList.add('warn')}
+  const total=CORE_CATEGORY_NAMES.reduce(function(s,n){return s+(Number(catBudgets[n])||0);},0);
+  const tgt=getTargetBudget();
+  const unalloc=tgt-total;
+  const el=document.getElementById('cb-unalloc');
+  if(el){
+    if(unalloc>=0){el.textContent=`未分配 ${fmt(unalloc)} / 總預算 ${fmt(tgt)}`;el.classList.remove('warn');}
+    else{el.textContent=`超出預算 ${fmt(-unalloc)} / 總預算 ${fmt(tgt)}`;el.classList.add('warn');}
+  }
 }
 function renderSet(){
   syncAutoEventBuffer();
