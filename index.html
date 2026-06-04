@@ -17,10 +17,12 @@
 <link rel="apple-touch-icon" href="https://reflow-xxx.vercel.app/apple-touch-icon.png">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
 <link rel="stylesheet" href="css/tide-theme.css">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:slnt,wght@-10..0,100..900&family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0; -webkit-tap-highlight-color: transparent;}
 :root{
   --bg:#FFFFFF;
@@ -1771,6 +1773,13 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+(function(){
+  window.TIDE_CHART_FONT="'Inter',-apple-system,BlinkMacSystemFont,sans-serif";
+  window.TIDE_CHART_CANVAS_FONT="Inter,-apple-system,BlinkMacSystemFont,sans-serif";
+  if(typeof Chart!=='undefined')Chart.defaults.font.family=window.TIDE_CHART_FONT;
+})();
+</script>
 <script src="/initialData.js"></script>
 <script src="js/demo.config.js"></script>
 <script src="js/demoLoader.js"></script>
@@ -3999,12 +4008,35 @@ function renderStat(){
   renderAnalysisHeatmapStrip();
   if(typeof refreshLongTermTrendCharts==='function')refreshLongTermTrendCharts();
 }
+function chartTickFont(size){
+  var fam=window.TIDE_CHART_FONT||"'Inter',-apple-system,BlinkMacSystemFont,sans-serif";
+  return {family:fam,size:size};
+}
+function tideChartCanvasFont(weight,size){
+  var fam=window.TIDE_CHART_CANVAS_FONT||'Inter,-apple-system,BlinkMacSystemFont,sans-serif';
+  return (weight||400)+' '+(size||10)+'px '+fam;
+}
+function withChartFontsReady(fn){
+  if(!fn)return;
+  function run(){try{fn()}catch(e){console.error(e)}}
+  if(document.fonts&&document.fonts.load){
+    Promise.all([
+      document.fonts.load('400 11px Inter'),
+      document.fonts.load('500 10px Inter'),
+      document.fonts.load('600 10px Inter')
+    ]).then(run).catch(run);
+    return;
+  }
+  run();
+}
 function refreshLongTermTrendCharts(){
-  renderAnalysisStatTrendChart();
-  renderAnalysisMonthlyTrendChart();
-  requestAnimationFrame(function(){
-    if(analysisTrendChart&&typeof analysisTrendChart.resize==='function')analysisTrendChart.resize();
-    if(analysisMonthlyTrendChart&&typeof analysisMonthlyTrendChart.resize==='function')analysisMonthlyTrendChart.resize();
+  withChartFontsReady(function(){
+    renderAnalysisStatTrendChart();
+    renderAnalysisMonthlyTrendChart();
+    requestAnimationFrame(function(){
+      if(analysisTrendChart&&typeof analysisTrendChart.resize==='function')analysisTrendChart.resize();
+      if(analysisMonthlyTrendChart&&typeof analysisMonthlyTrendChart.resize==='function')analysisMonthlyTrendChart.resize();
+    });
   });
 }
 function renderAnalysisCatBreakdown(){
@@ -4317,7 +4349,7 @@ function analysisCumulativeMarkerValueLabelsPlugin(){
     if(chartMeta&&chartMeta.lastIsEndpoint&&typeof chartMeta.lastIdx==='number'&&indices.indexOf(chartMeta.lastIdx)<0)indices.push(chartMeta.lastIdx);
     var ctx=chart.ctx;
     ctx.save();
-    ctx.font='500 10px Inter,sans-serif';
+    ctx.font=tideChartCanvasFont(500,10);
     ctx.fillStyle='#C0C4CC';
     ctx.textAlign='center';
     ctx.textBaseline='bottom';
@@ -4439,12 +4471,12 @@ function renderAnalysisCumulativeChart(){
         transitions:{resize:{animation:{duration:0}}},
         plugins:{legend:{display:false},tooltip:{enabled:false}},
         scales:{
-          x:{offset:true,grid:{display:false},ticks:{font:{family:'Inter',size:10},color:'#C0C4CC'}},
+          x:{offset:true,grid:{display:false},ticks:{font:chartTickFont(10),color:'#C0C4CC'}},
           y:{
             beginAtZero:true,
             max:yMax,
             grid:{display:false},
-            ticks:{font:{family:'Inter',size:10},color:'#C0C4CC',callback:function(v){return Math.round(Number(v)||0).toLocaleString();}}
+            ticks:{font:chartTickFont(10),color:'#C0C4CC',callback:function(v){return Math.round(Number(v)||0).toLocaleString();}}
           }
         }
       };
@@ -4512,9 +4544,11 @@ function setAnalysisCatTrendRange(months,el){
   var tg=document.getElementById('analysis-stat-trend-range-toggle');
   if(tg)tg.querySelectorAll('.stat-trend-pill').forEach(function(b){b.classList.remove('on')});
   if(el)el.classList.add('on');
-  renderAnalysisStatTrendChart();
-  requestAnimationFrame(function(){
-    if(analysisTrendChart&&typeof analysisTrendChart.resize==='function')analysisTrendChart.resize();
+  withChartFontsReady(function(){
+    renderAnalysisStatTrendChart();
+    requestAnimationFrame(function(){
+      if(analysisTrendChart&&typeof analysisTrendChart.resize==='function')analysisTrendChart.resize();
+    });
   });
 }
 function makeMistGradient(ctx,chartArea,color){
@@ -4545,14 +4579,14 @@ function renderAnalysisStatTrendChart(){
     maintainAspectRatio:false,
     plugins:{legend:{display:false}},
     scales:{
-      x:{stacked:true,grid:{display:false},ticks:{font:{family:'Inter',size:11},color:'#787774'}},
+      x:{stacked:true,grid:{display:false},ticks:{font:chartTickFont(11),color:'#787774'}},
       y:{
         stacked:true,
         beginAtZero:true,
         max:yMaxNice,
         title:{display:false},
         grid:{color:'#EFEFED'},
-        ticks:{font:{family:'Inter',size:10},color:'#ABABAB',callback:function(v){return Math.round(Number(v)).toLocaleString()}}
+        ticks:{font:chartTickFont(10),color:'#ABABAB',callback:function(v){return Math.round(Number(v)).toLocaleString()}}
       }
     }
   };
@@ -4617,9 +4651,11 @@ function setAnalysisTrendRange(months,el){
   var tg=document.getElementById('analysis-monthly-range-toggle');
   if(tg)tg.querySelectorAll('.stat-trend-pill').forEach(function(b){b.classList.remove('on')});
   if(el)el.classList.add('on');
-  renderAnalysisMonthlyTrendChart();
-  requestAnimationFrame(function(){
-    if(analysisMonthlyTrendChart&&typeof analysisMonthlyTrendChart.resize==='function')analysisMonthlyTrendChart.resize();
+  withChartFontsReady(function(){
+    renderAnalysisMonthlyTrendChart();
+    requestAnimationFrame(function(){
+      if(analysisMonthlyTrendChart&&typeof analysisMonthlyTrendChart.resize==='function')analysisMonthlyTrendChart.resize();
+    });
   });
 }
 function setAnalysisTrendCat(cat){
@@ -4747,8 +4783,8 @@ function getAnalysisTrendLineMotionOptions(yMax){
     },
     plugins:{legend:{display:false}},
     scales:{
-      x:{grid:{display:false},ticks:{font:{family:'Inter',size:11},color:'#787774'}},
-      y:{beginAtZero:true,max:yMax,grid:{color:'#EFEFED'},ticks:{font:{family:'Inter',size:10},color:'#ABABAB',callback:function(v){return Math.round(Number(v)).toLocaleString()}}}
+      x:{grid:{display:false},ticks:{font:chartTickFont(11),color:'#787774'}},
+      y:{beginAtZero:true,max:yMax,grid:{color:'#EFEFED'},ticks:{font:chartTickFont(10),color:'#ABABAB',callback:function(v){return Math.round(Number(v)).toLocaleString()}}}
     }
   };
 }
@@ -4761,7 +4797,7 @@ function analysisMonthlyTrendValueLabelsPlugin(){
     if(!meta||meta.hidden)return;
     var ctx=chart.ctx;
     ctx.save();
-    ctx.font='500 10px Inter,sans-serif';
+    ctx.font=tideChartCanvasFont(500,10);
     ctx.fillStyle='#787774';
     ctx.textAlign='center';
     ctx.textBaseline='bottom';
