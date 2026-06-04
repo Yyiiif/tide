@@ -552,6 +552,10 @@ body.tide-ui #s-stat .scr-pad {
   padding-right: 0;
   padding-bottom: 8px;
 }
+body.tide-ui #s-stat #flow-view-panel,
+body.tide-ui #s-stat #trend-view-panel {
+  padding-top: 14px;
+}
 body.tide-ui #s-stat .donut-card.tide-pulse-section:last-of-type {
   margin-bottom: 4px;
 }
@@ -567,7 +571,7 @@ body.tide-ui #trend-view-panel .donut-card.tide-pulse-section {
 }
 body.tide-ui #trend-view-panel .donut-card.tide-pulse-section .donut-title.stat-trend-head {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: baseline;
   margin-bottom: 10px;
   padding: 0;
@@ -589,28 +593,34 @@ body.tide-ui #trend-view-panel .tide-pulse-trend-card {
   box-sizing: border-box;
   box-shadow: none;
 }
-body.tide-ui #trend-view-panel .stat-trend-toggle {
+body.tide-ui #trend-view-panel .tide-pulse-trend-card > .stat-trend-toggle {
   display: flex;
   background: var(--tide-chip);
   border-radius: 999px;
   padding: 2px;
   flex-shrink: 0;
+  width: fit-content;
+  margin: 0 0 12px auto;
 }
-body.tide-ui #trend-view-panel .stat-trend-pill {
+body.tide-ui #trend-view-panel .tide-pulse-trend-card .stat-trend-pill {
   padding: 4px 10px;
   font-size: 11px;
   font-weight: 500;
   color: var(--tide-ash);
   border-radius: 999px;
 }
-body.tide-ui #trend-view-panel .stat-trend-pill.on {
-  background: var(--tide-surf);
+body.tide-ui #trend-view-panel .tide-pulse-trend-card .stat-trend-pill.on {
+  background: #ffffff;
   color: var(--tide-ink);
   font-weight: 600;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 body.tide-ui #trend-view-panel .stat-trend-leg {
-  margin-bottom: 10px;
+  margin-top: 10px;
+  margin-bottom: 0;
+  row-gap: 4px;
+  column-gap: 10px;
+  gap: 4px 10px;
 }
 body.tide-ui #trend-view-panel .stat-trend-leg-item {
   font-size: 12px;
@@ -1206,16 +1216,29 @@ body.tide-ui .tide-drops-range {
 }
 
 /* Flow/Trend & Date/Stream pills — sticky with month header */
+body.tide-ui #s-stat .tide-screen-header--stacked:has(.tide-screen-header-seg),
+body.tide-ui #s-rec .tide-screen-header--stacked:has(.tide-screen-header-seg) {
+  padding-bottom: 0 !important;
+}
+body.tide-ui #s-stat .tide-screen-header--stacked:has(.tide-screen-header-seg) .tide-screen-header-top,
+body.tide-ui #s-rec .tide-screen-header--stacked:has(.tide-screen-header-seg) .tide-screen-header-top {
+  padding-bottom: 0;
+}
+body.tide-ui #s-stat .tide-screen-header-month:has(+ .tide-screen-header-seg),
+body.tide-ui #s-rec .tide-screen-header-month:has(+ .tide-screen-header-seg) {
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
 body.tide-ui .tide-screen-header-seg {
-  padding: 8px 22px 8px;
+  padding: 4px 22px 0;
   box-sizing: border-box;
   background: var(--tide-bg);
   flex-shrink: 0;
 }
-body.tide-ui .tide-screen-header-seg .rec-list-view-toggle-row,
-body.tide-ui .tide-screen-header-seg .flow-view-toggle-row {
-  padding: 0;
-  margin: 0;
+body.tide-ui #s-stat .tide-screen-header-seg .flow-view-toggle-row,
+body.tide-ui #s-rec .tide-screen-header-seg .rec-list-view-toggle-row {
+  padding: 0 !important;
+  margin: 0 !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2371,8 +2394,47 @@ body.tide-ui #s-rec .tide-month-nav--pulse-drops #rec-month-lbl {
   line-height: 1.2 !important;
 }
 
-/* Prefer Inter when tide (matches React prototype) */
+/* Inter typography — entire Tide UI (Tabler icons unchanged) */
 body.tide-ui,
-body.tide-ui .app {
+body.tide-ui .app,
+body.tide-ui .content,
+body.tide-ui .scr,
+body.tide-ui .scr-pad,
+body.tide-ui .ov,
+body.tide-ui .modal,
+body.tide-ui input,
+body.tide-ui select,
+body.tide-ui textarea,
+body.tide-ui button,
+body.tide-ui label,
+body.tide-ui .card,
+body.tide-ui .donut-card,
+body.tide-ui .sec-lbl,
+body.tide-ui .page-title,
+body.tide-ui .tide-screen-eyebrow,
+body.tide-ui .tide-screen-header,
+body.tide-ui .flow-seg-btn,
+body.tide-ui .rec-type-seg-btn,
+body.tide-ui .stat-trend-pill,
+body.tide-ui .locale-seg-btn,
+body.tide-ui #s-home .home-summary,
+body.tide-ui #s-rec .scr-pad,
+body.tide-ui #s-rec #rec-monthly,
+body.tide-ui #s-rec .rec-item,
+body.tide-ui #s-set .export-csv-status,
+body.tide-ui #s-set .export-csv-btn,
+body.tide-ui #ov-export-csv .csv-menu-action-btn,
+body.tide-ui #ov-export-csv .csv-overlay-back,
+body.tide-ui #ov-export-csv .export-csv-confirm-sub,
+body.tide-ui #ov-export-csv .export-csv-overlay-status,
+body.tide-ui .import-sheet-panel,
+body.tide-ui .cal-pick-title,
+body.tide-ui #home-recent-sec {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+}
+body.tide-ui i.ti,
+body.tide-ui .ti {
+  font-family: tabler-icons !important;
 }
