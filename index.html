@@ -760,7 +760,7 @@ body:has(#ov-input-hub.open) #ov-input-hub .input-hub-list-wrap{padding-bottom:c
   width:44px;
   height:44px;
   border-radius:50%;
-  border:0.5px solid #E8E8E5;
+  border:0.5px solid #E9E9E7;
   background:#FFFFFF;
   color:#37352F;
   display:flex;
@@ -769,7 +769,7 @@ body:has(#ov-input-hub.open) #ov-input-hub .input-hub-list-wrap{padding-bottom:c
   cursor:pointer;
   padding:0;
   font-family:inherit;
-  box-shadow:none;
+  box-shadow:0 2px 8px rgba(0,0,0,0.12);
   -webkit-tap-highlight-color:transparent;
 }
 .fab-sub i{font-size:18px;line-height:1}
@@ -3379,6 +3379,7 @@ function maybeAutoApplyComfortZone(){
   }
   ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.budget,budget).catch(function(err){console.error('autoApply CZ failed',err);});
   saveCycleConfig();
+  showToast('Comfort zone updated for this month','info');
 }
 function fmt(n){return '$'+Math.round(n).toLocaleString()}
 function formatAmount(n){const x=Number(n);return'$'+Math.round(Number.isFinite(x)?x:0).toLocaleString()}
@@ -3684,9 +3685,9 @@ function openOverBudgetSheet(catName,e){
   const u=document.getElementById('cat-alert-nums');
   const ov=document.getElementById('cat-alert-over');
   const bar=document.getElementById('cat-alert-bar');
-  if(n)n.textContent=`${catName} 這個月比預算多花了一些`;
-  if(u)u.textContent=`目前花多少 ${formatAmount(spent)} / 預算 ${formatAmount(budget)}`;
-  if(ov)ov.textContent=`已超出 ${formatAmount(overAmt)} (${overPct}%)`;
+  if(n)n.textContent=`${catName} this month has been a bit more active`;
+  if(u)u.textContent=`Spent ${formatAmount(spent)} · Comfort zone ${formatAmount(budget)}`;
+  if(ov)ov.textContent='';
   let w1,w2,bc2;
   if(spent>budget){
     w1=Math.round((budget/spent)*100);
