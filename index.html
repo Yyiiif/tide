@@ -2040,8 +2040,7 @@ async function loadAppStateFromIndexedDB(){
   expenses=Array.isArray(loadedExpenses)?loadedExpenses:[];
   if(!expenses.length)expenses=JSON.parse(JSON.stringify(INITIAL_EXPS));
   var loadedBudget=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.budget,17000);
-  budget=parseInt(loadedBudget,10);
-  if(!Number.isFinite(budget))budget=17000;
+  setBudget(loadedBudget);
   var loadedEvents=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.specialEvents,[]);
   specialEvents=Array.isArray(loadedEvents)?loadedEvents:[];
   var savedSnapshots=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.balanceSnapshots,null);
@@ -2076,7 +2075,7 @@ async function applyTideDemoData(){
   var d=window.TIDE_DEMO;
   if(!d||!d.ENABLED)return false;
   expenses=JSON.parse(JSON.stringify(d.expenses||[]));
-  budget=Number(d.budget)||17000;
+  setBudget(Number(d.budget)||17000);
   catBudgets=JSON.parse(JSON.stringify(d.catBudgets||{}));
   cats=JSON.parse(JSON.stringify(DEFAULT_CATS));
   specialEvents=[];
@@ -2125,6 +2124,7 @@ if(!Array.isArray(expenses))expenses=[];
 let balanceSnapshots=[];
 let balanceEditIdx=-1;
 let budget=17000;
+function setBudget(val){var parsed=parseInt(val,10);if(isNaN(parsed)||parsed<0)return;budget=parsed;}
 let catBudgets={};
 let catBuffers={};
 let cycleConfig={startDay:1,eventBufferEnabled:false};
@@ -3371,7 +3371,7 @@ function saveComfortZone(){
   var sl=document.getElementById('cz-slider');
   var total=parseInt(sl&&sl.value,10)||0;
   if(!total){closeComfortZoneModal();return;}
-  budget=total;
+  setBudget(total);
   cycleConfig.comfortZoneMode=__czMode;
   cycleConfig.comfortZoneLastApplied=curMonth;
   var cats=getCoreCatsOrdered();
@@ -3397,7 +3397,7 @@ function maybeAutoApplyComfortZone(){
   if(!d.avg)return;
   var total=czSuggest(mode,d.avg);
   if(!total)return;
-  budget=total;
+  setBudget(total);
   cycleConfig.comfortZoneLastApplied=curMonth;
   var cats=getCoreCatsOrdered();
   var hasRatios=Object.keys(d.catRatios).length>0;
