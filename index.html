@@ -1411,7 +1411,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
           <span class="event-buffer-chevron" aria-hidden="true"><i class="ti ti-chevron-right"></i></span>
           <div class="event-buffer-title-row" style="gap:8px">
             <span class="balance-record-dot" aria-hidden="true"></span>
-            <span class="event-buffer-title-txt">帳戶餘額</span>
+            <span class="event-buffer-title-txt">Balance record</span>
           </div>
         </div>
       </div>
@@ -1681,7 +1681,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
   <div class="balance-ov-shell">
     <div class="ov-hdr balance-ov-hdr">
       <button type="button" class="ov-back" onclick="closeBalanceList()" aria-label="返回"><i class="ti ti-chevron-left"></i></button>
-      <span class="ov-title">帳戶餘額</span>
+      <span class="ov-title">Balance record</span>
       <span style="width:44px;flex-shrink:0" aria-hidden="true"></span>
     </div>
     <div class="balance-ov-list-wrap" id="balance-record-list"></div>
@@ -2837,8 +2837,8 @@ function resetCsvExportStepUi(){
   var sub=document.getElementById('export-csv-confirm-sub');
   if(sub){
     if(!nExp&&!nBal)sub.textContent='目前沒有可匯出的資料';
-    else if(nExp&&nBal)sub.textContent='將匯出 '+nExp+' 筆消費紀錄與 '+nBal+' 筆帳戶餘額為 CSV 檔案';
-    else if(nBal)sub.textContent='將匯出 '+nBal+' 筆帳戶餘額為 CSV 檔案';
+    else if(nExp&&nBal)sub.textContent='將匯出 '+nExp+' 筆消費紀錄與 '+nBal+' 筆Balance record為 CSV 檔案';
+    else if(nBal)sub.textContent='將匯出 '+nBal+' 筆Balance record為 CSV 檔案';
     else sub.textContent='將匯出 '+nExp+' 筆消費紀錄為 CSV 檔案';
   }
   var status=document.getElementById('export-csv-overlay-status');
@@ -2849,7 +2849,7 @@ function resetCsvExportStepUi(){
 function resetCsvImportStepUi(){
   AppState.csv.pendingRows=null;
   var sub=document.getElementById('import-csv-confirm-sub');
-  if(sub)sub.textContent='選擇 CSV 檔案以匯入消費紀錄與帳戶餘額';
+  if(sub)sub.textContent='選擇 CSV 檔案以匯入消費紀錄與Balance record';
   var status=document.getElementById('import-csv-overlay-status');
   if(status){status.textContent='';status.style.display='none';status.style.opacity='0';}
   var pick=document.getElementById('import-csv-pick-btn');
@@ -2955,7 +2955,7 @@ function parseCsvImportRows(text){
       if(!isNaN(dOnly.getTime()))createdAt=dOnly.toISOString();
     }
     var rowType=iType>=0?String(cols[iType]||'').trim().toLowerCase():'expense';
-    if(rowType==='balance'||rowType==='餘額'||rowType==='帳戶餘額'){
+    if(rowType==='balance'||rowType==='餘額'||rowType==='Balance record'){
       if(!date||amt<=0)continue;
       var forMonth=String(iForMonth>=0?cols[iForMonth]:'').trim().slice(0,7);
       if(!forMonth)forMonth=date.slice(0,7);
@@ -2993,8 +2993,8 @@ function onCsvImportFileSelected(ev){
       var sub=document.getElementById('import-csv-confirm-sub');
       if(sub){
         if(!nTotal)sub.textContent='檔案中沒有可匯入的紀錄';
-        else if(nExp&&nBal)sub.textContent='已選擇檔案，將匯入 '+nExp+' 筆消費紀錄與 '+nBal+' 筆帳戶餘額';
-        else if(nBal)sub.textContent='已選擇檔案，將匯入 '+nBal+' 筆帳戶餘額';
+        else if(nExp&&nBal)sub.textContent='已選擇檔案，將匯入 '+nExp+' 筆消費紀錄與 '+nBal+' 筆Balance record';
+        else if(nBal)sub.textContent='已選擇檔案，將匯入 '+nBal+' 筆Balance record';
         else sub.textContent='已選擇檔案，將匯入 '+nExp+' 筆消費紀錄';
       }
       var btn=document.getElementById('import-csv-confirm-btn');

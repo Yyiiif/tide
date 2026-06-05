@@ -1483,7 +1483,7 @@ window.TideUI = (function () {
       BUDGET: '總預算',
       STREAMS: '類別管理',
       EVENTS: '事件',
-      BALANCE: '帳戶餘額',
+      BALANCE: 'Balance record',
       COMFORT: 'Comfort Zone',
       DATA: '資料',
       LANGUAGE: '語言',
@@ -1872,6 +1872,16 @@ window.TideUI = (function () {
         '<button type="button" class="tide-me-data-btn" onclick="openCsvDataOverlay()">Export CSV</button>' +
         '<button type="button" class="tide-me-data-btn" onclick="pickCsvImportFile()">Import CSV</button>' +
         '</div>';
+    }
+
+    let meFooter = pad.querySelector('.tide-me-footer');
+    if (!meFooter) {
+      meFooter = document.createElement('div');
+      meFooter.className = 'tide-me-footer';
+      meFooter.innerHTML =
+        '<span>Version 1.0</span>' +
+        '<a href="#" onclick="event.preventDefault();window.location.href=\'mailto:emma1127fan@gmail.com\'" style="color:inherit;text-decoration:none">Report an issue →</a>';
+      pad.appendChild(meFooter);
     }
 
     if (typeof syncAutoEventBuffer === 'function') syncAutoEventBuffer();
