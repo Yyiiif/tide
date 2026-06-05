@@ -430,6 +430,21 @@ window.TideUI = (function () {
     });
   }
 
+  function ensureAmtPrivacyBtn(top, btnId) {
+    var btn = document.getElementById(btnId);
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.type = 'button';
+      btn.id = btnId;
+      btn.className = 'tide-eyebrow-action mn-btn';
+      btn.setAttribute('aria-label', 'Toggle amounts');
+      btn.setAttribute('onclick', 'toggleGlobalAmt()');
+      top.appendChild(btn);
+    }
+    var hidden = typeof isAmtHidden !== 'undefined' && isAmtHidden;
+    btn.innerHTML = '<i class="ti ' + (hidden ? 'ti-eye-off' : 'ti-eye') + '" aria-hidden="true"></i>';
+  }
+
   function layoutHomeHeader() {
     const home = document.getElementById('s-home');
     if (home) layoutScreenHeader(home);

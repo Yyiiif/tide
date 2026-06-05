@@ -1233,7 +1233,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
 <div class="app">
 <div class="content">
   <div class="scr active" id="s-home">
-    <div class="simple-hdr"><span class="page-title">Tide</span></div>
+    <div class="simple-hdr"><span class="page-title">Tide</span><button type="button" class="mn-btn" id="amt-toggle-home-btn" onclick="toggleGlobalAmt()" aria-label="Toggle amounts"><i class="ti ti-eye" id="amt-toggle-home-icon"></i></button></div>
     <div class="home-summary">
       <div class="page-month-nav sticky-month-navigator homepage-sticky-navigator">
         <div class="home-header-month-row">
@@ -1386,7 +1386,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
 
 
   <div class="scr" id="s-set">
-    <div class="simple-hdr"><span class="page-title">個人</span></div>
+    <div class="simple-hdr"><span class="page-title">個人</span><button type="button" class="mn-btn" id="amt-toggle-set-btn" onclick="toggleGlobalAmt()" aria-label="Toggle amounts"><i class="ti ti-eye" id="amt-toggle-set-icon"></i></button></div>
     <div class="scr-pad">
       <!-- locale-section removed; re-add when Chinese UI is ready -->
       <div id="locale-section" style="display:none"></div>
@@ -2734,12 +2734,18 @@ function renderHomeBalanceSnapshot(){
   if(!wrap)return;
   var snap=getActiveBalanceSnapshot();
   var baseAmt=Number(snap&&snap.amount)||0;
-  if(baseAmt<=0){wrap.innerHTML='';return;}
+  var eyeIcon0=isAmtHidden?'ti-eye-off':'ti-eye';
+  if(baseAmt<=0){
+    wrap.innerHTML='<div style="display:flex;justify-content:flex-end;padding:4px 0 2px"><button type="button" class="mn-btn" id="tide-amt-toggle-home" onclick="toggleGlobalAmt()" aria-label="Toggle amounts" style="width:22px;height:22px"><i class="ti '+eyeIcon0+'" style="font-size:13px" aria-hidden="true"></i></button></div>';
+    return;
+  }
   var spent=getSnapshotSpentAfter();
   var dateMd=fmtBalanceDateMD(snap.date);
   var amtTxt=isAmtHidden?'$＊＊＊':fmt(spent);
   var amtCls='home-balance-snapshot-amt';
-  wrap.innerHTML='<div class="home-balance-snapshot"><div class="home-balance-snapshot-lbl">spent<span class="home-balance-snapshot-date"> '+dateMd+'</span></div><div class="'+amtCls+'">'+amtTxt+'</div></div>';
+  var eyeIcon=isAmtHidden?'ti-eye-off':'ti-eye';
+  var eyeBtn='<button type="button" class="mn-btn" id="tide-amt-toggle-home" onclick="toggleGlobalAmt()" aria-label="Toggle amounts" style="width:22px;height:22px;flex-shrink:0"><i class="ti '+eyeIcon+'" style="font-size:13px" aria-hidden="true"></i></button>';
+  wrap.innerHTML='<div class="home-balance-snapshot"><div class="home-balance-snapshot-lbl">spent<span class="home-balance-snapshot-date"> '+dateMd+'</span></div><div style="display:flex;align-items:center;gap:5px"><div class="'+amtCls+'">'+amtTxt+'</div>'+eyeBtn+'</div></div>';
 }
 function exportTransactionsToCSV(data,balances){
   const headers=['Record_Type','Date','Time','Category','Vendor','Amount_TWD','Event_Mode','Source','For_Month','Record_Id'];
@@ -3681,9 +3687,16 @@ function renderCalPicker(){
   }).join('');
 }
 function shiftHomeMonth(delta){shiftGlobalMonth(delta)}
+function syncAmtPrivacyIcons(){
+  var icon=isAmtHidden?'ti-eye-off':'ti-eye';
+  var btn=document.getElementById('tide-amt-toggle-home');
+  if(btn){var i=btn.querySelector('i');if(i)i.className='ti '+icon;}
+}
 function toggleGlobalAmt(){
   isAmtHidden=!isAmtHidden;
+  syncAmtPrivacyIcons();
   renderHome();
+  if(document.getElementById('s-set')?.classList.contains('active')&&window.TideUI&&typeof TideUI.styleMePage==='function')TideUI.styleMePage();
 }
 function monthCategoryMap(rows){
   var cm={};
@@ -3701,13 +3714,14 @@ function renderHomeMonthLabel(ym){
 }
 var _emptyStateGradSeq=0;
 function getEmptyStateHTML(title,subtitle){
-  if(title==null)title='這個月還沒有花費紀錄';
   if(subtitle===false||subtitle==='')subtitle=null;
-  else if(subtitle==null)subtitle='用 AI 截圖快速匯入';
+  else if(subtitle==null)subtitle='Add your first drop';
   var uid=++_emptyStateGradSeq;
   var g1='emptyWaveGrad1_'+uid,g2='emptyWaveGrad2_'+uid;
   var svg='<svg width="160" height="64" viewBox="0 0 160 64" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="'+g1+'" x1="0" y1="0" x2="0" y2="64" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#44474F" stop-opacity="0.12"/><stop offset="100%" stop-color="#44474F" stop-opacity="0"/></linearGradient><linearGradient id="'+g2+'" x1="0" y1="0" x2="160" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#44474F" stop-opacity="0"/><stop offset="50%" stop-color="#44474F" stop-opacity="0.5"/><stop offset="100%" stop-color="#44474F" stop-opacity="0"/></linearGradient></defs><path d="M0 38 Q20 22 40 38 Q60 54 80 38 Q100 22 120 38 Q140 54 160 38 L160 64 L0 64 Z" fill="url(#'+g1+')"/><path d="M0 38 Q20 22 40 38 Q60 54 80 38 Q100 22 120 38 Q140 54 160 38" stroke="url(#'+g2+')" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>';
-  return '<div style="display:flex;flex-direction:column;align-items:center;padding:32px 16px;gap:12px">'+svg+'</div>';
+  var tit=title?'<div style="font-size:13px;color:#ABABAB;font-weight:500">'+escapePhText(title)+'</div>':'';
+  var sub=subtitle?'<div style="font-size:11px;color:#C7C7CC">'+escapePhText(subtitle)+'</div>':'';
+  return '<div style="display:flex;flex-direction:column;align-items:center;padding:32px 16px;gap:32px">'+svg+tit+sub+'</div>';
 }
 function renderHome(){
   syncAutoEventBuffer();
