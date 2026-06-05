@@ -1529,16 +1529,6 @@ window.TideUI = (function () {
     }
   }
 
-  function ensureMeProfile(pad) {
-    let profile = document.getElementById('tide-me-profile');
-    if (!profile) {
-      profile = document.createElement('div');
-      profile.id = 'tide-me-profile';
-      profile.className = 'tide-me-profile-wrap';
-    }
-    return profile;
-  }
-
   function resolveMeBlock(blockId, findFn) {
     let el = document.getElementById(blockId);
     if (el) return el;
@@ -1584,7 +1574,8 @@ window.TideUI = (function () {
     if (!pad) return;
 
     layoutMeHeader(pad);
-    const profile = ensureMeProfile(pad);
+    const staleProfile = document.getElementById('tide-me-profile');
+    if (staleProfile) staleProfile.remove();
 
     const budgetSec = resolveMeBlock('tide-me-budget-block', function () {
       return document.getElementById('budget-cycle-section');
@@ -1617,7 +1608,6 @@ window.TideUI = (function () {
 
     const order = [
       document.getElementById('tide-me-eyebrow'),
-      profile,
       comfortZoneSec,
       balanceSec,
       eventsSec,
@@ -1630,33 +1620,13 @@ window.TideUI = (function () {
       pad.appendChild(el);
     });
 
-    if (profile) {
-      const drops = (expenses || []).filter(function (e) {
-        return e.date && e.date.startsWith(curMonth);
-      }).length;
-      const loc = window.TideI18n ? TideI18n.getLocale() : 'en';
-      const subTxt =
-        loc === 'zh-TW'
-          ? '本月追蹤 ' + drops + ' 筆支出'
-          : drops + ' drops tracked this month';
-      profile.innerHTML =
-        '<div class="tide-me-profile-card">' +
-        '<div class="tide-me-avatar">RF</div>' +
-        '<div class="tide-me-profile-text"><div class="tide-me-name">Reflow user</div>' +
-        '<div class="tide-me-sub">' +
-        subTxt +
-        '</div></div>' +
-        '<svg class="tide-me-chevron" width="6" height="10" viewBox="0 0 6 10" aria-hidden="true">' +
-        '<path d="M1 1l4 4-4 4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg></div>';
-    }
-
     const mask = typeof isAmtHidden !== 'undefined' && isAmtHidden;
     const fmtFn = typeof fmt === 'function' ? fmt : function (n) {
       return '$' + Math.round(n);
     };
     if (comfortZoneSec) {
       comfortZoneSec.className = 'tide-me-block';
-      const modeLabels = { less: 'less', similar: 'similar', special: 'special' };
+      const modeLabels = { less: 'Spend less', similar: 'Average', special: 'Extra room' };
       const czMode =
         typeof cycleConfig !== 'undefined' && cycleConfig.comfortZoneMode
           ? cycleConfig.comfortZoneMode
@@ -1803,7 +1773,16 @@ window.TideUI = (function () {
         })
         .join('');
       streamsSec.innerHTML =
-        meSecHdr('STREAMS', coreCats.length) + '<div class="tide-me-card" id="cat-mgr-list">' + rows + '</div>';
+        '<div class="tide-me-card">' +
+        meRowHtml({
+          icon: false,
+          label: 'Streams',
+          sub: coreCats.length + ' categories',
+          onclick: 'toggleStreamsExpand()',
+          divider: false,
+        }) +
+        '</div>' +
+        '<div class="tide-me-card" id="cat-mgr-list" style="display:none">' + rows + '</div>';
       bindMeStreamEditors(streamsSec);
       const unalloc = document.getElementById('cb-unalloc');
       if (unalloc) unalloc.style.display = 'none';
@@ -1839,12 +1818,12 @@ window.TideUI = (function () {
         '<div class="tide-me-row-main"><div class="tide-me-row-lbl">' +
         tl('啟用緩衝') +
         '</div>' +
-        '<div class="tide-me-row-sub">' +
-        tl('自動緩衝行程與一次性支出') +
-        '</div></div>' +
-        '<label class="tide-me-toggle-wrap" onclick="event.stopPropagation()">' +
+        '<div class="tide-me-row-sub">Automatically managed based on your active events</div></div>' +
+        '<div style="display:flex;align-items:center;gap:5px;pointer-events:none;opacity:0.45">' +
+        '<i class="ti ti-lock" style="font-size:12px;color:#9CA0A8" aria-hidden="true"></i>' +
+        '<label class="tide-me-toggle-wrap">' +
         '<input type="checkbox" id="event-buffer-enabled" disabled>' +
-        '<span class="tide-me-toggle"></span></label></div>' +
+        '<span class="tide-me-toggle"></span></label></div></div>' +
         meRowHtml({
           icon: false,
           accent: '#8E6BC0',

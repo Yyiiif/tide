@@ -3807,6 +3807,11 @@ function initCatOvSnap(){
   dragZone.addEventListener('pointercancel',function(){dragging=false});
 }
 function closeCatOvBg(e){if(e.target===document.getElementById('cat-ov'))closeCatOv()}
+function toggleStreamsExpand(){
+  var card=document.getElementById('cat-mgr-list');
+  if(!card)return;
+  card.style.display=card.style.display==='none'?'':'none';
+}
 function openCatOv(catName){
   const bg=document.getElementById('cat-ov');if(!bg)return;
   const safeName=n=>(n==null||n===''?'Other':String(n));
