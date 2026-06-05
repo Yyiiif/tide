@@ -3714,9 +3714,9 @@ function renderHomeMonthLabel(ym){
 }
 var _emptyStateGradSeq=0;
 function getEmptyStateHTML(title,subtitle){
-  if(title==null||title===undefined)title='All quiet this month';
+  if(title==null||title===undefined)title='';
   if(subtitle===false||subtitle==='')subtitle=null;
-  else if(subtitle==null)subtitle='Add your first drop';
+  else if(subtitle==null)subtitle='Import to begin';
   var uid=++_emptyStateGradSeq;
   var g1='emptyWaveGrad1_'+uid,g2='emptyWaveGrad2_'+uid;
   var svg='<svg width="160" height="64" viewBox="0 0 160 64" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="'+g1+'" x1="0" y1="0" x2="0" y2="64" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#44474F" stop-opacity="0.12"/><stop offset="100%" stop-color="#44474F" stop-opacity="0"/></linearGradient><linearGradient id="'+g2+'" x1="0" y1="0" x2="160" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0%" stop-color="#44474F" stop-opacity="0"/><stop offset="50%" stop-color="#44474F" stop-opacity="0.5"/><stop offset="100%" stop-color="#44474F" stop-opacity="0"/></linearGradient></defs><path d="M0 38 Q20 22 40 38 Q60 54 80 38 Q100 22 120 38 Q140 54 160 38 L160 64 L0 64 Z" fill="url(#'+g1+')"/><path d="M0 38 Q20 22 40 38 Q60 54 80 38 Q100 22 120 38 Q140 54 160 38" stroke="url(#'+g2+')" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>';
@@ -3822,11 +3822,6 @@ function initCatOvSnap(){
   dragZone.addEventListener('pointercancel',function(){dragging=false});
 }
 function closeCatOvBg(e){if(e.target===document.getElementById('cat-ov'))closeCatOv()}
-function toggleStreamsExpand(){
-  var card=document.getElementById('cat-mgr-list');
-  if(!card)return;
-  card.style.display=card.style.display==='none'?'':'none';
-}
 function openCatOv(catName){
   const bg=document.getElementById('cat-ov');if(!bg)return;
   const safeName=n=>(n==null||n===''?'Other':String(n));
@@ -5189,7 +5184,10 @@ function refreshImportContextChips(){
     var btn=document.createElement('button');
     btn.type='button';
     btn.className='tag-chip import-ctx-chip';
-    btn.textContent=label;
+    // Keep underlying context value in Chinese (for import logic / AI prompt),
+    // but display English when locale is en.
+    btn.dataset.ctx=label;
+    btn.textContent=window.TideI18n && typeof window.TideI18n.translate==='function' ? window.TideI18n.translate(label) : label;
     if(label===prev)btn.classList.add('active');
     btn.addEventListener('click',function(){selectImportContextChip(btn)});
     wrap.appendChild(btn);
@@ -5695,14 +5693,15 @@ function buildImportContextString(){
   return chip||'（未指定）';
 }
 function selectImportContextChip(btn){
-  var label=btn?String(btn.textContent||'').trim():'';
-  if(!label)return;
-  if(currentSelectedContext===label){
+  // Prefer underlying context (Chinese) over visible text.
+  var ctx=btn?(btn.getAttribute('data-ctx')||''):String(btn.textContent||'').trim();
+  if(!ctx)return;
+  if(currentSelectedContext===ctx){
     currentSelectedContext='';
     btn.classList.remove('active');
     return;
   }
-  currentSelectedContext=label;
+  currentSelectedContext=ctx;
   document.querySelectorAll('#import-ctx-chips .tag-chip').forEach(function(c){c.classList.remove('active')});
   btn.classList.add('active');
 }

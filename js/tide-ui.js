@@ -1742,16 +1742,10 @@ window.TideUI = (function () {
         })
         .join('');
       streamsSec.innerHTML =
-        '<div class="tide-me-card">' +
-        meRowHtml({
-          icon: false,
-          label: 'Streams',
-          sub: coreCats.length + ' categories',
-          onclick: 'toggleStreamsExpand()',
-          divider: false,
-        }) +
-        '</div>' +
-        '<div class="tide-me-card" id="cat-mgr-list" style="display:none">' + rows + '</div>';
+        meSecHdr('STREAMS', coreCats.length + ' categories') +
+        '<div class="tide-me-card" id="cat-mgr-list">' +
+        rows +
+        '</div>';
       bindMeStreamEditors(streamsSec);
       const unalloc = document.getElementById('cb-unalloc');
       if (unalloc) unalloc.style.display = 'none';
