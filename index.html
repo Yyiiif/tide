@@ -2065,7 +2065,6 @@ async function applyTideDemoData(){
   cats=JSON.parse(JSON.stringify(DEFAULT_CATS));
   specialEvents=[];
   balanceSnapshots=[];
-  try{localStorage.setItem('balanceSnapshots','[]');}catch(_){}
   catBuffers={};
   await ReflowDB.replaceExpenses(expenses);
   await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.budget,budget);
@@ -2373,7 +2372,8 @@ let activePage='home';
 var AppState={
   import:{abortCtrl:null,parseTimer:null,previewRows:null,pendingFile:null,scanLottie:null,lottieInstance:null},
   csv:{pendingRows:null},
-  chart:{cumulativeMeta:null,popupDayIdx:null,popupDocBound:null}
+  chart:{cumulativeMeta:null,popupDayIdx:null,popupDocBound:null},
+  expenseRowClickBound:false
 };
 var __overlayLockDepth=0;
 function lockBodyScroll(){
@@ -3714,6 +3714,7 @@ function renderHomeMonthLabel(ym){
 }
 var _emptyStateGradSeq=0;
 function getEmptyStateHTML(title,subtitle){
+  if(title==null||title===undefined)title='All quiet this month';
   if(subtitle===false||subtitle==='')subtitle=null;
   else if(subtitle==null)subtitle='Add your first drop';
   var uid=++_emptyStateGradSeq;
@@ -5781,8 +5782,8 @@ function showEditExpenseOverlay(){
   requestAnimationFrame(function(){openOverlayEl(overlay);});
 }
 function initExpenseRowClickDelegation(){
-  if(window.__expenseRowClickBound)return;
-  window.__expenseRowClickBound=true;
+  if(AppState.expenseRowClickBound)return;
+  AppState.expenseRowClickBound=true;
   function activateRow(ev){
     var row=ev.target.closest('[data-expense-id]');
     if(!row)return;
