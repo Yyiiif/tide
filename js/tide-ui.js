@@ -926,6 +926,11 @@ window.TideUI = (function () {
             tag.classList.add('tide-drop-pay');
           }
         });
+        const payTag = meta.querySelector('.tag-rec-pay');
+        if (payTag) {
+          const raw = (payTag.textContent || '').trim();
+          payTag.textContent = PAY_CAPTURE_EN[raw] || raw;
+        }
         const dateSpan = meta.querySelector('.rec-item-date');
         if (dateSpan && !meta.querySelector('.tide-drop-sep')) {
           const sep = document.createElement('span');
@@ -1483,7 +1488,7 @@ window.TideUI = (function () {
       BUDGET: '總預算',
       STREAMS: '類別管理',
       EVENTS: '事件',
-      BALANCE: 'Balance record',
+      ASSETS: 'Assets',
       COMFORT: 'Comfort Zone',
       DATA: '資料',
       LANGUAGE: '語言',
@@ -1504,7 +1509,8 @@ window.TideUI = (function () {
     const p = String(ds).split('-').map(Number);
     if (p.length < 3) return ds;
     const mo = MONTH_SHORT[p[1] - 1] || 'MON';
-    return 'Recorded ' + mo + ' ' + p[2];
+    const moTitle = mo.charAt(0) + mo.slice(1).toLowerCase();
+    return 'Recorded ' + moTitle + ' ' + p[2];
   }
 
   function layoutMeHeader(pad) {
@@ -1815,12 +1821,12 @@ window.TideUI = (function () {
       };
       const balSub = latest ? meFormatBalanceDate(latest.date) : tl('尚無快照');
       balanceSec.innerHTML =
-        meSecHdr('BALANCE') +
+        meSecHdr('ASSETS') +
         '<div class="tide-me-card">' +
         meRowHtml({
           icon: true,
           accent: 'var(--tide-water)',
-          label: tl('最新快照'),
+          label: 'Latest record',
           sub: balSub,
           value: mask ? '$＊＊＊' : balVal,
           onclick: 'openBalanceList()',

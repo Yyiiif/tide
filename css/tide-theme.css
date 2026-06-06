@@ -381,11 +381,11 @@ body.tide-ui #s-home .tide-hero-foot .tide-hero-foot-left .tide-hero-foot-val {
   text-align: left;
 }
 .tide-hero-foot-left .tide-hero-foot-lbl {
-  color: #f3f5f8;
-  opacity: 0.98;
+  color: rgba(255, 255, 255, 0.75);
 }
 .tide-hero-foot-left .tide-hero-foot-val {
   color: #ffffff;
+  font-weight: 600;
 }
 .tide-hero-foot-right {
   text-align: right;
@@ -408,6 +408,7 @@ body.tide-ui #s-home .tide-hero-foot .tide-hero-foot-left .tide-hero-foot-val {
 body.tide-ui #s-home #home-cat-donut-card.tide-streams-card {
   margin: 22px 22px 0;
   padding: 0;
+  padding-bottom: 140px;
   border: none;
   border-radius: 0;
   box-shadow: none;

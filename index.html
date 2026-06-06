@@ -769,7 +769,7 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
 .fab-stack{
   position:fixed;
   right:16px;
-  bottom:calc(var(--nav-bar-block) + 16px);
+  bottom:calc(env(safe-area-inset-bottom) + 100px);
   z-index:1000;
   display:flex;
   flex-direction:column;
@@ -1339,16 +1339,16 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
         <div class="stat-grid">
           <div class="stat-card clickable" onclick="openOv('today')">
             <i class="ti ti-chevron-right card-arr"></i>
-            <div class="sc-header"><div class="sc-icon-pill" style="background:#FAF3DD"><i class="ti ti-sun" style="color:#C29343"></i></div><span class="sc-label">今日花多少</span></div>
-            <div class="sc-val" id="rec-d-today">$0</div><div class="sc-sub" id="rec-d-today-n">共 0 筆</div>
+            <div class="sc-header"><div class="sc-icon-pill" style="background:#FAF3DD"><i class="ti ti-sun" style="color:#C29343"></i></div><span class="sc-label">Today's spend</span></div>
+            <div class="sc-val" id="rec-d-today">$0</div><div class="sc-sub" id="rec-d-today-n">0 items</div>
           </div>
           <div class="stat-card clickable" onclick="openOv('week')">
             <i class="ti ti-chevron-right card-arr"></i>
             <div class="sc-header"><div class="sc-icon-pill" style="background:#E9F3F7"><i class="ti ti-calendar-week" style="color:#487CA5"></i></div><span class="sc-label">本週累計</span></div>
-            <div class="sc-val" id="rec-d-week">$0</div><div class="sc-sub" id="rec-d-week-n">共 0 筆</div>
+            <div class="sc-val" id="rec-d-week">$0</div><div class="sc-sub" id="rec-d-week-n">0 items</div>
           </div>
         </div>
-        <div class="sec-lbl" id="rec-daily-sec-lbl">今日花費</div>
+        <div class="sec-lbl" id="rec-daily-sec-lbl">Today's spend</div>
         <div class="card" id="rec-daily-list"></div>
       <div class="rec-page-toolbar">
         <div class="rec-hdr-actions">
@@ -1411,7 +1411,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
           <span class="event-buffer-chevron" aria-hidden="true"><i class="ti ti-chevron-right"></i></span>
           <div class="event-buffer-title-row" style="gap:8px">
             <span class="balance-record-dot" aria-hidden="true"></span>
-            <span class="event-buffer-title-txt">Balance record</span>
+            <span class="event-buffer-title-txt">Assets</span>
           </div>
         </div>
       </div>
@@ -1453,7 +1453,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
 </div>
 
 <div class="full-ov" id="ov-today">
-  <div class="ov-hdr"><button class="ov-back" onclick="closeOvs()"><i class="ti ti-arrow-left"></i></button><span class="ov-title">今日花多少</span><span class="ov-sub" id="ov-today-date"></span></div>
+  <div class="ov-hdr"><button class="ov-back" onclick="closeOvs()"><i class="ti ti-arrow-left"></i></button><span class="ov-title">Today's spend</span><span class="ov-sub" id="ov-today-date"></span></div>
   <div class="ov-body" id="ov-today-body"></div>
 </div>
 <div class="full-ov" id="ov-week">
@@ -1463,7 +1463,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
 <div class="full-ov" id="ov-rec-daily">
   <div class="rec-daily-ov-shell">
     <div class="ov-hdr">
-      <button type="button" class="ov-back" onclick="closeRecDailyOverlay()" aria-label="返回"><i class="ti ti-arrow-left"></i></button>
+      <button type="button" class="ov-back" onclick="closeRecDailyOverlay()" aria-label="Back"><i class="ti ti-arrow-left"></i></button>
       <span class="ov-title">週曆</span>
       <span style="width:44px;flex-shrink:0" aria-hidden="true"></span>
     </div>
@@ -1500,7 +1500,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
 <div class="full-ov" id="ov-input-hub">
   <div class="input-hub-shell">
     <div class="ov-hdr input-hub-hdr">
-      <button type="button" class="ov-back" onclick="closeInputHub()" aria-label="返回"><i class="ti ti-arrow-left"></i></button>
+      <button type="button" class="ov-back" onclick="closeInputHub()" aria-label="Back"><i class="ti ti-arrow-left"></i></button>
       <span class="ov-title" id="input-hub-ov-title">輸入中心</span>
       <span style="width:44px;flex-shrink:0" aria-hidden="true"></span>
     </div>
@@ -1519,13 +1519,13 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
       <button type="button" class="csv-menu-action-btn" onclick="showCsvOverlayImportStep()">匯入資料</button>
     </div>
     <div class="csv-overlay-step" id="csv-overlay-step-export" hidden>
-      <button type="button" class="csv-overlay-back" onclick="showCsvOverlayMenuStep()">返回</button>
+      <button type="button" class="csv-overlay-back" onclick="showCsvOverlayMenuStep()">Back</button>
       <p class="export-csv-confirm-sub" id="export-csv-confirm-sub">將匯出消費紀錄為 CSV 檔案</p>
       <span class="export-csv-overlay-status" id="export-csv-overlay-status" aria-live="polite"></span>
       <button type="button" class="save-btn" id="export-csv-confirm-btn" onclick="confirmExportTransactionsCSV()">確認匯出</button>
     </div>
     <div class="csv-overlay-step" id="csv-overlay-step-import" hidden>
-      <button type="button" class="csv-overlay-back" onclick="showCsvOverlayMenuStep()">返回</button>
+      <button type="button" class="csv-overlay-back" onclick="showCsvOverlayMenuStep()">Back</button>
       <p class="export-csv-confirm-sub" id="import-csv-confirm-sub">選擇 CSV 檔案以匯入消費紀錄</p>
       <span class="export-csv-overlay-status" id="import-csv-overlay-status" aria-live="polite"></span>
       <button type="button" class="csv-menu-action-btn" id="import-csv-pick-btn" onclick="pickCsvImportFile()">選擇檔案</button>
@@ -1546,9 +1546,9 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
     <div class="form-grp"><label class="form-lbl">輸入方式</label>
       <input type="hidden" id="f-pay" value="手動輸入">
       <div class="chip-row pay-method-row" role="radiogroup" aria-label="輸入方式">
-        <button type="button" class="pay-method-pill" role="radio" aria-checked="false" data-pay="每月帳單" onclick="pickPayMethod('每月帳單')">每月帳單</button>
-        <button type="button" class="pay-method-pill" role="radio" aria-checked="false" data-pay="App截圖" onclick="pickPayMethod('App截圖')">App截圖</button>
-        <button type="button" class="pay-method-pill on" role="radio" aria-checked="true" data-pay="手動輸入" onclick="pickPayMethod('手動輸入')">手動輸入</button>
+        <button type="button" class="pay-method-pill" role="radio" aria-checked="false" data-pay="每月帳單" onclick="pickPayMethod('每月帳單')">Bill</button>
+        <button type="button" class="pay-method-pill" role="radio" aria-checked="false" data-pay="App截圖" onclick="pickPayMethod('App截圖')">Screenshot</button>
+        <button type="button" class="pay-method-pill on" role="radio" aria-checked="true" data-pay="手動輸入" onclick="pickPayMethod('手動輸入')">Manual</button>
       </div>
     </div>
     <button class="save-btn" onclick="saveExp()">儲存</button>
@@ -1580,7 +1580,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
 <div class="cal-pick" id="cal-pick" onclick="closeCalBg(event)">
   <div class="cal-pick-modal" onclick="event.stopPropagation()">
     <div class="cal-pick-top">
-      <button type="button" class="cal-pick-back" onclick="closeCalPicker()" aria-label="返回">‹</button>
+      <button type="button" class="cal-pick-back" onclick="closeCalPicker()" aria-label="Back">‹</button>
       <h2 class="cal-pick-top-title">選擇日期</h2>
       <span class="cal-pick-top-spacer" aria-hidden="true"></span>
     </div>
@@ -1597,14 +1597,14 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
     <div class="cal-grid" id="cal-grid"></div>
     <div class="cal-foot">
       <button class="cal-foot-btn" onclick="closeCalPicker()">取消</button>
-      <button class="cal-foot-btn primary" onclick="pickDate(today());closeCalPicker()">今日</button>
+      <button class="cal-foot-btn primary" onclick="pickDate(today());closeCalPicker()">Today</button>
     </div>
     </div>
   </div>
 </div>
 
 <div class="fab-stack hidden" id="fab-stack">
-  <button type="button" class="fab-sub" onclick="openAddExpOv()" aria-label="手動輸入"><i class="ti ti-pencil"></i></button>
+  <button type="button" class="fab-sub" onclick="openAddExpOv()" aria-label="Manual"><i class="ti ti-pencil"></i></button>
   <button type="button" class="fab-sub fab-main" onclick="openImportOverlay()" aria-label="AI 智慧辨識"><i class="ti ti-photo-plus"></i></button>
 </div>
 <input type="file" id="ai-screenshot-input" class="ai-file-hidden" accept="image/*" onchange="onScreenshotFileSelected(event)">
@@ -1667,7 +1667,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
 <div class="full-ov" id="ov-event-list">
   <div class="event-ov-shell">
     <div class="ov-hdr event-ov-hdr">
-      <button type="button" class="ov-back" onclick="closeEventList()" aria-label="返回"><i class="ti ti-chevron-left"></i></button>
+      <button type="button" class="ov-back" onclick="closeEventList()" aria-label="Back"><i class="ti ti-chevron-left"></i></button>
       <span class="ov-title">事件列表</span>
       <span style="width:44px;flex-shrink:0" aria-hidden="true"></span>
     </div>
@@ -1680,8 +1680,8 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
 <div class="full-ov" id="ov-balance-list">
   <div class="balance-ov-shell">
     <div class="ov-hdr balance-ov-hdr">
-      <button type="button" class="ov-back" onclick="closeBalanceList()" aria-label="返回"><i class="ti ti-chevron-left"></i></button>
-      <span class="ov-title">Balance record</span>
+      <button type="button" class="ov-back" onclick="closeBalanceList()" aria-label="Back"><i class="ti ti-chevron-left"></i></button>
+      <span class="ov-title">Assets</span>
       <span style="width:44px;flex-shrink:0" aria-hidden="true"></span>
     </div>
     <div class="balance-ov-list-wrap" id="balance-record-list"></div>
@@ -1691,7 +1691,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
 
 <div class="modal-bg" id="balance-record-overlay" onclick="closeBalanceRecordOverlayBg(event)">
   <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-title"><span id="balance-record-modal-title">新增餘額</span><button type="button" class="mn-btn" onclick="closeBalanceRecordOverlay()" aria-label="關閉"><i class="ti ti-x"></i></button></div>
+    <div class="modal-title"><div><span id="balance-record-modal-title">Assets</span><div id="balance-record-modal-sub" class="cz-modal-sub" style="margin-top:2px">Record your account balance to track net worth over time</div></div><button type="button" class="mn-btn" onclick="closeBalanceRecordOverlay()" aria-label="關閉"><i class="ti ti-x"></i></button></div>
     <div class="form-grp"><label class="form-lbl">餘額 (NT$)</label><input type="number" id="balance-record-amt" min="0" placeholder="0"></div>
     <div class="form-grp"><label class="form-lbl">記錄日期</label><input type="date" id="balance-record-date"></div>
     <button type="button" class="balance-snapshot-save-btn" onclick="saveBalanceRecord()">儲存</button>
@@ -1874,6 +1874,12 @@ function getCatMistIdx(cat){
   return defaultMistIdxForName(cat.name);
 }
 const DAY_LABELS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+function payMethodLabel(pay){
+  var m={'手動輸入':'Manual','每月帳單':'Bill','App截圖':'Screenshot','Manual':'Manual','Bill':'Bill','Screenshot':'Screenshot'};
+  var n=String(pay||'').trim();
+  return m[n]||(n||'Manual');
+}
+function countItemsLabel(n){return Number(n)+' items';}
 const shortMonths=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const MONTHS=shortMonths;
 const GEMINI_WALLET_PARSER_PROMPT=`你是財務助理。解析截圖中的每一筆交易，只輸出 JSON 陣列（不要 markdown、不要說明文字）。
@@ -2664,7 +2670,7 @@ function openAddBalanceRecord(){
   var amt=document.getElementById('balance-record-amt');
   var date=document.getElementById('balance-record-date');
   var del=document.getElementById('balance-record-del-btn');
-  if(title)title.textContent=window.TideI18n?TideI18n.t('新增餘額'):'新增餘額';
+  if(title)title.textContent='Assets';
   if(amt)amt.value='';
   if(date)date.value=today();
   if(del)del.style.display='none';
@@ -2680,7 +2686,7 @@ function openEditBalanceRecord(idx){
   var amt=document.getElementById('balance-record-amt');
   var date=document.getElementById('balance-record-date');
   var del=document.getElementById('balance-record-del-btn');
-  if(title)title.textContent=window.TideI18n?TideI18n.t('編輯餘額'):'編輯餘額';
+  if(title)title.textContent='Assets';
   if(amt)amt.value=Number(b.amount)||0;
   if(date)date.value=b.date||'';
   if(del)del.style.display='block';
@@ -2837,8 +2843,8 @@ function resetCsvExportStepUi(){
   var sub=document.getElementById('export-csv-confirm-sub');
   if(sub){
     if(!nExp&&!nBal)sub.textContent='目前沒有可匯出的資料';
-    else if(nExp&&nBal)sub.textContent='將匯出 '+nExp+' 筆消費紀錄與 '+nBal+' 筆Balance record為 CSV 檔案';
-    else if(nBal)sub.textContent='將匯出 '+nBal+' 筆Balance record為 CSV 檔案';
+    else if(nExp&&nBal)sub.textContent='將匯出 '+nExp+' 筆消費紀錄與 '+nBal+' 筆Assets為 CSV 檔案';
+    else if(nBal)sub.textContent='將匯出 '+nBal+' 筆Assets為 CSV 檔案';
     else sub.textContent='將匯出 '+nExp+' 筆消費紀錄為 CSV 檔案';
   }
   var status=document.getElementById('export-csv-overlay-status');
@@ -2849,7 +2855,7 @@ function resetCsvExportStepUi(){
 function resetCsvImportStepUi(){
   AppState.csv.pendingRows=null;
   var sub=document.getElementById('import-csv-confirm-sub');
-  if(sub)sub.textContent='選擇 CSV 檔案以匯入消費紀錄與Balance record';
+  if(sub)sub.textContent='選擇 CSV 檔案以匯入消費紀錄與Assets';
   var status=document.getElementById('import-csv-overlay-status');
   if(status){status.textContent='';status.style.display='none';status.style.opacity='0';}
   var pick=document.getElementById('import-csv-pick-btn');
@@ -2955,7 +2961,7 @@ function parseCsvImportRows(text){
       if(!isNaN(dOnly.getTime()))createdAt=dOnly.toISOString();
     }
     var rowType=iType>=0?String(cols[iType]||'').trim().toLowerCase():'expense';
-    if(rowType==='balance'||rowType==='餘額'||rowType==='Balance record'){
+    if(rowType==='balance'||rowType==='餘額'||rowType==='Balance record'||rowType==='Assets'){
       if(!date||amt<=0)continue;
       var forMonth=String(iForMonth>=0?cols[iForMonth]:'').trim().slice(0,7);
       if(!forMonth)forMonth=date.slice(0,7);
@@ -2993,8 +2999,8 @@ function onCsvImportFileSelected(ev){
       var sub=document.getElementById('import-csv-confirm-sub');
       if(sub){
         if(!nTotal)sub.textContent='檔案中沒有可匯入的紀錄';
-        else if(nExp&&nBal)sub.textContent='已選擇檔案，將匯入 '+nExp+' 筆消費紀錄與 '+nBal+' 筆Balance record';
-        else if(nBal)sub.textContent='已選擇檔案，將匯入 '+nBal+' 筆Balance record';
+        else if(nExp&&nBal)sub.textContent='已選擇檔案，將匯入 '+nExp+' 筆消費紀錄與 '+nBal+' 筆Assets';
+        else if(nBal)sub.textContent='已選擇檔案，將匯入 '+nBal+' 筆Assets';
         else sub.textContent='已選擇檔案，將匯入 '+nExp+' 筆消費紀錄';
       }
       var btn=document.getElementById('import-csv-confirm-btn');
@@ -3555,11 +3561,11 @@ function renderRecDaily(){
   const vE=expenses.filter(e=>e.date===viewDate);const wE=expenses.filter(e=>e.date&&e.date>=mon&&e.date<=sun);
   const vS=vE.reduce((s,e)=>s+(e.amt||0),0);const wS=wE.reduce((s,e)=>s+(e.amt||0),0);
   document.getElementById('rec-d-today').textContent=fmt(vS);
-  document.getElementById('rec-d-today-n').textContent='共 '+vE.length+' 筆';
+  document.getElementById('rec-d-today-n').textContent=countItemsLabel(vE.length);
   document.getElementById('rec-d-week').textContent=fmt(wS);
-  document.getElementById('rec-d-week-n').textContent='共 '+wE.length+' 筆';
+  document.getElementById('rec-d-week-n').textContent=countItemsLabel(wE.length);
   const isToday=viewDate===td;const dObj=new Date(viewDate+'T12:00:00');
-  document.getElementById('rec-daily-sec-lbl').textContent=isToday?'今日花費':`${dObj.getMonth()+1}/${dObj.getDate()} 的花費`;
+  document.getElementById('rec-daily-sec-lbl').textContent=isToday?"Today's spend":`${dObj.getMonth()+1}/${dObj.getDate()} spend`;
   const hl=document.getElementById('rec-daily-list');
   if(!vE.length){hl.innerHTML=getEmptyStateHTML('今天還沒有花費紀錄',false);return}
   hl.innerHTML=vE.slice().reverse().map(liHTML).join('');
@@ -3946,14 +3952,14 @@ function recMonthlyListItemHTML(e){
   const cat=e.cat||'Other';
   const pay=e.pay||'';
   const dateLbl=recShortDateLbl(e.date,e);
-  const payTag=`<span class="tag tag-rec-pay">${escapePhText(pay)}</span>`;
+  const payTag=`<span class="tag tag-rec-pay">${escapePhText(payMethodLabel(pay))}</span>`;
   const dateHtml=dateLbl?`<span class="rec-item-date">${escapePhText(dateLbl)}</span>`:'';
   return`<div class="rec-item" ${expenseRowDataAttr(e.id)}><div class="li-dot" style="background:${c.bg}"></div><div class="li-info"><div class="li-name">${e.name||'—'}</div><div class="li-meta"><span class="tag" style="background:${c.bg};color:${c.text}">${escapePhText(cat)}</span>${payTag}${dateHtml}</div></div><div class="li-amt">${fmt(e.amt||0)}</div></div>`;
 }
 function recItemHTML(e,isRecMonthlyList){
   if(isRecMonthlyList)return recMonthlyListItemHTML(e);
   const c=catColors(e.cat);
-  var payInner=e.pay||'';
+  var payInner=payMethodLabel(e.pay||'');
   var payTag=`<span class="tag tag-rec-pay">${payInner}</span>`;
   const dateLbl=recShortDateLbl(e.date,e);
   const dateHtml=dateLbl?`<span class="rec-item-date">${escapePhText(dateLbl)}</span>`:'';
@@ -4103,7 +4109,7 @@ function renderInputHubList(highlightAnchorMs){
   const batches=groupInputHubBatches(expenses);
   el.innerHTML=batches.map(function(b){
     const n=b.items.length;
-    const hdr=b.legacy?'過往紀錄':fmtInputHubBatchHdr(b.anchorMs)+' | 共 '+n+' 筆';
+    const hdr=b.legacy?'Past records':fmtInputHubBatchHdr(b.anchorMs)+' | '+countItemsLabel(n);
     const rows=sortBatchItemsNewestFirst(b.items).map(function(x){return recItemHTML(x,true);}).join('');
     const isHi=highlight!==null&&!b.legacy&&b.anchorMs===highlight;
     const blockCls='input-hub-batch-block'+(isHi?' input-hub-batch-block--highlight':'');
@@ -4119,7 +4125,7 @@ function openInputHub(session){
   }
   if(titleEl){
     if(session&&typeof session.anchorMs==='number'&&!isNaN(session.anchorMs)&&session.count>0)
-      titleEl.textContent=fmtInputHubBatchHdr(session.anchorMs)+' | 共 '+session.count+' 筆';
+      titleEl.textContent=fmtInputHubBatchHdr(session.anchorMs)+' | '+countItemsLabel(session.count);
     else
       titleEl.textContent='輸入中心';
   }
@@ -4377,12 +4383,12 @@ function openFlowSurgeOv(startDay,endDay){
 }
 function renderTodayOv(){
   const isToday=viewDate===today();const dObj=new Date(viewDate+'T12:00:00');
-  document.getElementById('ov-today-date').textContent=isToday?'今天':`${dObj.getMonth()+1}/${dObj.getDate()} ${DAY_LABELS[(dObj.getDay()+6)%7]}`;
+  document.getElementById('ov-today-date').textContent=isToday?'Today':`${dObj.getMonth()+1}/${dObj.getDate()} ${DAY_LABELS[(dObj.getDay()+6)%7]}`;
   const vE=expenses.filter(e=>e.date===viewDate);const total=vE.reduce((s,e)=>s+(e.amt||0),0);
   const cm={};vE.forEach(e=>{const c=e.cat||'Other';cm[c]=(cm[c]||0)+(e.amt||0)});
   const sorted=Object.entries(cm).sort((a,b)=>b[1]-a[1]);
   if(ovTodayChart){ovTodayChart.destroy();ovTodayChart=null}
-  document.getElementById('ov-today-body').innerHTML=`<div class="donut-card"><div class="donut-title">分類花多少 <span style="font-size:11px;color:var(--t3);font-weight:400;text-transform:none;letter-spacing:0">${fmt(total)}</span></div><div class="donut-wrap"><div style="position:relative;width:100px;height:100px;flex-shrink:0"><canvas id="ov-td-c" width="100" height="100"></canvas><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none"><div style="font-size:9px;color:#ABABAB">今日</div><div style="font-size:12px;font-weight:500;color:#37352F">${fmt(total)}</div></div></div><div class="leg-table">${legHTML(sorted,total)}</div></div></div><div class="sec-lbl">花多少明細</div><div>${vE.length?vE.slice().reverse().map(function(x){return recItemHTML(x);}).join(''):getEmptyStateHTML('無花費紀錄',false)}</div>`;
+  document.getElementById('ov-today-body').innerHTML=`<div class="donut-card"><div class="donut-title">分類花多少 <span style="font-size:11px;color:var(--t3);font-weight:400;text-transform:none;letter-spacing:0">${fmt(total)}</span></div><div class="donut-wrap"><div style="position:relative;width:100px;height:100px;flex-shrink:0"><canvas id="ov-td-c" width="100" height="100"></canvas><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none"><div style="font-size:9px;color:#ABABAB">Today</div><div style="font-size:12px;font-weight:500;color:#37352F">${fmt(total)}</div></div></div><div class="leg-table">${legHTML(sorted,total)}</div></div></div><div class="sec-lbl">花多少明細</div><div>${vE.length?vE.slice().reverse().map(function(x){return recItemHTML(x);}).join(''):getEmptyStateHTML('無花費紀錄',false)}</div>`;
   if(sorted.length)ovTodayChart=donutChart('ov-td-c',sorted);
 }
 function renderWeekOv(){
@@ -5810,7 +5816,7 @@ function openEdit(id){
   showEditExpenseOverlay();
 }
 function pickCat(id){selCat=id;renderChips()}
-function syncPayMethodPillsUi(val){var opts=['每月帳單','App截圖','手動輸入'];var v=opts.includes(val)?val:'手動輸入';var hid=document.getElementById('f-pay');if(hid)hid.value=v;document.querySelectorAll('#ov-edit-expense .pay-method-pill').forEach(function(b){var p=b.getAttribute('data-pay');var on=p===v;b.classList.toggle('on',on);b.setAttribute('aria-checked',on?'true':'false');});}
+function syncPayMethodPillsUi(val){var opts=['每月帳單','App截圖','手動輸入'];var v=opts.includes(val)?val:'手動輸入';var hid=document.getElementById('f-pay');if(hid)hid.value=v;document.querySelectorAll('#ov-edit-expense .pay-method-pill').forEach(function(b){var p=b.getAttribute('data-pay');var on=p===v;b.classList.toggle('on',on);b.setAttribute('aria-checked',on?'true':'false');b.textContent=payMethodLabel(p);});}
 function pickPayMethod(val){syncPayMethodPillsUi(val);}
 function closeModal(){closeOverlayEl(document.getElementById('ov-edit-expense'));editingId=null}
 function closeBg(e){if(e.target===document.getElementById('ov-edit-expense'))closeModal()}
@@ -6018,7 +6024,7 @@ if(document.readyState==='complete')expenseTrackerWindowLoad();
           <!-- Card -->
           <rect x="30" y="14" width="160" height="90" rx="12" fill="#F7F7F5" stroke="#E8E8E5" stroke-width="1"/>
           <!-- Balance label -->
-          <text x="48" y="38" font-size="9" font-weight="500" fill="#ABABAB" font-family="Inter,-apple-system,sans-serif" letter-spacing="0.04em">BALANCE SNAPSHOT</text>
+          <text x="48" y="38" font-size="9" font-weight="500" fill="#ABABAB" font-family="Inter,-apple-system,sans-serif" letter-spacing="0.04em">ASSETS</text>
           <!-- Balance amount -->
           <text x="48" y="60" font-size="20" font-weight="700" fill="#37352F" font-family="Inter,-apple-system,sans-serif" letter-spacing="-0.03em">$84,200</text>
           <!-- Date -->
