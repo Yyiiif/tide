@@ -1504,15 +1504,6 @@ window.TideUI = (function () {
     );
   }
 
-  function meFormatBalanceDate(ds) {
-    if (!ds) return '—';
-    const p = String(ds).split('-').map(Number);
-    if (p.length < 3) return ds;
-    const mo = MONTH_SHORT[p[1] - 1] || 'MON';
-    const moTitle = mo.charAt(0) + mo.slice(1).toLowerCase();
-    return 'Recorded ' + moTitle + ' ' + p[2];
-  }
-
   function layoutMeHeader(pad) {
     let header = pad.querySelector(':scope > .tide-screen-header');
     if (!header) {
@@ -1606,9 +1597,6 @@ window.TideUI = (function () {
     const eventsSec = resolveMeBlock('tide-me-events-block', function () {
       return document.getElementById('event-buffer-section');
     });
-    const balanceSec = resolveMeBlock('tide-me-balance-block', function () {
-      return document.getElementById('balance-snapshot-section');
-    });
     const comfortZoneSec = resolveMeBlock('tide-me-comfort-block', function () {
       return document.getElementById('comfort-zone-section');
     });
@@ -1627,7 +1615,6 @@ window.TideUI = (function () {
     const order = [
       document.getElementById('tide-me-eyebrow'),
       comfortZoneSec,
-      balanceSec,
       eventsSec,
       streamsSec,
       localeSec,
@@ -1800,36 +1787,6 @@ window.TideUI = (function () {
           sub: subNames,
           value: String(activeEvents.length),
           onclick: 'openEventList()',
-          divider: false,
-        }) +
-        '</div>';
-    }
-
-    if (balanceSec) {
-      balanceSec.className = 'tide-me-block';
-      let latest = null;
-      if (typeof balanceSnapshots !== 'undefined' && balanceSnapshots.length) {
-        latest = balanceSnapshots
-          .slice()
-          .sort(function (a, b) {
-            return String(b.date || '').localeCompare(String(a.date || ''));
-          })[0];
-      }
-      const balVal = latest ? fmtFn(Number(latest.amount) || 0) : '—';
-      const tl = function (zh) {
-        return window.TideI18n ? TideI18n.t(zh) : zh;
-      };
-      const balSub = latest ? meFormatBalanceDate(latest.date) : tl('尚無快照');
-      balanceSec.innerHTML =
-        meSecHdr('ASSETS') +
-        '<div class="tide-me-card">' +
-        meRowHtml({
-          icon: true,
-          accent: 'var(--tide-water)',
-          label: 'Latest record',
-          sub: balSub,
-          value: mask ? '$＊＊＊' : balVal,
-          onclick: 'openBalanceList()',
           divider: false,
         }) +
         '</div>';

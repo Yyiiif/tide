@@ -432,22 +432,6 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
 .ph-proj-list-empty{padding:24px 20px;font-size:13px;color:#787774;text-align:center}
 #event-proj-list{padding:12px 14px 8px;box-sizing:border-box}
 #ov-event-list .event-ov-list-wrap{padding:0 0 calc(80px + env(safe-area-inset-bottom))}
-#ov-balance-list .balance-ov-list-wrap{padding:0 0 calc(80px + env(safe-area-inset-bottom))}
-#balance-record-list{padding:12px 14px 8px;box-sizing:border-box}
-.full-ov#ov-balance-list{position:fixed;inset:0;z-index:5000;background:#FFFFFF;display:flex!important;visibility:hidden;transform:translateX(100%);pointer-events:none;will-change:transform;transition:transform 0.32s cubic-bezier(0.22,1,0.36,1),visibility 0s linear 0.32s}
-.full-ov#ov-balance-list.open{visibility:visible;transform:translateX(0);pointer-events:auto;transition:transform 0.32s cubic-bezier(0.22,1,0.36,1),visibility 0s}
-#ov-balance-list .balance-ov-shell{display:flex;flex-direction:column;height:100%;min-height:0;position:relative}
-#ov-balance-list .balance-ov-hdr .ov-title{flex:1;text-align:center}
-#ov-balance-list .balance-ov-hdr .ov-back{min-width:44px;min-height:44px;margin:-8px 0 -8px -6px}
-#ov-balance-list .balance-ov-list-wrap{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
-.balance-record-dot{display:inline-block;width:8px;height:8px;background-color:#487CA5;border-radius:50%;margin-right:10px;flex-shrink:0}
-.event-buffer-title-row .balance-record-dot{margin-right:0}
-.balance-record-card{background:var(--card);border-radius:10px;border:0.5px solid var(--border);padding:11px 14px;margin-bottom:6px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background 0.1s;box-shadow:none!important;-webkit-tap-highlight-color:transparent}
-.balance-record-card:hover,.balance-record-card:active{background:var(--bg2)}
-.balance-record-card .li-info{flex:1;min-width:0}
-.balance-record-card .li-name{font-size:13px;font-weight:500;color:var(--t1)}
-.balance-record-card-dates{font-size:11px;color:#787774;margin-top:2px;font-variant-numeric:tabular-nums;line-height:1.35}
-.balance-record-card .li-amt{font-size:13px;font-weight:500;color:var(--t1);flex-shrink:0;white-space:nowrap}
 .event-card{background:var(--card);border-radius:10px;border:0.5px solid var(--border);padding:11px 14px;margin-bottom:6px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background 0.1s;box-shadow:none!important;-webkit-tap-highlight-color:transparent}
 .event-card:hover,.event-card:active{background:var(--bg2)}
 .event-dot,.event-card-dot{display:inline-block;width:8px;height:8px;background-color:#9333ea;border-radius:50%;margin-right:10px;flex-shrink:0;box-shadow:none!important}
@@ -683,11 +667,9 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
 .fab-dark-flat:active{opacity:0.92}
 #add-event-overlay,#project-record-modal-bg{z-index:5100}
 
-#comfort-zone-overlay.modal-bg,#add-event-overlay.modal-bg,#balance-record-overlay.modal-bg,#ov-edit-expense.modal-bg,#ov-export-csv.modal-bg,#ov-tag-edit.tag-edit-sheet,#ov-edit-event.event-edit-sheet,#ov-event-edit.event-edit-sheet{box-shadow:none!important}
-#comfort-zone-overlay.modal-bg,#add-event-overlay.modal-bg,#balance-record-overlay.modal-bg,#ov-edit-expense.modal-bg,#ov-export-csv.modal-bg,#ov-tag-edit.tag-edit-sheet,#ov-edit-event.event-edit-sheet,#ov-event-edit.event-edit-sheet{display:none;position:fixed;inset:0;align-items:flex-end;justify-content:stretch;background:rgba(55,53,47,0.38)}
-#comfort-zone-overlay.modal-bg.open,#add-event-overlay.modal-bg.open,#add-event-overlay.modal-bg.active,#balance-record-overlay.modal-bg.open,#ov-edit-expense.modal-bg.open,#ov-export-csv.modal-bg.open,#ov-tag-edit.tag-edit-sheet.open,#ov-edit-event.event-edit-sheet.open,#ov-edit-event.event-edit-sheet.active,#ov-event-edit.event-edit-sheet.open{display:flex}
-#balance-record-overlay{z-index:5100}
-#balance-record-overlay .modal{padding:20px 24px calc(20px + env(safe-area-inset-bottom));max-height:85dvh}
+#comfort-zone-overlay.modal-bg,#add-event-overlay.modal-bg,#ov-edit-expense.modal-bg,#ov-export-csv.modal-bg,#ov-tag-edit.tag-edit-sheet,#ov-edit-event.event-edit-sheet,#ov-event-edit.event-edit-sheet{box-shadow:none!important}
+#comfort-zone-overlay.modal-bg,#add-event-overlay.modal-bg,#ov-edit-expense.modal-bg,#ov-export-csv.modal-bg,#ov-tag-edit.tag-edit-sheet,#ov-edit-event.event-edit-sheet,#ov-event-edit.event-edit-sheet{display:none;position:fixed;inset:0;align-items:flex-end;justify-content:stretch;background:rgba(55,53,47,0.38)}
+#comfort-zone-overlay.modal-bg.open,#add-event-overlay.modal-bg.open,#add-event-overlay.modal-bg.active,#ov-edit-expense.modal-bg.open,#ov-export-csv.modal-bg.open,#ov-tag-edit.tag-edit-sheet.open,#ov-edit-event.event-edit-sheet.open,#ov-edit-event.event-edit-sheet.active,#ov-event-edit.event-edit-sheet.open{display:flex}
 #ov-edit-expense,#ov-export-csv{z-index:3000}
 #ov-edit-expense.modal-bg.open{z-index:10050;-webkit-transform:translateZ(0);transform:translateZ(0)}
 .rec-item[data-expense-id],.li[data-expense-id]{cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -1040,14 +1022,6 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
   min-width: 0;
 }
 #s-home #home-cat-donut-card{margin-top:0}
-#home-balance-snapshot-wrap{width:100%;display:flex;justify-content:center;margin-top:8px;padding:0}
-.home-balance-snapshot{display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px}
-.home-balance-snapshot-lbl{font-size:9px;font-weight:400;color:#8E8E93;line-height:1.2;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif!important}
-.home-balance-snapshot-date{color:#ABABAB}
-.home-balance-snapshot-amt{font-size:12px;font-weight:500;color:#ABABAB;line-height:1.2;font-variant-numeric:tabular-nums;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif!important}
-.home-balance-snapshot-amt--neg{color:#C4554D}
-.balance-snapshot-save-btn{width:100%;padding:10px;border-radius:6px;border:0.5px solid #E8E8E5;background:#F7F7F5;color:#37352F;font-size:13px;font-weight:500;cursor:pointer;margin-top:0;font-family:inherit;-webkit-tap-highlight-color:transparent}
-.balance-snapshot-save-btn:active{opacity:0.92}
 .home-cat-row {
   display: grid;
   grid-template-columns: 10px minmax(0, 1fr) 60px 16px minmax(56px, auto);
@@ -1242,7 +1216,6 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
           <button type="button" class="home-header-nav-btn" onclick="shiftGlobalMonth(1)" aria-label="下個月">›</button>
         </div>
       </div>
-      <div id="home-balance-snapshot-wrap"></div>
       <div class="donut-card" id="home-cat-donut-card">
         <div class="category-section-header-container">
           <span class="category-section-title">分類花多少</span>
@@ -1405,15 +1378,6 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
           </div>
         </div>
         <div style="font-size:11px;color:#9CA0A8;margin-top:4px">Automatically managed based on your active events</div>
-      </div>
-      <div class="set-section event-buffer-card balance-buffer-card" id="balance-snapshot-section">
-        <div class="event-buffer-tap" role="button" tabindex="0" onclick="openBalanceList()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openBalanceList()}">
-          <span class="event-buffer-chevron" aria-hidden="true"><i class="ti ti-chevron-right"></i></span>
-          <div class="event-buffer-title-row" style="gap:8px">
-            <span class="balance-record-dot" aria-hidden="true"></span>
-            <span class="event-buffer-title-txt">Assets</span>
-          </div>
-        </div>
       </div>
       <div class="set-section">
         <div class="set-section-title">類別管理</div>
@@ -1673,29 +1637,6 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
     </div>
     <div class="event-ov-list-wrap" id="event-proj-list"></div>
     <button type="button" id="fab-add-event" class="fab-dark-flat" onclick="openProjectModal()" aria-label="Add Event">+</button>
-  </div>
-</div>
-
-
-<div class="full-ov" id="ov-balance-list">
-  <div class="balance-ov-shell">
-    <div class="ov-hdr balance-ov-hdr">
-      <button type="button" class="ov-back" onclick="closeBalanceList()" aria-label="Back"><i class="ti ti-chevron-left"></i></button>
-      <span class="ov-title">Assets</span>
-      <span style="width:44px;flex-shrink:0" aria-hidden="true"></span>
-    </div>
-    <div class="balance-ov-list-wrap" id="balance-record-list"></div>
-    <button type="button" id="fab-add-balance" class="fab-dark-flat" onclick="openAddBalanceRecord()" aria-label="新增餘額紀錄">+</button>
-  </div>
-</div>
-
-<div class="modal-bg" id="balance-record-overlay" onclick="closeBalanceRecordOverlayBg(event)">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-title"><div><span id="balance-record-modal-title">Assets</span><div id="balance-record-modal-sub" class="cz-modal-sub" style="margin-top:2px">Record your account balance to track net worth over time</div></div><button type="button" class="mn-btn" onclick="closeBalanceRecordOverlay()" aria-label="關閉"><i class="ti ti-x"></i></button></div>
-    <div class="form-grp"><label class="form-lbl">餘額 (NT$)</label><input type="number" id="balance-record-amt" min="0" placeholder="0"></div>
-    <div class="form-grp"><label class="form-lbl">記錄日期</label><input type="date" id="balance-record-date"></div>
-    <button type="button" class="balance-snapshot-save-btn" onclick="saveBalanceRecord()">儲存</button>
-    <button type="button" class="del-btn" id="balance-record-del-btn" onclick="deleteBalanceRecord()" style="display:none;margin-top:8px">刪除紀錄</button>
   </div>
 </div>
 
@@ -1973,28 +1914,6 @@ const ReflowDB=(function(){
   return{open:open,getAllExpenses:getAllExpenses,replaceExpenses:replaceExpenses,getSetting:getSetting,setSetting:setSetting,hasAnyData:hasAnyData};
 })();
 async function migrateLocalStorageToIndexedDB(){
-  var rawBS=localStorage.getItem('balanceSnapshots');
-  var rawLegBS=localStorage.getItem('balanceSnapshot');
-  if(rawBS!=null||rawLegBS!=null){
-    var snapsToMigrate=[];
-    if(rawBS!=null){
-      try{var parsed=JSON.parse(rawBS);if(Array.isArray(parsed))snapsToMigrate=parsed;}catch(_){}
-    }else if(rawLegBS!=null){
-      try{
-        var leg=JSON.parse(rawLegBS);
-        if(leg&&Number(leg.amount)>0&&leg.date){
-          var legNow=Date.now();
-          snapsToMigrate=[{id:'b'+legNow,amount:Number(leg.amount)||0,date:String(leg.date),forMonth:String(leg.forMonth||String(leg.date).slice(0,7)),createdAt:new Date(legNow).toISOString()}];
-        }
-      }catch(_){}
-    }
-    if(snapsToMigrate.length>0){
-      snapsToMigrate.forEach(function(s){if(s)ensureBalanceSnapshotMeta(s);});
-      await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.balanceSnapshots,snapsToMigrate);
-    }
-    localStorage.removeItem('balanceSnapshots');
-    localStorage.removeItem('balanceSnapshot');
-  }
   var rawCatBudgets=localStorage.getItem('cat_budgets_v1');
   if(rawCatBudgets!=null){
     try{var parsedCB=JSON.parse(rawCatBudgets);if(parsedCB&&typeof parsedCB==='object'&&!Array.isArray(parsedCB))await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.catBudgets,parsedCB);}catch(_){}
@@ -2050,9 +1969,6 @@ async function loadAppStateFromIndexedDB(){
   setBudget(loadedBudget);
   var loadedEvents=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.specialEvents,[]);
   specialEvents=Array.isArray(loadedEvents)?loadedEvents:[];
-  var savedSnapshots=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.balanceSnapshots,null);
-  balanceSnapshots=Array.isArray(savedSnapshots)?savedSnapshots:[];
-  balanceSnapshots.forEach(ensureBalanceSnapshotMeta);
   var savedCatBudgets=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.catBudgets);
   if(savedCatBudgets&&typeof savedCatBudgets==='object'&&!Array.isArray(savedCatBudgets))catBudgets=savedCatBudgets;
   var savedCatBuffers=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.catBuffers);
@@ -2111,7 +2027,6 @@ async function normalizeExpenseIds(){
 }
 if(!Array.isArray(expenses))expenses=[];
 let balanceSnapshots=[];
-let balanceEditIdx=-1;
 let budget=17000;
 function setBudget(val){var parsed=parseInt(val,10);if(isNaN(parsed)||parsed<0)return;budget=parsed;}
 let catBudgets={};
@@ -2446,7 +2361,7 @@ function teardownImportFlowState(){
 function forceDismissAllEntryOverlays(){
   teardownImportFlowState();
   editingId=null;
-  ['import-sheet','ov-edit-expense','ov-export-csv','ov-input-hub','ov-today','ov-week','ov-rec-daily','ov-balance-list','cal-pick','cp-modal','comfort-zone-overlay','add-event-overlay','balance-record-overlay','ov-edit-event'].forEach(function(id){
+  ['import-sheet','ov-edit-expense','ov-export-csv','ov-input-hub','ov-today','ov-week','ov-rec-daily','cal-pick','cp-modal','comfort-zone-overlay','add-event-overlay','ov-edit-event'].forEach(function(id){
     var el=document.getElementById(id);
     if(!el)return;
     el.classList.remove('open');
@@ -2553,206 +2468,6 @@ function normalizeISODate(ds){
   }
   return '';
 }
-function ensureBalanceSnapshotMeta(b){
-  if(!b)return b;
-  b.date=normalizeISODate(b.date);
-  if(b.date&&!b.forMonth)b.forMonth=b.date.slice(0,7);
-  if(!b.createdAt){
-    if(b.id&&String(b.id).indexOf('b')===0){
-      var ts=parseInt(String(b.id).slice(1),10);
-      if(Number.isFinite(ts)&&ts>0)b.createdAt=new Date(ts).toISOString();
-    }
-    if(!b.createdAt&&b.date)b.createdAt=b.date+'T12:00:00.000Z';
-  }
-  return b;
-}
-function saveBalanceSnapshots(){
-  balanceSnapshots.forEach(ensureBalanceSnapshotMeta);
-  ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.balanceSnapshots,balanceSnapshots).catch(function(e){console.error('saveBalanceSnapshots failed',e);});
-}
-function getActiveBalanceSnapshot(){
-  if(!balanceSnapshots.length)return null;
-  return balanceSnapshots.map(ensureBalanceSnapshotMeta).slice().sort(function(a,b){
-    var dc=String(b.date||'').localeCompare(String(a.date||''));
-    if(dc!==0)return dc;
-    return String(b.createdAt||'').localeCompare(String(a.createdAt||''));
-  })[0]||null;
-}
-function expenseEventTimeMs(e){
-  if(!e)return null;
-  if(e.createdAt){
-    var c=Date.parse(e.createdAt);
-    if(Number.isFinite(c))return c;
-  }
-  var idNum=Number(e.id);
-  if(Number.isFinite(idNum)&&idNum>1e11)return idNum;
-  var d=normalizeISODate(e.date);
-  if(d){
-    var dOnly=Date.parse(d+'T23:59:59.999Z');
-    if(Number.isFinite(dOnly))return dOnly;
-  }
-  return null;
-}
-function snapshotEventTimeMs(snap){
-  if(!snap)return null;
-  if(snap.createdAt){
-    var c=Date.parse(snap.createdAt);
-    if(Number.isFinite(c))return c;
-  }
-  if(snap.id&&String(snap.id).indexOf('b')===0){
-    var ts=parseInt(String(snap.id).slice(1),10);
-    if(Number.isFinite(ts)&&ts>0)return ts;
-  }
-  var d=normalizeISODate(snap.date);
-  if(d){
-    var noon=Date.parse(d+'T12:00:00.000Z');
-    if(Number.isFinite(noon))return noon;
-  }
-  return null;
-}
-/** Expenses recorded at or after the active balance snapshot deduct from it. */
-function expenseCountsAgainstBalance(e,snap){
-  if(!e||!snap)return false;
-  var d=normalizeISODate(e.date);
-  var snapDate=normalizeISODate(snap.date);
-  if(!d||!snapDate)return false;
-  if(d>snapDate)return true;
-  if(d<snapDate)return false;
-  var snapTs=snapshotEventTimeMs(snap);
-  var eTs=expenseEventTimeMs(e);
-  if(Number.isFinite(snapTs)&&Number.isFinite(eTs))return eTs>=snapTs;
-  if(Number.isFinite(snapTs))return false;
-  return true;
-}
-function getSnapshotSpentAfter(){
-  var snap=getActiveBalanceSnapshot();
-  if(!snap)return 0;
-  return expenses.filter(function(e){return expenseCountsAgainstBalance(e,snap);}).reduce(function(s,e){return s+(Number(e.amt)||0);},0);
-}
-/** REMAINING = snapshot balance minus expenses logged after that snapshot. */
-function getEstimatedRemaining(){
-  var snap=getActiveBalanceSnapshot();
-  if(!snap)return 0;
-  var base=Number(snap.amount)||0;
-  if(base<=0)return 0;
-  return base-getSnapshotSpentAfter();
-}
-function fmtBalanceDateLabel(ds){
-  if(!ds)return '—';
-  var p=String(ds).split('-').map(Number);
-  if(p.length<3)return escapePhText(ds);
-  return escapePhText(p[0]+'/'+p[1]+'/'+p[2]);
-}
-function fmtBalanceDateMD(ds){
-  if(!ds)return '';
-  var p=String(ds).split('-').map(Number);
-  if(p.length<3)return '';
-  return '('+p[1]+'/'+p[2]+')';
-}
-function balanceCardHTML(b,idx){
-  var dateLbl=fmtBalanceDateLabel(b.date);
-  return'<div class="rec-item balance-record-card" role="button" tabindex="0" data-balance-idx="'+idx+'" onclick="openEditBalanceRecord('+idx+')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault();openEditBalanceRecord('+idx+')}"><span class="balance-record-dot" aria-hidden="true"></span><div class="li-info"><div class="li-name">'+dateLbl+'</div></div><div class="li-amt">'+fmt(Number(b.amount)||0)+'</div></div>';
-}
-function renderBalanceList(){
-  var listEl=document.getElementById('balance-record-list');
-  if(!listEl)return;
-  var items=balanceSnapshots.map(function(b,idx){return{b:b,idx:idx};}).sort(function(a,b){return String(b.b.date||'').localeCompare(String(a.b.date||''));});
-  listEl.innerHTML=items.length?items.map(function(item){return balanceCardHTML(item.b,item.idx);}).join(''):'<div class="ph-proj-list-empty">'+(window.TideI18n?TideI18n.t('尚無餘額紀錄'):'尚無餘額紀錄')+'</div>';
-}
-function openBalanceList(){
-  renderBalanceList();
-  openOverlayEl(document.getElementById('ov-balance-list'));
-}
-function closeBalanceList(){closeOverlayEl(document.getElementById('ov-balance-list'));}
-function openAddBalanceRecord(){
-  balanceEditIdx=-1;
-  var title=document.getElementById('balance-record-modal-title');
-  var amt=document.getElementById('balance-record-amt');
-  var date=document.getElementById('balance-record-date');
-  var del=document.getElementById('balance-record-del-btn');
-  if(title)title.textContent='Assets';
-  if(amt)amt.value='';
-  if(date)date.value=today();
-  if(del)del.style.display='none';
-  var ov=document.getElementById('balance-record-overlay');
-  if(ov)openOverlayEl(ov);
-}
-function openEditBalanceRecord(idx){
-  var i=Number(idx);
-  if(!Number.isFinite(i)||i<0||i>=balanceSnapshots.length)return;
-  balanceEditIdx=i;
-  var b=balanceSnapshots[i];
-  var title=document.getElementById('balance-record-modal-title');
-  var amt=document.getElementById('balance-record-amt');
-  var date=document.getElementById('balance-record-date');
-  var del=document.getElementById('balance-record-del-btn');
-  if(title)title.textContent='Assets';
-  if(amt)amt.value=Number(b.amount)||0;
-  if(date)date.value=b.date||'';
-  if(del)del.style.display='block';
-  var ov=document.getElementById('balance-record-overlay');
-  if(ov)openOverlayEl(ov);
-}
-function closeBalanceRecordOverlay(){
-  var ov=document.getElementById('balance-record-overlay');
-  if(ov)closeOverlayEl(ov);
-  balanceEditIdx=-1;
-}
-function closeBalanceRecordOverlayBg(e){
-  if(e&&e.target!==document.getElementById('balance-record-overlay'))return;
-  closeBalanceRecordOverlay();
-}
-function saveBalanceRecord(){
-  var amtEl=document.getElementById('balance-record-amt');
-  var dateEl=document.getElementById('balance-record-date');
-  var amt=Number(amtEl&&amtEl.value)||0;
-  var date=dateEl&&dateEl.value?String(dateEl.value):'';
-  if(amt<=0||!date)return;
-  if(balanceEditIdx>=0&&balanceEditIdx<balanceSnapshots.length){
-    var b=balanceSnapshots[balanceEditIdx];
-    b.amount=amt;
-    b.date=normalizeISODate(date);
-    b.forMonth=b.date.slice(0,7);
-    b.createdAt=new Date().toISOString();
-  }else{
-    var now=Date.now();
-    balanceSnapshots.push({id:'b'+now,amount:amt,date:normalizeISODate(date),forMonth:normalizeISODate(date).slice(0,7),createdAt:new Date(now).toISOString()});
-  }
-  finishBalanceSync();
-  closeBalanceRecordOverlay();
-}
-function deleteBalanceRecord(){
-  if(balanceEditIdx<0||balanceEditIdx>=balanceSnapshots.length)return;
-  var msg=window.TideI18n?TideI18n.confirmMsg('確定要刪除此餘額紀錄嗎？'):'確定要刪除此餘額紀錄嗎？';
-  showConfirm(msg,function(){
-    balanceSnapshots.splice(balanceEditIdx,1);
-    finishBalanceSync();
-    closeBalanceRecordOverlay();
-  });
-}
-function finishBalanceSync(){
-  saveBalanceSnapshots();
-  renderBalanceList();
-  renderHome();
-}
-function renderHomeBalanceSnapshot(){
-  var wrap=document.getElementById('home-balance-snapshot-wrap');
-  if(!wrap)return;
-  var snap=getActiveBalanceSnapshot();
-  var baseAmt=Number(snap&&snap.amount)||0;
-  var eyeIcon0=isAmtHidden?'ti-eye-off':'ti-eye';
-  if(baseAmt<=0){
-    wrap.innerHTML='<div style="display:flex;justify-content:flex-end;padding:4px 0 2px"><button type="button" class="mn-btn" id="tide-amt-toggle-home" onclick="toggleGlobalAmt()" aria-label="Toggle amounts" style="width:22px;height:22px"><i class="ti '+eyeIcon0+'" style="font-size:13px" aria-hidden="true"></i></button></div>';
-    return;
-  }
-  var spent=getSnapshotSpentAfter();
-  var dateMd=fmtBalanceDateMD(snap.date);
-  var amtTxt=isAmtHidden?'$＊＊＊':fmt(spent);
-  var amtCls='home-balance-snapshot-amt';
-  var eyeIcon=isAmtHidden?'ti-eye-off':'ti-eye';
-  var eyeBtn='<button type="button" class="mn-btn" id="tide-amt-toggle-home" onclick="toggleGlobalAmt()" aria-label="Toggle amounts" style="width:22px;height:22px;flex-shrink:0"><i class="ti '+eyeIcon+'" style="font-size:13px" aria-hidden="true"></i></button>';
-  wrap.innerHTML='<div class="home-balance-snapshot"><div class="home-balance-snapshot-lbl">spent<span class="home-balance-snapshot-date"> '+dateMd+'</span></div><div style="display:flex;align-items:center;gap:5px"><div class="'+amtCls+'">'+amtTxt+'</div>'+eyeBtn+'</div></div>';
-}
 function exportTransactionsToCSV(data,balances){
   const headers=['Record_Type','Date','Time','Category','Vendor','Amount_TWD','Event_Mode','Source','For_Month','Record_Id'];
   function csvEscape(v){
@@ -2790,28 +2505,9 @@ function exportTransactionsToCSV(data,balances){
       e.id!=null?String(e.id):''
     ];
   }
-  function balanceExportRow(b){
-    const snap=ensureBalanceSnapshotMeta(b);
-    const date=String(snap.date||'').slice(0,10);
-    return[
-      'balance',
-      date,
-      formatRowTime(snap.createdAt,date),
-      '',
-      '',
-      Math.round(Number(snap.amount)||0),
-      '',
-      '',
-      snap.forMonth||date.slice(0,7),
-      snap.id!=null?String(snap.id):''
-    ];
-  }
   const items=[];
   (Array.isArray(data)?data:[]).forEach(function(e){
     items.push({sortDate:String(e.date||''),sortAt:String(e.createdAt||''),row:expenseExportRow(e)});
-  });
-  (Array.isArray(balances)?balances:balanceSnapshots).forEach(function(b){
-    items.push({sortDate:String(b.date||''),sortAt:String(b.createdAt||''),row:balanceExportRow(b)});
   });
   items.sort(function(a,b){
     const da=String(a.sortDate||''),db=String(b.sortDate||'');
@@ -3024,8 +2720,7 @@ function onCsvImportFileSelected(ev){
 function confirmImportTransactionsCSV(){
   var pending=AppState.csv.pendingRows;
   var expRows=pending&&Array.isArray(pending.expenses)?pending.expenses:[];
-  var balRows=pending&&Array.isArray(pending.balances)?pending.balances:[];
-  if(!expRows.length&&!balRows.length)return;
+  if(!expRows.length)return;
   var btn=document.getElementById('import-csv-confirm-btn');
   var status=document.getElementById('import-csv-overlay-status');
   if(btn)btn.disabled=true;
@@ -3042,12 +2737,6 @@ function confirmImportTransactionsCSV(){
       var base=Date.now();
       expRows.forEach(function(r,i){r.id=base+i;});
       expenses=expenses.concat(expRows);
-      balRows.forEach(function(r,i){
-        if(!r.id)r.id='b'+(base+1000000+i);
-        ensureBalanceSnapshotMeta(r);
-      });
-      balanceSnapshots=balanceSnapshots.concat(balRows);
-      saveBalanceSnapshots();
       saveExpenses().then(function(){return refreshCurrentScreen();}).catch(function(err){console.error('csv import persist failed',err);});
       closeCsvDataOverlay();
     }finally{
@@ -3733,7 +3422,6 @@ function getEmptyStateHTML(title,subtitle){
 function renderHome(){
   syncAutoEventBuffer();
   updateHomeCategoryTotalBudgetLabel();
-  renderHomeBalanceSnapshot();
   let monthRows=[];
   let monthTotal=0;
   try{
@@ -5295,7 +4983,6 @@ function renderUnalloc(){
 }
 function renderSet(){
   syncAutoEventBuffer();
-  if(document.getElementById('ov-balance-list')?.classList.contains('open'))renderBalanceList();
   if(document.getElementById('ov-event-list')?.classList.contains('open'))renderEventList();
   renderBudgetSummary();
   const coreCats=getCoreCatsOrdered();

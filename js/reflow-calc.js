@@ -256,48 +256,14 @@
     return 'current';
   }
 
-  function activeBalanceSnapshotForMonth(ym) {
-    const monthKey = resolveMonth(ym);
-    const td = typeof today === 'function' ? today() : new Date().toISOString().slice(0, 10);
-    let liveMonth = monthKey === String(td).slice(0, 7) && monthPhase(monthKey) === 'current';
-    if (
-      typeof getBudgetPeriodForDate === 'function' &&
-      typeof budgetCycleReferenceDate === 'function' &&
-      typeof getCurrentBudgetPeriod === 'function'
-    ) {
-      const viewP = getBudgetPeriodForDate(budgetCycleReferenceDate(monthKey));
-      const todayP = getCurrentBudgetPeriod();
-      liveMonth = viewP.start === todayP.start && monthPhase(monthKey) === 'current';
-    }
-    if (!liveMonth || typeof getActiveBalanceSnapshot !== 'function') return null;
-    return getActiveBalanceSnapshot();
-  }
-
-  function snapshotSpentTotal() {
-    if (typeof getSnapshotSpentAfter === 'function') return getSnapshotSpentAfter();
-    return 0;
-  }
-
-  /** Current month with snapshot: only snapshot − post-snapshot spend. */
   function remainingBalance(ym) {
     const monthKey = resolveMonth(ym);
-    const snap = activeBalanceSnapshotForMonth(monthKey);
-    if (snap && typeof getEstimatedRemaining === 'function') {
-      return getEstimatedRemaining();
-    }
-    const phase = monthPhase(monthKey);
-    if (phase === 'future') {
-      return monthBudgetTotal(monthKey) - monthSpentTotal(monthKey);
-    }
-    return 0;
+    return Math.max(0, monthBudgetTotal(monthKey) - monthSpentTotal(monthKey));
   }
 
-  /** Water level ratio for REMAINING — prefers snapshot balance over budget. */
+  /** Water level ratio for REMAINING — budget-based. */
   function remainingHeroRawRatio(remaining, ym) {
-    const snap = activeBalanceSnapshotForMonth(ym);
-    const base = snap ? Number(snap.amount) || 0 : 0;
     const rem = Number(remaining) || 0;
-    if (base > 0) return Math.max(0, Math.min(1, rem / base));
     const budgetTotal = monthBudgetTotal(ym);
     if (budgetTotal > 0) return Math.max(0, Math.min(1, rem / budgetTotal));
     return 0;
@@ -310,10 +276,8 @@
     const spent = monthSpentTotal(monthKey);
     const emptyMonth = monthIsEmpty(monthKey);
     const phase = monthPhase(monthKey);
-    const snap = activeBalanceSnapshotForMonth(monthKey);
-    const hasBalanceView = !!(snap && Number(snap.amount) > 0);
 
-    if (emptyMonth && !hasBalanceView) {
+    if (emptyMonth) {
       return {
         remaining: 0,
         budgetTotal: budgetTotal,
@@ -329,10 +293,8 @@
     }
 
     const remaining = remainingBalance(monthKey);
-    const snapshotSpent = hasBalanceView ? snapshotSpentTotal() : 0;
     const showSpent = phase === 'past';
     const heroAmount = showSpent ? spent : remaining;
-    const heroSubSpent = showSpent ? spent : hasBalanceView ? snapshotSpent : spent;
     const rawLevel = showSpent
       ? spentHeroRawRatio(spent, monthKey)
       : remainingHeroRawRatio(remaining, monthKey);
@@ -350,8 +312,8 @@
       phase: phase,
       heroMode: showSpent ? 'spent' : 'remaining',
       heroAmount: heroAmount,
-      heroSubSpent: heroSubSpent,
-      usesBalanceRemaining: !showSpent && hasBalanceView,
+      heroSubSpent: spent,
+      usesBalanceRemaining: false,
     };
   }
 
@@ -401,8 +363,6 @@
     daysLeftForMonth: daysLeftForMonth,
     daysLeftInMonth: daysLeftInMonth,
     monthPhase: monthPhase,
-    activeBalanceSnapshotForMonth: activeBalanceSnapshotForMonth,
-    snapshotSpentTotal: snapshotSpentTotal,
     remainingBalance: remainingBalance,
     remainingHeroRawRatio: remainingHeroRawRatio,
     clampHeroWaterLevel: clampHeroWaterLevel,
