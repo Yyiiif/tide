@@ -422,9 +422,9 @@
         : Math.round(Math.max(0, Math.min(100, (m.spent / m.budgetTotal) * 100)));
     const eyebrow = 'SPENT';
     const heroSubBudgetText = budgetTxt;
-    const budgetAmt = Number(typeof budget !== 'undefined' ? budget : 0) || 0;
+    const totalBudget = m.budgetTotal || 0;
     const monthSpent = Number(m.spent) || 0;
-    const remainingAmt = budgetAmt > 0 ? Math.max(0, budgetAmt - monthSpent) : null;
+    const remainingAmt = totalBudget > 0 ? Math.max(0, totalBudget - monthSpent) : null;
     const leftFootValue = mask ? '$＊＊＊' : remainingAmt === null ? '--' : fmt(remainingAmt);
     const heroLevel = m.emptyMonth ? 0 : Number(m.spent) || 0;
 
