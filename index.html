@@ -5143,6 +5143,8 @@ async function confirmAndSaveImport(){
   if(!Array.isArray(rows)||!rows.length){closeImportSheet();return}
   const checks=document.querySelectorAll('.import-row-sel:checked');
   let added=0;
+  let crossCount=0;
+  let crossMonth='';
   const base=Date.now();
   const createdAt=new Date().toISOString();
   checks.forEach((ch,idx)=>{
@@ -5158,12 +5160,14 @@ async function confirmAndSaveImport(){
     else if(cts==='每月帳單')payImp='每月帳單';
     expenses.push({id:base+idx,name:it.name,amt:it.amt,date:it.date,cat,pay:payImp,createdAt});
     added++;
+    if(it.date&&it.date.slice(0,7)!==curMonth){crossCount++;if(!crossMonth)crossMonth=it.date.slice(0,7);}
   });
   if(added)await saveExpenses();
   if(added){
     var anchorMs=(new Date(createdAt)).getTime();
     closeImportSheet();
     openInputHub({anchorMs:anchorMs,highlightAnchorMs:anchorMs,count:added});
+    if(crossCount>0&&crossMonth){const mo=parseInt(crossMonth.slice(5,7),10);const mName=shortMonths[mo-1]||crossMonth;const s=crossCount>1?'s':'';showToast(`${crossCount} item${s} saved to ${mName}`,'info');}
   }else{
     closeImportSheet();
   }
