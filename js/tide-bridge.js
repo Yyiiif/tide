@@ -902,6 +902,18 @@
 
     const meta = flowSurgeMonthMeta();
     const daily = flowSurgeDailySeries(meta);
+
+    const daysWithSpending = daily.filter(function (v) { return v > 0; }).length;
+    const monthRows = window.ReflowCalc && typeof ReflowCalc.monthRows === 'function'
+      ? ReflowCalc.monthRows(curMonth)
+      : typeof expenses !== 'undefined' ? expenses.filter(function (e) { return e.date && e.date.startsWith(curMonth); }) : [];
+    if (daysWithSpending < 7 || monthRows.length < 5) {
+      section.innerHTML =
+        '<div class="donut-title"><span class="tide-pulse-sec-lbl">FLOW SURGE</span></div>' +
+        '<div style="font-size:12px;color:#B0B3C0;padding:8px 0">Not enough data yet — check back later</div>';
+      return;
+    }
+
     const result = detectFlowSurges(daily, meta.lastDay);
     const periods = result.periods;
     const n = periods.length;
