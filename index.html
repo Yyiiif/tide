@@ -5200,7 +5200,8 @@ function renderImportParseResults(items){
     const amt=parseImportItemAmt(it);
     var catNm=String(it.mappedCat||'Other');
     var ccol=catColors(catNm);
-    html+=`<label class="${rowClass}"><input type="checkbox" class="import-row-sel import-item-chk" data-i="${idx}" checked onchange="updateImportMasterSelectAppearance()">${qPart}<span class="import-item-main"><span class="import-item-txt">${escImportTxt(label)}</span><span class="import-item-meta-row"><span class="tag" style="background:${ccol.bg};color:${ccol.text}">${escImportTxt(catNm)}</span></span></span><span class="import-item-amt">$${amt.toLocaleString('zh-TW',{maximumFractionDigits:0})}</span></label>`;
+    const chkAttr=askHighlight?'':'checked';
+    html+=`<label class="${rowClass}"><input type="checkbox" class="import-row-sel import-item-chk" data-i="${idx}" ${chkAttr} onchange="updateImportMasterSelectAppearance()">${qPart}<span class="import-item-main"><span class="import-item-txt">${escImportTxt(label)}</span><span class="import-item-meta-row"><span class="tag" style="background:${ccol.bg};color:${ccol.text}">${escImportTxt(catNm)}</span></span></span><span class="import-item-amt">$${amt.toLocaleString('zh-TW',{maximumFractionDigits:0})}</span></label>`;
   });
   html+='</div>';
   if(pref==='ask'&&arr.some(x=>x.isPotentialTransfer)){
@@ -5208,7 +5209,7 @@ function renderImportParseResults(items){
   }
   html+='<button type="button" class="import-done-save-primary" onclick="confirmAndSaveImport()">確認儲存</button><button type="button" class="import-done-close-muted" onclick="closeImportSheet()">關閉</button>';
   const b=document.getElementById('import-sheet-body');
-  if(b)b.innerHTML=html;
+  if(b){b.innerHTML=html;updateImportMasterSelectAppearance();}
 }
 function onImportSelectAllMasterChange(){
   var m=document.getElementById('import-select-all-master');
