@@ -488,8 +488,14 @@ window.TideUI = (function () {
     }
     const spentN = Number(spent) || 0;
     const budget =
-      typeof getDynamicCategoryBudget === 'function' ? getDynamicCategoryBudget(catZh) : 0;
+      typeof getCategoryBarBudget === 'function'
+        ? getCategoryBarBudget(catZh)
+        : typeof getDynamicCategoryBudget === 'function'
+          ? getDynamicCategoryBudget(catZh)
+          : 0;
     if (budget > 0) return Math.min(100, Math.round((spentN / budget) * 100));
+    const ms = Math.max(0, Number(maxSpent) || 0);
+    if (ms > 0) return Math.min(100, Math.round((spentN / ms) * 100));
     return spentN > 0 ? 8 : 0;
   }
 

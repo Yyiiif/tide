@@ -2800,20 +2800,30 @@ function getMinCatBudget(){
   const vals=Object.values(catBudgets).map(Number).filter(function(n){return Number.isFinite(n)&&n>0});
   return vals.length?Math.min.apply(null,vals):0;
 }
-function getCatBarBasis(catName,maxSpent){
-  const own=getCatBudgetNum(catName);
+function getCategoryBarBudget(catName){
+  var key=normalizeCoreCatName(catName);
+  var own=Number(catBudgets[key])||0;
   if(own>0)return own;
-  const minB=getMinCatBudget();
-  if(catName==='Other'){
-    const total=Number(budget)||0;
+  if(key==='Other'){
+    var total=Number(budget)||0;
     if(total>0){
-      const unalloc=total-getCatBudgetsSum();
+      var unalloc=total-getCatBudgetsSum();
       if(unalloc>0)return unalloc;
     }
-    if(minB>0)return minB;
-    return 0;
   }
-  if(minB>0)return minB;
+  var monthBud=window.ReflowCalc&&typeof ReflowCalc.monthBudgetTotal==='function'
+    ? ReflowCalc.monthBudgetTotal(curMonth)
+    :(typeof getTargetBudget==='function'?getTargetBudget(curMonth):(Number(budget)||0));
+  if(monthBud>0){
+    var d=czGetThreeMonthData();
+    var ratio=Number(d.catRatios[key])||0;
+    if(ratio>0)return Math.round(monthBud*ratio/100)*100;
+  }
+  return 0;
+}
+function getCatBarBasis(catName,maxSpent){
+  var b=getCategoryBarBudget(catName);
+  if(b>0)return b;
   return Math.max(0,Number(maxSpent)||0);
 }
 function getCatBarTotalPct(spent,basis){
@@ -2821,7 +2831,25 @@ function getCatBarTotalPct(spent,basis){
   return Math.min(150,Math.round(spent/basis*100));
 }
 function getHomeCatBarPct(cat,spent,maxSpent){
-  return getCatBarTotalPct(spent,getCatBarBasis(cat,maxSpent));
+  var budget=getCategoryBarBudget(cat);
+  if(budget>0)return Math.min(150,Math.round((Number(spent)||0)/budget*100));
+  var ms=Math.max(0,Number(maxSpent)||0);
+  if(ms>0)return Math.min(100,Math.round((Number(spent)||0)/ms*100));
+  return 0;
+}
+function ensureCatBudgetsFromComfortZone(){
+  if(getCatBudgetsSum()>0)return;
+  var total=Number(budget)||0;
+  if(!total)return;
+  var d=czGetThreeMonthData();
+  if(!Object.keys(d.catRatios).length)return;
+  getCoreCatsOrdered().forEach(function(c){
+    var cat=normalizeCoreCatName(c.name);
+    var ratio=d.catRatios[cat]||0;
+    var amt=Math.round(total*ratio/100)*100;
+    if(amt>0)catBudgets[cat]=amt;
+  });
+  saveCatBudgets();
 }
 function buildCatBarTrackHtml(spent,basis,buffer,catMid){
   if(!(basis>0))return'';
@@ -3130,6 +3158,7 @@ function saveComfortZone(){
   saveBudget();
   renderBudgetSummary();
   closeComfortZoneModal();
+  renderHome();
 }
 function maybeAutoApplyComfortZone(){
   var mode=cycleConfig.comfortZoneMode;
@@ -3850,6 +3879,13 @@ function renderStat(){
 function chartTickFont(size){
   var fam=window.TIDE_CHART_FONT||"'Inter',-apple-system,BlinkMacSystemFont,sans-serif";
   return {family:fam,size:size};
+}
+function fmtK(n){
+  if(n>=1000){
+    const k=n/1000;
+    return '$'+(Number.isInteger(k)?k:k.toFixed(1))+'k';
+  }
+  return '$'+n;
 }
 function tideChartCanvasFont(weight,size){
   var fam=window.TIDE_CHART_CANVAS_FONT||'Inter,-apple-system,BlinkMacSystemFont,sans-serif';
@@ -4643,7 +4679,7 @@ function analysisMonthlyTrendValueLabelsPlugin(){
     meta.data.forEach(function(pt,i){
       var v=Number(ds0.data[i])||0;
       if(!(v>0))return;
-      ctx.fillText(Math.round(v).toLocaleString(),pt.x,pt.y-9);
+      ctx.fillText(fmtK(Math.round(v)),pt.x,pt.y-9);
     });
     ctx.restore();
   }};
@@ -4730,6 +4766,7 @@ async function initApp(){
   if(typeof window.rebuildTideCatMap==='function')window.rebuildTideCatMap();
   migrateMealShopCatColorsIfNeeded();
   maybeAutoApplyComfortZone();
+  ensureCatBudgetsFromComfortZone();
   syncAutoEventBuffer();
   renderHome();
   renderRec();

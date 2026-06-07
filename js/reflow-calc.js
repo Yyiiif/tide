@@ -342,11 +342,14 @@
 
   function catBarPercent(catName, spent, maxSpent) {
     const spentN = Number(spent) || 0;
-    const bdg = catBudgetAmount(catName);
+    const key = normalizeCat(catName);
+    const bdg =
+      typeof getCategoryBarBudget === 'function'
+        ? getCategoryBarBudget(key)
+        : catBudgetAmount(catName);
     if (bdg > 0) return Math.min(100, Math.round((spentN / bdg) * 100));
-    if (typeof getHomeCatBarPct === 'function' && typeof getCatBarBasis === 'function') {
-      return getHomeCatBarPct(normalizeCat(catName), spentN, Number(maxSpent) || 0);
-    }
+    const ms = Math.max(0, Number(maxSpent) || 0);
+    if (ms > 0) return Math.min(100, Math.round((spentN / ms) * 100));
     return spentN > 0 ? 8 : 0;
   }
 
