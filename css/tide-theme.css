@@ -2151,13 +2151,8 @@ body.tide-ui #ov-edit-expense.tide-edit-drop-overlay {
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
 }
-body.tide-ui #ov-edit-expense.tide-edit-drop-overlay.open .tide-edit-drop-panel {
-  transform: translateY(0);
-}
 body.tide-ui #ov-edit-expense .tide-edit-drop-panel {
   transform: translateY(100%);
-  will-change: transform;
-  transition: transform var(--tide-dur-fast, 0.32s) var(--tide-ease-spring, cubic-bezier(0.22, 1, 0.36, 1));
   border-radius: 22px 22px 0 0 !important;
   padding: 10px 22px calc(28px + env(safe-area-inset-bottom)) !important;
   max-height: 92vh !important;
@@ -2167,37 +2162,43 @@ body.tide-ui #ov-edit-expense .tide-edit-drop-panel {
   color: var(--tide-ink);
 }
 
-/* Unified bottom-sheet popup animation — same slide-up as edit drop sheet */
-body.tide-ui #ov-export-csv .modal,
-body.tide-ui #comfort-zone-overlay .modal,
-body.tide-ui #add-event-overlay .modal,
-body.tide-ui .cp-modal .cp-inner,
-body.tide-ui .cat-alert-panel {
-  transform: translateY(100%);
-  will-change: transform;
-  transition: transform var(--tide-dur-fast, 0.32s) var(--tide-ease-spring, cubic-bezier(0.22, 1, 0.36, 1));
+/* Unified bottom-sheet popup animation.
+   A backdrop's display:none->flex and its panel's transform both flip in the
+   same style recalc, so there's no rendered "from" frame for a CSS transition
+   to interpolate from — it would just jump to the end value. A @keyframes
+   animation has no such requirement, so every bottom sheet uses one here. */
+@keyframes tideSheetUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
 }
+body.tide-ui #ov-edit-expense.tide-edit-drop-overlay.open .tide-edit-drop-panel,
 body.tide-ui #ov-export-csv.modal-bg.open .modal,
 body.tide-ui #comfort-zone-overlay.modal-bg.open .modal,
 body.tide-ui #add-event-overlay.modal-bg.open .modal,
 body.tide-ui .cp-modal.open .cp-inner,
-body.tide-ui .cat-alert-sheet.open .cat-alert-panel {
-  transform: translateY(0);
-}
-body.tide-ui .import-sheet.open .import-sheet-panel {
-  animation: none;
-  transform: translateY(0);
-  transition: transform var(--tide-dur-fast, 0.32s) var(--tide-ease-spring, cubic-bezier(0.22, 1, 0.36, 1));
+body.tide-ui .cat-alert-sheet.open .cat-alert-panel,
+body.tide-ui .import-sheet.open .import-sheet-panel,
+body.tide-ui #ov-tag-edit.open .tag-edit-panel,
+body.tide-ui #ov-edit-event.open .event-edit-panel,
+body.tide-ui #ov-event-edit.open .event-edit-panel,
+body.tide-ui .cat-ov-bg.open #ov-cat-detail,
+body.tide-ui .cat-ov-bg.open #heatmap-day-panel {
+  animation: tideSheetUp var(--tide-dur-fast, 0.32s) var(--tide-ease-spring, cubic-bezier(0.22, 1, 0.36, 1)) both;
 }
 @media (prefers-reduced-motion: reduce) {
-  body.tide-ui #ov-edit-expense .tide-edit-drop-panel,
-  body.tide-ui #ov-export-csv .modal,
-  body.tide-ui #comfort-zone-overlay .modal,
-  body.tide-ui #add-event-overlay .modal,
-  body.tide-ui .cp-modal .cp-inner,
-  body.tide-ui .cat-alert-panel,
-  body.tide-ui .import-sheet-panel {
-    transition: none;
+  body.tide-ui #ov-edit-expense.tide-edit-drop-overlay.open .tide-edit-drop-panel,
+  body.tide-ui #ov-export-csv.modal-bg.open .modal,
+  body.tide-ui #comfort-zone-overlay.modal-bg.open .modal,
+  body.tide-ui #add-event-overlay.modal-bg.open .modal,
+  body.tide-ui .cp-modal.open .cp-inner,
+  body.tide-ui .cat-alert-sheet.open .cat-alert-panel,
+  body.tide-ui .import-sheet.open .import-sheet-panel,
+  body.tide-ui #ov-tag-edit.open .tag-edit-panel,
+  body.tide-ui #ov-edit-event.open .event-edit-panel,
+  body.tide-ui #ov-event-edit.open .event-edit-panel,
+  body.tide-ui .cat-ov-bg.open #ov-cat-detail,
+  body.tide-ui .cat-ov-bg.open #heatmap-day-panel {
+    animation: none;
   }
 }
 body.tide-ui .tide-sheet-handle-row {
