@@ -1494,6 +1494,7 @@ window.TideUI = (function () {
       BUDGET: '總預算',
       STREAMS: '類別管理',
       EVENTS: '事件',
+      MOODS: '心情標籤',
       ASSETS: 'Assets',
       COMFORT: 'Comfort Zone',
       DATA: '資料',
@@ -1508,6 +1509,130 @@ window.TideUI = (function () {
       (meta != null ? '<span class="tide-me-sec-meta">' + meta + '</span>' : '') +
       '</div>'
     );
+  }
+
+  const MOOD_EMOJI_CHOICES = ['😀', '😍', '😴', '😤', '🛍️', '🍔', '🎮', '✈️', '💪', '🎁'];
+
+  function renderMoodsSectionContent(sec) {
+    const defaults = typeof DEFAULT_MOOD_TAGS !== 'undefined' ? DEFAULT_MOOD_TAGS : [];
+    const list = (typeof moodTags !== 'undefined' && moodTags) || defaults;
+    const esc = typeof escapePhText === 'function' ? escapePhText : function (s) { return s; };
+    const escAttr = typeof escapePhAttr === 'function' ? escapePhAttr : function (s) { return s; };
+    const pills = list
+      .map(function (tag) {
+        const isDefault = defaults.indexOf(tag) !== -1;
+        const del = isDefault
+          ? ''
+          : '<span class="tide-me-mood-del" data-del-mood="' + escAttr(tag) + '" aria-label="Delete">×</span>';
+        return (
+          '<span class="tide-me-mood-pill' +
+          (isDefault ? ' tide-me-mood-pill--default' : '') +
+          '">' +
+          esc(tag) +
+          del +
+          '</span>'
+        );
+      })
+      .join('');
+    sec.innerHTML =
+      meSecHdr('MOODS') +
+      '<div class="tide-me-card tide-me-mood-card">' +
+      '<div class="tide-me-mood-pills">' +
+      pills +
+      '<button type="button" class="tide-me-mood-add-btn" id="tide-me-mood-add-btn">+ Add mood</button>' +
+      '</div>' +
+      '<div class="tide-me-mood-add-form" id="tide-me-mood-add-form" hidden></div>' +
+      '</div>';
+    bindMoodsSectionEvents(sec);
+  }
+
+  function toggleMoodAddForm(sec) {
+    const form = sec.querySelector('#tide-me-mood-add-form');
+    if (!form) return;
+    if (!form.hidden) {
+      form.hidden = true;
+      form.innerHTML = '';
+      return;
+    }
+    const emojiHtml = MOOD_EMOJI_CHOICES.map(function (em) {
+      return '<button type="button" class="tide-me-mood-emoji-btn" data-mood-emoji="' + em + '">' + em + '</button>';
+    }).join('');
+    form.innerHTML =
+      '<div class="tide-me-mood-emoji-row">' +
+      emojiHtml +
+      '</div>' +
+      '<div class="tide-me-mood-add-input-row">' +
+      '<input type="text" class="tide-me-mood-add-inp" maxlength="20" placeholder="e.g. Celebration">' +
+      '<button type="button" class="tide-me-mood-save-btn" id="tide-me-mood-save-btn">Add</button>' +
+      '<button type="button" class="tide-me-mood-cancel-btn" id="tide-me-mood-cancel-btn">Cancel</button>' +
+      '</div>';
+    form.hidden = false;
+    const inp = form.querySelector('.tide-me-mood-add-inp');
+    if (inp) {
+      inp.focus();
+      inp.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter') {
+          ev.preventDefault();
+          const btn = sec.querySelector('#tide-me-mood-save-btn');
+          if (btn) btn.click();
+        }
+      });
+    }
+  }
+
+  function bindMoodsSectionEvents(sec) {
+    if (sec.dataset.moodsBound === '1') return;
+    sec.dataset.moodsBound = '1';
+    sec.addEventListener('click', function (e) {
+      const delBtn = e.target.closest('[data-del-mood]');
+      if (delBtn) {
+        if (typeof deleteMoodTag === 'function') deleteMoodTag(delBtn.getAttribute('data-del-mood'));
+        return;
+      }
+      if (e.target.closest('#tide-me-mood-add-btn')) {
+        toggleMoodAddForm(sec);
+        return;
+      }
+      const emojiBtn = e.target.closest('[data-mood-emoji]');
+      if (emojiBtn) {
+        const input = sec.querySelector('.tide-me-mood-add-inp');
+        if (input) {
+          const rest = input.value.replace(/^\S+\s*/, '');
+          input.value = emojiBtn.getAttribute('data-mood-emoji') + ' ' + rest;
+          input.focus();
+        }
+        return;
+      }
+      if (e.target.closest('#tide-me-mood-save-btn')) {
+        const inp = sec.querySelector('.tide-me-mood-add-inp');
+        const val = inp ? inp.value : '';
+        if (typeof addMoodTag === 'function') {
+          addMoodTag(val).then(function (ok) {
+            if (ok) {
+              const form = sec.querySelector('#tide-me-mood-add-form');
+              if (form) {
+                form.hidden = true;
+                form.innerHTML = '';
+              }
+            }
+          });
+        }
+        return;
+      }
+      if (e.target.closest('#tide-me-mood-cancel-btn')) {
+        const form = sec.querySelector('#tide-me-mood-add-form');
+        if (form) {
+          form.hidden = true;
+          form.innerHTML = '';
+        }
+      }
+    });
+  }
+
+  function renderMoodsSection() {
+    const sec = document.getElementById('tide-me-moods-block') || document.getElementById('moods-section');
+    if (!sec) return;
+    renderMoodsSectionContent(sec);
   }
 
   function layoutMeHeader(pad) {
@@ -1603,6 +1728,9 @@ window.TideUI = (function () {
     const eventsSec = resolveMeBlock('tide-me-events-block', function () {
       return document.getElementById('event-buffer-section');
     });
+    const moodsSec = resolveMeBlock('tide-me-moods-block', function () {
+      return document.getElementById('moods-section');
+    });
     const comfortZoneSec = resolveMeBlock('tide-me-comfort-block', function () {
       return document.getElementById('comfort-zone-section');
     });
@@ -1622,6 +1750,7 @@ window.TideUI = (function () {
       document.getElementById('tide-me-eyebrow'),
       comfortZoneSec,
       eventsSec,
+      moodsSec,
       streamsSec,
       localeSec,
       guideSec,
@@ -1798,6 +1927,16 @@ window.TideUI = (function () {
         '</div>';
     }
 
+    if (moodsSec) {
+      moodsSec.className = 'tide-me-block';
+      if (typeof ensureMoodTagsLoaded === 'function') {
+        ensureMoodTagsLoaded().then(function () {
+          renderMoodsSectionContent(moodsSec);
+        });
+      }
+      renderMoodsSectionContent(moodsSec);
+    }
+
     if (localeSec) {
       localeSec.className = 'tide-me-block tide-me-locale-block';
       localeSec.innerHTML =
@@ -1889,5 +2028,6 @@ window.TideUI = (function () {
     tideifyEditDropSheet: tideifyEditDropSheet,
     tideifyEditDropChips: tideifyEditDropChips,
     styleMePage: styleMePage,
+    renderMoodsSection: renderMoodsSection,
   };
 })();

@@ -901,6 +901,9 @@ input[type=date]{display:block;overflow:hidden;text-overflow:ellipsis}
 input:focus,select:focus{border-color:var(--t2);background:var(--card)}
 .chip-row{display:flex;flex-wrap:wrap;gap:5px}
 .chip{padding:4px 10px;border-radius:4px;font-size:11px;cursor:pointer;border:0.5px solid var(--border);font-family:inherit;transition:background 0.15s}
+.mood-chip{background:transparent;border:0.5px solid #E9E9E7;transition:background 0.15s,border 0.15s}
+.mood-chip.on{border:1px solid #44474F;background:#F7F7F5}
+.li-mood{display:inline-block;margin-top:4px;font-size:10px;color:#9CA0A8;background:transparent;border:0.5px solid #E9E9E7;border-radius:4px;padding:1px 6px}
 .save-btn{width:100%;padding:10px;background:#37352F;color:#fff;border:0.5px solid #37352F;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;margin-top:8px;font-family:inherit;transition:opacity 0.15s;box-shadow:none!important}
 .save-btn:hover{opacity:0.88}
 .del-btn{width:100%;padding:10px;background:transparent;color:#C4554D;border:1px solid #C4554D55;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;margin-top:6px;font-family:inherit;transition:background 0.15s;box-shadow:none!important}
@@ -1379,6 +1382,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
         </div>
         <div style="font-size:11px;color:#9CA0A8;margin-top:4px">Automatically managed based on your active events</div>
       </div>
+      <div class="set-section" id="moods-section"></div>
       <div class="set-section">
         <div class="set-section-title">類別管理</div>
         <div id="cat-mgr-list"></div>
@@ -1508,6 +1512,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
       <div class="form-grp"><label class="form-lbl">日期</label><input type="date" id="f-date"></div>
     </div>
     <div class="form-grp"><label class="form-lbl">類別</label><div class="chip-row" id="chips"></div></div>
+    <div class="form-grp"><label class="form-lbl">Why this? <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label><div class="chip-row" id="why-tags"></div></div>
     <div class="form-grp"><label class="form-lbl">輸入方式</label>
       <input type="hidden" id="f-pay" value="手動輸入">
       <div class="chip-row pay-method-row" role="radiogroup" aria-label="輸入方式">
@@ -1843,7 +1848,8 @@ const REFLOW_SETTINGS_KEYS={
   balanceSnapshots:'balance_snapshots_v1',
   catBudgets:'cat_budgets_v1',
   catBuffers:'cat_buffers_v1',
-  cycleConfig:'cycle_config_v2'
+  cycleConfig:'cycle_config_v2',
+  spendingMoods:'spending_moods'
 };
 const ReflowDB=(function(){
   var _dbPromise=null;
@@ -2266,6 +2272,63 @@ function migrateProjectsFromLegacy(){
 migrateProjectsFromLegacy();
 syncAutoEventBuffer();
 let selCat=cats[0]?.id||'c1',editingId=null;
+const DEFAULT_MOOD_TAGS=['✨ Treat','🤝 Social','🏡 Necessity','🌍 Adventure','💭 Spontaneous'];
+let selMood=null,moodTags=null;
+async function ensureMoodTagsLoaded(){
+  if(moodTags)return moodTags;
+  let custom=[];
+  try{custom=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.spendingMoods,[]);}catch(_){custom=[];}
+  if(!Array.isArray(custom))custom=[];
+  moodTags=DEFAULT_MOOD_TAGS.concat(custom.filter(function(t){return typeof t==='string'&&t&&DEFAULT_MOOD_TAGS.indexOf(t)===-1;}));
+  return moodTags;
+}
+function getCustomMoodTags(){
+  var list=moodTags||DEFAULT_MOOD_TAGS;
+  return list.filter(function(t){return DEFAULT_MOOD_TAGS.indexOf(t)===-1;});
+}
+async function addMoodTag(tag){
+  tag=String(tag||'').trim().slice(0,20);
+  if(!tag)return false;
+  await ensureMoodTagsLoaded();
+  if(moodTags.indexOf(tag)!==-1)return false;
+  var custom=getCustomMoodTags();
+  custom.push(tag);
+  await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.spendingMoods,custom);
+  moodTags=DEFAULT_MOOD_TAGS.concat(custom);
+  refreshMoodTagUI();
+  return true;
+}
+async function deleteMoodTag(tag){
+  if(DEFAULT_MOOD_TAGS.indexOf(tag)!==-1)return false;
+  await ensureMoodTagsLoaded();
+  var custom=getCustomMoodTags().filter(function(t){return t!==tag;});
+  await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.spendingMoods,custom);
+  moodTags=DEFAULT_MOOD_TAGS.concat(custom);
+  if(selMood===tag)selMood=null;
+  refreshMoodTagUI();
+  return true;
+}
+function refreshMoodTagUI(){
+  renderWhyTags();
+  if(window.TideUI&&typeof window.TideUI.renderMoodsSection==='function')window.TideUI.renderMoodsSection();
+}
+function renderWhyTags(){
+  var container=document.getElementById('why-tags');
+  if(!container)return;
+  var list=moodTags||DEFAULT_MOOD_TAGS;
+  container.innerHTML=list.map(function(tag){
+    var isOn=tag===selMood;
+    return'<div class="chip mood-chip'+(isOn?' on':'')+'" data-mood="'+escapePhAttr(tag)+'">'+escapePhText(tag)+'</div>';
+  }).join('');
+  if(!container.dataset.delegateBound){
+    container.dataset.delegateBound='1';
+    container.addEventListener('click',function(e){
+      var chip=e.target.closest('[data-mood]');
+      if(chip)pickMood(chip.getAttribute('data-mood'));
+    });
+  }
+}
+function pickMood(tag){selMood=(selMood===tag)?null:tag;renderWhyTags();}
 let analysisTrendChart=null,analysisMonthlyTrendChart=null,analysisCumulativeChart=null,ovTodayChart=null,ovWeekChart=null,ovRdWeekChart=null,homeCatChart=null;
 let analysisTrendRange=6;
 let analysisCatTrendRange=6;
@@ -3672,7 +3735,8 @@ function recMonthlyListItemHTML(e){
   const dateLbl=recShortDateLbl(e.date,e);
   const payTag=`<span class="tag tag-rec-pay">${escapePhText(payMethodLabel(pay))}</span>`;
   const dateHtml=dateLbl?`<span class="rec-item-date">${escapePhText(dateLbl)}</span>`:'';
-  return`<div class="rec-item" ${expenseRowDataAttr(e.id)}><div class="li-dot" style="background:${c.bg}"></div><div class="li-info"><div class="li-name">${e.name||'—'}</div><div class="li-meta"><span class="tag" style="background:${c.bg};color:${c.text}">${escapePhText(cat)}</span>${payTag}${dateHtml}</div></div><div class="li-amt">${fmt(e.amt||0)}</div></div>`;
+  const moodHtml=e.mood?`<div class="li-mood">${escapePhText(e.mood)}</div>`:'';
+  return`<div class="rec-item" ${expenseRowDataAttr(e.id)}><div class="li-dot" style="background:${c.bg}"></div><div class="li-info"><div class="li-name">${e.name||'—'}</div><div class="li-meta"><span class="tag" style="background:${c.bg};color:${c.text}">${escapePhText(cat)}</span>${payTag}${dateHtml}</div>${moodHtml}</div><div class="li-amt">${fmt(e.amt||0)}</div></div>`;
 }
 function recItemHTML(e,isRecMonthlyList){
   if(isRecMonthlyList)return recMonthlyListItemHTML(e);
@@ -5528,9 +5592,9 @@ function initExpenseRowClickDelegation(){
   }
   document.addEventListener('click',activateRow,true);
 }
-function openModal(){editingId=null;setModalTitle('新增支出');document.getElementById('del-btn').style.display='none';document.getElementById('f-name').value='';document.getElementById('f-amt').value='';document.getElementById('f-date').value=viewDate;syncPayMethodPillsUi('手動輸入');if(!cats.find(c=>c.id===selCat))selCat=cats[0]?.id;renderChips();showEditExpenseOverlay();}
+async function openModal(){editingId=null;setModalTitle('新增支出');document.getElementById('del-btn').style.display='none';document.getElementById('f-name').value='';document.getElementById('f-amt').value='';document.getElementById('f-date').value=viewDate;syncPayMethodPillsUi('手動輸入');if(!cats.find(c=>c.id===selCat))selCat=cats[0]?.id;renderChips();selMood=null;await ensureMoodTagsLoaded();renderWhyTags();showEditExpenseOverlay();}
 function findExpenseById(id){return expenses.find(function(x){return String(x.id)===String(id);});}
-function openEdit(id){
+async function openEdit(id){
   var e=findExpenseById(id);
   if(!e)return;
   editingId=e.id;
@@ -5543,6 +5607,9 @@ function openEdit(id){
   const matchCat=cats.find(c=>c.name===e.cat);
   selCat=matchCat?matchCat.id:cats[0]?.id;
   renderChips();
+  selMood=e.mood||null;
+  await ensureMoodTagsLoaded();
+  renderWhyTags();
   showEditExpenseOverlay();
 }
 function pickCat(id){selCat=id;renderChips()}
@@ -5558,8 +5625,8 @@ async function saveExp(){
   let catName=cat?.name||'Other';
   const autoCat=autoTagCategoryForMerchant(name);
   if(autoCat)catName=autoCat;
-  if(editingId!=null){const e=findExpenseById(editingId);if(e){e.name=name;e.amt=amt;e.date=date;e.cat=catName;e.pay=pay;if(!e.createdAt)e.createdAt=new Date().toISOString();}}
-  else{expenses.push({id:Date.now(),name,amt,date,cat:catName,pay,createdAt:new Date().toISOString()})}
+  if(editingId!=null){const e=findExpenseById(editingId);if(e){e.name=name;e.amt=amt;e.date=date;e.cat=catName;e.pay=pay;e.mood=selMood||null;if(!e.createdAt)e.createdAt=new Date().toISOString();}}
+  else{expenses.push({id:Date.now(),name,amt,date,cat:catName,pay,mood:selMood||null,createdAt:new Date().toISOString()})}
   await saveExpenses();
   if(wasEdit){closeModal();await refreshCurrentScreen();return}
   const newEntry=expenses[expenses.length-1];

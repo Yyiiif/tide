@@ -1817,6 +1817,103 @@ body.tide-ui .tide-me-toggle-wrap input:checked + .tide-me-toggle::after {
 body.tide-ui #cb-unalloc {
   display: none !important;
 }
+body.tide-ui .tide-me-mood-card {
+  padding: 12px 14px;
+}
+body.tide-ui .tide-me-mood-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+body.tide-ui .tide-me-mood-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--tide-ink);
+  border: 0.5px solid #E9E9E7;
+  background: transparent;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+body.tide-ui .tide-me-mood-pill--default {
+  color: var(--tide-ash);
+}
+body.tide-ui .tide-me-mood-del {
+  cursor: pointer;
+  color: #9CA0A8;
+  font-size: 13px;
+  line-height: 1;
+  padding: 0 2px;
+}
+body.tide-ui .tide-me-mood-del:hover {
+  color: #44474F;
+}
+body.tide-ui .tide-me-mood-add-btn {
+  font-size: 12px;
+  color: var(--tide-water);
+  border: 0.5px dashed #E9E9E7;
+  background: transparent;
+  border-radius: 4px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-family: inherit;
+}
+body.tide-ui .tide-me-mood-add-form[hidden] {
+  display: none;
+}
+body.tide-ui .tide-me-mood-add-form {
+  margin-top: 10px;
+}
+body.tide-ui .tide-me-mood-emoji-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+body.tide-ui .tide-me-mood-emoji-btn {
+  font-size: 16px;
+  border: 0.5px solid #E9E9E7;
+  background: transparent;
+  border-radius: 4px;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+body.tide-ui .tide-me-mood-add-input-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+body.tide-ui .tide-me-mood-add-inp {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  padding: 6px 8px;
+  border: 0.5px solid #E9E9E7;
+  border-radius: 4px;
+  font-family: inherit;
+}
+body.tide-ui .tide-me-mood-save-btn {
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: none;
+  background: #44474F;
+  color: #fff;
+  cursor: pointer;
+  font-family: inherit;
+}
+body.tide-ui .tide-me-mood-cancel-btn {
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  border: 0.5px solid #E9E9E7;
+  background: transparent;
+  color: var(--tide-ash);
+  cursor: pointer;
+  font-family: inherit;
+}
 body.tide-ui .tide-me-data-block {
   padding: 0 22px 4px;
   margin-top: 14px;
