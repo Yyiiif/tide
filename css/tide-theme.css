@@ -29,6 +29,23 @@ body.tide-ui {
   --nav-off: var(--tide-ash);
   background: var(--tide-bg);
   color: var(--tide-ink);
+
+  /* Unified motion scale — all transitions/animations below reference these */
+  --tide-ease-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --tide-ease-standard: ease;
+  --tide-ease-out: ease-out;
+  --tide-ease-pulse: ease-in-out;
+  --tide-ease-linear: linear;
+
+  --tide-dur-instant: 0.2s;
+  --tide-dur-fast: 0.32s;
+  --tide-dur-base: 0.35s;
+  --tide-dur-slow: 0.75s;
+  --tide-dur-loop-fast: 1.4s;
+  --tide-dur-loop-base: 1.8s;
+  --tide-dur-ambient-a: 7s;
+  --tide-dur-ambient-b: 5.2s;
+  --tide-dur-ambient-c: 8.5s;
 }
 
 body.tide-ui .app,
@@ -314,15 +331,15 @@ body.tide-ui #s-home .tide-hero-card {
   pointer-events: none;
 }
 .tide-hero-wave-a {
-  animation: tideDriftA 7s linear infinite;
+  animation: tideDriftA var(--tide-dur-ambient-a, 7s) var(--tide-ease-linear, linear) infinite;
   will-change: transform;
 }
 .tide-hero-wave-b {
-  animation: tideDriftB 5.2s linear infinite;
+  animation: tideDriftB var(--tide-dur-ambient-b, 5.2s) var(--tide-ease-linear, linear) infinite;
   will-change: transform;
 }
 .tide-hero-wave-c {
-  animation: tideDriftA 8.5s linear infinite;
+  animation: tideDriftA var(--tide-dur-ambient-c, 8.5s) var(--tide-ease-linear, linear) infinite;
   will-change: transform;
 }
 body.tide-ui .tide-hero-tank-svg .tide-hero-wave-a,
@@ -481,7 +498,7 @@ body.tide-ui .tide-stream-bar-fill {
   height: 100%;
   border-radius: 2px;
   min-width: 0;
-  transition: width 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: width var(--tide-dur-slow, 0.75s) var(--tide-ease-spring, cubic-bezier(0.22, 1, 0.36, 1));
   will-change: width;
 }
 
@@ -543,9 +560,9 @@ body.tide-ui .fab-sub.fab-main i {
 /* ── Pulse (stat) — matches prototype DirectionTidePulse ── */
 body.tide-ui #s-stat {
   --flow-motion-duration: 0.9s;
-  --flow-motion-ease: cubic-bezier(0.22, 1, 0.42, 1);
+  --flow-motion-ease: var(--tide-ease-spring, cubic-bezier(0.22, 1, 0.36, 1));
   --reflow-duration: 0.9s;
-  --reflow-bezier: cubic-bezier(0.22, 1, 0.42, 1);
+  --reflow-bezier: var(--tide-ease-spring, cubic-bezier(0.22, 1, 0.36, 1));
 }
 body.tide-ui #s-stat .scr-pad {
   padding-top: 0;
@@ -865,23 +882,23 @@ body.tide-ui #s-stat #analysis-cat-legend.tide-stream-legend--enter {
 }
 body.tide-ui #s-stat #analysis-cat-bar.tide-stream-chart--exit {
   opacity: 0;
-  transition: opacity calc(var(--flow-motion-duration, 0.9s) * 0.5) ease-out;
+  transition: opacity calc(var(--flow-motion-duration, 0.9s) * 0.5) var(--tide-ease-out, ease-out);
 }
 body.tide-ui #s-stat #analysis-cat-bar.tide-stream-chart--ready {
   opacity: 1;
-  transition: opacity var(--flow-motion-duration, 0.9s) var(--flow-motion-ease, cubic-bezier(0.22, 1, 0.42, 1));
+  transition: opacity var(--flow-motion-duration, 0.9s) var(--flow-motion-ease, var(--tide-ease-spring, cubic-bezier(0.22, 1, 0.36, 1)));
 }
 body.tide-ui #s-stat #analysis-cat-legend.tide-stream-legend--exit {
   opacity: 0;
-  transition: opacity calc(var(--flow-motion-duration, 0.9s) * 0.4) ease-out;
+  transition: opacity calc(var(--flow-motion-duration, 0.9s) * 0.4) var(--tide-ease-out, ease-out);
 }
 body.tide-ui #s-stat #analysis-cat-legend.tide-stream-legend--ready {
   opacity: 1;
-  transition: opacity var(--flow-motion-duration, 0.9s) var(--flow-motion-ease, cubic-bezier(0.22, 1, 0.42, 1));
+  transition: opacity var(--flow-motion-duration, 0.9s) var(--flow-motion-ease, var(--tide-ease-spring, cubic-bezier(0.22, 1, 0.36, 1)));
   transition-delay: 200ms;
 }
 body.tide-ui #s-stat #cumulative-popup {
-  animation: tideFlowPopupIn calc(var(--flow-motion-duration, 0.9s) * 0.38) var(--flow-motion-ease, cubic-bezier(0.22, 1, 0.42, 1));
+  animation: tideFlowPopupIn calc(var(--flow-motion-duration, 0.9s) * 0.38) var(--flow-motion-ease, var(--tide-ease-spring, cubic-bezier(0.22, 1, 0.36, 1)));
 }
 @keyframes tideFlowPopupIn {
   from {
@@ -902,6 +919,13 @@ body.tide-ui #s-stat #cumulative-popup {
     opacity: 1;
   }
   body.tide-ui #s-stat #cumulative-popup {
+    animation: none;
+  }
+  body.tide-ui .tide-hero-wave-a,
+  body.tide-ui .tide-hero-wave-b,
+  body.tide-ui .tide-hero-wave-c,
+  body.tide-ui .tide-scan-line,
+  body.tide-ui .tide-import-dots span {
     animation: none;
   }
 }
@@ -1193,7 +1217,7 @@ body.tide-ui .tide-drops-range {
   border-radius: 6px 6px 2px 2px;
   background: linear-gradient(180deg, var(--tide-wave-lite), var(--tide-wave-deep));
   min-height: 12px;
-  transition: height 0.35s ease;
+  transition: height var(--tide-dur-base, 0.35s) var(--tide-ease-standard, ease);
 }
 .tide-range-lbl {
   font-size: 9px;
@@ -1628,7 +1652,7 @@ body.tide-ui .tide-me-cat-item.is-dragging {
 body.tide-ui .tide-me-stream-chev {
   flex-shrink: 0;
   color: var(--tide-ash);
-  transition: transform 0.2s ease;
+  transition: transform var(--tide-dur-instant, 0.2s) var(--tide-ease-standard, ease);
 }
 body.tide-ui .tide-me-cat-item--open .tide-me-row--stream {
   border-bottom: none;
@@ -1770,7 +1794,7 @@ body.tide-ui .tide-me-toggle {
   border-radius: 11px;
   background: var(--tide-hair);
   position: relative;
-  transition: background 0.2s ease;
+  transition: background var(--tide-dur-instant, 0.2s) var(--tide-ease-standard, ease);
 }
 body.tide-ui .tide-me-toggle::after {
   content: '';
@@ -1782,7 +1806,7 @@ body.tide-ui .tide-me-toggle::after {
   border-radius: 9px;
   background: #fff;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
-  transition: left 0.2s ease;
+  transition: left var(--tide-dur-instant, 0.2s) var(--tide-ease-standard, ease);
 }
 body.tide-ui .tide-me-toggle-wrap input:checked + .tide-me-toggle {
   background: var(--tide-water);
@@ -2011,7 +2035,7 @@ body.tide-ui .tide-scan-line {
   stroke-width: 0.5;
   stroke-dasharray: 3 3;
   opacity: 0.45;
-  animation: tideScanLine 1.8s ease-in-out infinite alternate;
+  animation: tideScanLine var(--tide-dur-loop-base, 1.8s) var(--tide-ease-pulse, ease-in-out) infinite alternate;
 }
 @keyframes tideScanLine {
   from {
@@ -2053,7 +2077,7 @@ body.tide-ui .tide-import-dots span {
   border-radius: 3px;
   background: var(--tide-water);
   opacity: 0.35;
-  animation: tideDotPulse 1.4s ease-in-out infinite;
+  animation: tideDotPulse var(--tide-dur-loop-fast, 1.4s) var(--tide-ease-pulse, ease-in-out) infinite;
 }
 body.tide-ui .tide-import-dots span:nth-child(2) {
   animation-delay: 0.2s;
@@ -2128,19 +2152,12 @@ body.tide-ui #ov-edit-expense.tide-edit-drop-overlay {
   -webkit-backdrop-filter: blur(2px);
 }
 body.tide-ui #ov-edit-expense.tide-edit-drop-overlay.open .tide-edit-drop-panel {
-  animation: tideSheetUp 0.32s cubic-bezier(0.22, 1, 0.36, 1);
-}
-@keyframes tideSheetUp {
-  from {
-    transform: translateY(110%);
-    opacity: 0.6;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  transform: translateY(0);
 }
 body.tide-ui #ov-edit-expense .tide-edit-drop-panel {
+  transform: translateY(100%);
+  will-change: transform;
+  transition: transform var(--tide-dur-fast, 0.32s) var(--tide-ease-spring, cubic-bezier(0.22, 1, 0.36, 1));
   border-radius: 22px 22px 0 0 !important;
   padding: 10px 22px calc(28px + env(safe-area-inset-bottom)) !important;
   max-height: 92vh !important;
@@ -2148,6 +2165,40 @@ body.tide-ui #ov-edit-expense .tide-edit-drop-panel {
   box-shadow: 0 -8px 28px -10px rgba(14, 15, 18, 0.25) !important;
   border: none !important;
   color: var(--tide-ink);
+}
+
+/* Unified bottom-sheet popup animation — same slide-up as edit drop sheet */
+body.tide-ui #ov-export-csv .modal,
+body.tide-ui #comfort-zone-overlay .modal,
+body.tide-ui #add-event-overlay .modal,
+body.tide-ui .cp-modal .cp-inner,
+body.tide-ui .cat-alert-panel {
+  transform: translateY(100%);
+  will-change: transform;
+  transition: transform var(--tide-dur-fast, 0.32s) var(--tide-ease-spring, cubic-bezier(0.22, 1, 0.36, 1));
+}
+body.tide-ui #ov-export-csv.modal-bg.open .modal,
+body.tide-ui #comfort-zone-overlay.modal-bg.open .modal,
+body.tide-ui #add-event-overlay.modal-bg.open .modal,
+body.tide-ui .cp-modal.open .cp-inner,
+body.tide-ui .cat-alert-sheet.open .cat-alert-panel {
+  transform: translateY(0);
+}
+body.tide-ui .import-sheet.open .import-sheet-panel {
+  animation: none;
+  transform: translateY(0);
+  transition: transform var(--tide-dur-fast, 0.32s) var(--tide-ease-spring, cubic-bezier(0.22, 1, 0.36, 1));
+}
+@media (prefers-reduced-motion: reduce) {
+  body.tide-ui #ov-edit-expense .tide-edit-drop-panel,
+  body.tide-ui #ov-export-csv .modal,
+  body.tide-ui #comfort-zone-overlay .modal,
+  body.tide-ui #add-event-overlay .modal,
+  body.tide-ui .cp-modal .cp-inner,
+  body.tide-ui .cat-alert-panel,
+  body.tide-ui .import-sheet-panel {
+    transition: none;
+  }
 }
 body.tide-ui .tide-sheet-handle-row {
   display: flex;
