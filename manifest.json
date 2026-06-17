@@ -1,6 +1,6 @@
 {
-  "name": "Reflow v.2",
-  "short_name": "Reflow v.2",
+  "name": "Reflow",
+  "short_name": "Reflow",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#FFFFFF",

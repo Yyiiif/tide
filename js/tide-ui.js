@@ -1981,7 +1981,7 @@ window.TideUI = (function () {
       meFooter = document.createElement('div');
       meFooter.className = 'tide-me-footer';
       meFooter.innerHTML =
-        '<span>Version 1.0</span>' +
+        '<span>Reflow · Version 1.0</span>' +
         '<a href="#" onclick="event.preventDefault();window.location.href=\'mailto:emma1127fan@gmail.com\'" style="color:inherit;text-decoration:none">Report an issue →</a>';
       pad.appendChild(meFooter);
     }

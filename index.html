@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Reflow">
-<meta name="application-name" content="Reflow v.2">
+<meta name="application-name" content="Reflow">
 <meta name="theme-color" content="#37352F">
 
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -121,7 +121,7 @@ input,select,textarea,button,.tag,.tag-chip{font-family:inherit;}
 .rec-hdr-actions{display:flex;align-items:center;gap:8px}
 .simple-hdr .page-title{font-size:17px;font-weight:500;color:var(--t1);letter-spacing:-0.2px}
 /* Cloned from 個人 .simple-hdr — Home/Details only; #s-set unchanged */
-#s-home .simple-hdr,#s-rec .simple-hdr{background:var(--bg);padding:14px 16px 16px;border-bottom:0.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+#s-home .simple-hdr,#s-rec .simple-hdr{background:var(--bg);padding:calc(14px + env(safe-area-inset-top,0px)) 16px 16px;border-bottom:0.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
 #s-home .simple-hdr .page-title,#s-rec .simple-hdr .page-title{font-size:17px;font-weight:500;color:var(--t1);letter-spacing:-0.2px;font-family:inherit;line-height:inherit;margin:0;padding:0;border:0}
 #s-rec .details-header-title-row{display:flex!important;justify-content:space-between!important;align-items:center!important;width:100%!important;box-sizing:border-box}
 #s-rec .details-header-title-row .page-title{display:flex;align-items:center;margin-top:0!important;margin-bottom:0!important}
@@ -137,7 +137,7 @@ input,select,textarea,button,.tag,.tag-chip{font-family:inherit;}
 #s-set .export-csv-btn:disabled{opacity:0.45;cursor:default}
 #s-stat .details-header-title-row #stat-cal-open{margin-top:0!important;margin-bottom:0!important;top:auto!important;position:relative!important;align-self:center!important;flex-shrink:0;transform:translateY(5px)}
 #s-stat .details-header-title-row #stat-cal-open svg{width:18px;height:18px;display:block;flex-shrink:0}
-#s-stat .simple-hdr{background:var(--bg);padding:14px 16px 16px;border-bottom:0.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+#s-stat .simple-hdr{background:var(--bg);padding:calc(14px + env(safe-area-inset-top,0px)) 16px 16px;border-bottom:0.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
 #s-stat .simple-hdr .page-title{font-size:17px;font-weight:500;color:var(--t1);letter-spacing:-0.2px;font-family:inherit;line-height:inherit;margin:0;padding:0;border:0}
 #s-stat .scr-pad{padding:8px 16px 14px}
 /* Details + Analysis month nav — pixel clone of Homepage .home-header-* ; #s-home untouched */
@@ -901,11 +901,8 @@ input[type=date]{display:block;overflow:hidden;text-overflow:ellipsis}
 input:focus,select:focus{border-color:var(--t2);background:var(--card)}
 .chip-row{display:flex;flex-wrap:wrap;gap:5px}
 .chip{padding:4px 10px;border-radius:4px;font-size:11px;cursor:pointer;border:0.5px solid var(--border);font-family:inherit;transition:background 0.15s}
-.mood-chip{background:transparent;border:0.5px solid #E9E9E7;transition:background 0.15s,border 0.15s}
-.mood-chip.on{border:1px solid #44474F;background:#F7F7F5}
-.li-mood{display:inline-block;margin-top:4px;font-size:10px;color:#9CA0A8;background:transparent;border:0.5px solid #E9E9E7;border-radius:4px;padding:1px 6px}
 .save-btn{width:100%;padding:10px;background:#37352F;color:#fff;border:0.5px solid #37352F;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;margin-top:8px;font-family:inherit;transition:opacity 0.15s;box-shadow:none!important}
-.save-btn:hover{opacity:0.88}
+.save-btn:hover{opacity:0.88}.save-btn:active{opacity:0.75;transform:scale(0.98)}
 .del-btn{width:100%;padding:10px;background:transparent;color:#C4554D;border:1px solid #C4554D55;border-radius:6px;font-size:13px;font-weight:500;cursor:pointer;margin-top:6px;font-family:inherit;transition:background 0.15s;box-shadow:none!important}
 .del-btn:hover{background:#FAECEC}
 .cp-modal{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.3);align-items:flex-end;z-index:210}
@@ -1210,7 +1207,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
 <div class="app">
 <div class="content">
   <div class="scr active" id="s-home">
-    <div class="simple-hdr"><span class="page-title">Tide</span><button type="button" class="mn-btn" id="amt-toggle-home-btn" onclick="toggleGlobalAmt()" aria-label="Toggle amounts"><i class="ti ti-eye" id="amt-toggle-home-icon"></i></button></div>
+    <div class="simple-hdr"><span class="page-title">Reflow</span><button type="button" class="mn-btn" id="amt-toggle-home-btn" onclick="toggleGlobalAmt()" aria-label="Toggle amounts"><i class="ti ti-eye" id="amt-toggle-home-icon"></i></button></div>
     <div class="home-summary">
       <div class="page-month-nav sticky-month-navigator homepage-sticky-navigator">
         <div class="home-header-month-row">
@@ -1382,7 +1379,6 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
         </div>
         <div style="font-size:11px;color:#9CA0A8;margin-top:4px">Automatically managed based on your active events</div>
       </div>
-      <div class="set-section" id="moods-section"></div>
       <div class="set-section">
         <div class="set-section-title">類別管理</div>
         <div id="cat-mgr-list"></div>
@@ -1512,7 +1508,6 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
       <div class="form-grp"><label class="form-lbl">日期</label><input type="date" id="f-date"></div>
     </div>
     <div class="form-grp"><label class="form-lbl">類別</label><div class="chip-row" id="chips"></div></div>
-    <div class="form-grp"><label class="form-lbl">Why this? <span style="font-weight:400;text-transform:none;letter-spacing:0">(optional)</span></label><div class="chip-row" id="why-tags"></div></div>
     <div class="form-grp"><label class="form-lbl">輸入方式</label>
       <input type="hidden" id="f-pay" value="手動輸入">
       <div class="chip-row pay-method-row" role="radiogroup" aria-label="輸入方式">
@@ -1838,35 +1833,76 @@ category must be exactly one of: Food, Shopping, Transit, Entertain, Health, Oth
 
 輸出格式：
 [{"date":"YYYY-MM-DD","name":"商戶","amount":數字,"category":"類別","isPotentialTransfer":布林}]`;
+// 這個 App 早期是用瀏覽器的 localStorage 存資料，現在改用 IndexedDB（功能更強的瀏覽器內建資料庫）。
+// hadCatsV2Stored 用來記錄「使用者以前是不是已經有用 localStorage 存過分類資料（cats_v2）」，
+// 之後在判斷要不要套用「Meal/Shop 顏色互換」這類一次性修正時會用到（避免對全新使用者誤套用舊資料的修正）。
 var hadCatsV2Stored=!!localStorage.getItem('cats_v2');
+
+// ===== IndexedDB 基本設定 =====
+// REFLOW_DB_NAME：IndexedDB 資料庫的名字，瀏覽器會用這個名字在本機建立一個獨立的資料庫。
 const REFLOW_DB_NAME='reflow_SaaS_mvp_v2';
+// REFLOW_DB_VERSION：資料庫的「版本號」。如果以後要改資料庫結構（例如新增資料表），
+// 就要把這個數字加 1，瀏覽器才會觸發下面 ReflowDB.open() 裡的 onupgradeneeded，去做結構升級。
 const REFLOW_DB_VERSION=1;
+// REFLOW_SETTINGS_KEYS：把所有「設定類」資料的鍵名（key）集中放在這裡管理，
+// 之後存取設定（例如預算、分類預算、循環設定…）時都用這份對照表，而不是到處手打字串，
+// 這樣以後要改鍵名只要改這一處，不會漏改。
 const REFLOW_SETTINGS_KEYS={
-  cats:'cats_v2',
-  specialEvents:'special_events_v1',
-  budget:'budget_v2',
-  balanceSnapshots:'balance_snapshots_v1',
-  catBudgets:'cat_budgets_v1',
-  catBuffers:'cat_buffers_v1',
-  cycleConfig:'cycle_config_v2',
-  spendingMoods:'spending_moods'
+  cats:'cats_v2', // 分類清單（例如：Food、Transit…）
+  specialEvents:'special_events_v1', // 特殊事件／專案列表
+  budget:'budget_v2', // 每月總預算
+  balanceSnapshots:'balance_snapshots_v1', // 餘額快照紀錄
+  catBudgets:'cat_budgets_v1', // 每個分類各自的預算
+  catBuffers:'cat_buffers_v1', // 每個分類各自的緩衝金額
+  cycleConfig:'cycle_config_v2' // 記帳週期、Comfort Zone 模式等設定
 };
+/**
+ * ReflowDB：整個 App 跟 IndexedDB 溝通的「總開關」。
+ * 用一個立刻執行的函數（IIFE）把所有跟資料庫有關的細節包起來，
+ * 外部只看到 open / getAllExpenses / replaceExpenses / getSetting / setSetting / hasAnyData 這幾個方法，
+ * 不需要知道 IndexedDB 內部複雜的 transaction、cursor 等概念，這樣比較不容易用錯。
+ * 資料庫裡面有兩個「資料表」（IndexedDB 稱為 object store）：
+ *   - expenses：每一筆花費紀錄
+ *   - settings：所有「設定類」資料（用 key/value 的方式存，key 就是 REFLOW_SETTINGS_KEYS 裡的值）
+ */
 const ReflowDB=(function(){
+  // _dbPromise：快取「資料庫連線」這件事本身（一個 Promise）。
+  // 因為開啟資料庫是非同步、且只需要做一次，所以用這個變數記住結果，
+  // 之後再呼叫 open() 時可以直接重複使用，不用重新開一次連線。
   var _dbPromise=null;
+
+  /**
+   * 開啟（或建立）IndexedDB 資料庫連線。
+   * 什麼時候被呼叫：幾乎每一個讀寫資料庫的方法（getAllExpenses、setSetting…）內部都會先呼叫這個函數，
+   *               確保資料庫已經準備好。第一次呼叫時才會真的去開資料庫，之後都直接回傳快取的結果。
+   * 參數：無
+   * 回傳：一個 Promise，resolve 時會給你「資料庫物件（db）」，可以用它來開交易（transaction）。
+   */
   function open(){
-    if(_dbPromise)return _dbPromise;
+    if(_dbPromise)return _dbPromise; // 已經開過了，直接重複使用同一個連線，不用再開一次
     _dbPromise=new Promise(function(resolve,reject){
       var req=indexedDB.open(REFLOW_DB_NAME,REFLOW_DB_VERSION);
+      // onupgradeneeded：只有「第一次建立資料庫」或「REFLOW_DB_VERSION 數字變大」時才會觸發，
+      // 這裡負責建立 expenses、settings 這兩個資料表（如果還不存在的話）。
       req.onupgradeneeded=function(ev){
         var db=ev.target.result;
+        // keyPath:'id' 表示每一筆花費紀錄都要有一個 id 欄位，IndexedDB 會拿它當主鍵
         if(!db.objectStoreNames.contains('expenses'))db.createObjectStore('expenses',{keyPath:'id'});
+        // keyPath:'key' 表示每一筆設定資料都要有一個 key 欄位（例如 'budget_v2'），拿它當主鍵
         if(!db.objectStoreNames.contains('settings'))db.createObjectStore('settings',{keyPath:'key'});
       };
-      req.onsuccess=function(){resolve(req.result)};
-      req.onerror=function(){reject(req.error||new Error('IndexedDB open failed'))};
+      req.onsuccess=function(){resolve(req.result)}; // 開啟成功，把資料庫物件交出去
+      req.onerror=function(){reject(req.error||new Error('IndexedDB open failed'))}; // 開啟失敗，把錯誤丟出去
     });
     return _dbPromise;
   }
+
+  /**
+   * 把「交易（transaction）完成」這件事包成 Promise，方便用 await 寫法。
+   * 什麼時候被呼叫：每次要「寫入」資料庫（新增/修改/刪除）之後，都要等交易真的完成才能確定資料寫好了。
+   * 參數 tx：IndexedDB 的交易物件。
+   * 回傳：一個 Promise，交易成功完成時 resolve，失敗或被中止時 reject。
+   */
   async function txDone(tx){
     return new Promise(function(resolve,reject){
       tx.oncomplete=function(){resolve();};
@@ -1874,41 +1910,84 @@ const ReflowDB=(function(){
       tx.onabort=function(){reject(tx.error||new Error('IndexedDB transaction aborted'))};
     });
   }
+
+  /**
+   * 讀出資料庫裡「全部」的花費紀錄。
+   * 什麼時候被呼叫：App 開機載入資料時（loadAppStateFromIndexedDB），或任何需要重新確認資料庫實際內容的地方。
+   * 參數：無
+   * 回傳：一個 Promise，resolve 出一個陣列（每個元素是一筆花費紀錄物件）；如果資料庫是空的就回傳空陣列。
+   */
   async function getAllExpenses(){
     var db=await open();
     return new Promise(function(resolve,reject){
-      var tx=db.transaction('expenses','readonly');
+      var tx=db.transaction('expenses','readonly'); // 'readonly'：只是要讀資料，不會修改，效能較好
       var req=tx.objectStore('expenses').getAll();
       req.onsuccess=function(){resolve(Array.isArray(req.result)?req.result:[])};
       req.onerror=function(){reject(req.error||new Error('Read expenses failed'))};
     });
   }
+
+  /**
+   * 用一份新的花費紀錄陣列，「整批覆蓋」資料庫裡原本的所有花費紀錄。
+   * 什麼時候被呼叫：每次新增、編輯、刪除任何一筆花費之後（saveExpenses 函數會呼叫它），
+   *               把記憶體裡最新的 expenses 陣列整份寫回資料庫，確保畫面跟資料庫保持一致。
+   * 參數 rows：要寫入的花費紀錄陣列（每筆都要有 id）。
+   * 回傳：一個 Promise，資料寫完（交易完成）後 resolve，沒有回傳值。
+   */
   async function replaceExpenses(rows){
     var db=await open();
-    var tx=db.transaction('expenses','readwrite');
+    var tx=db.transaction('expenses','readwrite'); // 'readwrite'：這次要修改資料，所以用讀寫模式
     var store=tx.objectStore('expenses');
-    store.clear();
+    store.clear(); // 先把資料表清空，避免殘留已經被刪除的舊紀錄
+    // 再把傳進來的每一筆資料重新放回去；用 id!=null 過濾掉缺少 id 的異常資料，避免寫入壞資料
     (rows||[]).forEach(function(row){if(row&&row.id!=null)store.put(row);});
-    await txDone(tx);
+    await txDone(tx); // 等交易真正完成，才算這次「整批覆蓋」結束
   }
+
+  /**
+   * 依照 key 讀取一筆「設定」資料（例如預算、分類清單…）。
+   * 什麼時候被呼叫：App 開機載入設定時，或任何地方想知道某個設定目前的值。
+   * 參數 key：要讀的設定名稱（通常用 REFLOW_SETTINGS_KEYS 裡的值）。
+   * 參數 fallback：如果資料庫裡還沒有存過這個 key，要回傳的預設值。
+   * 回傳：一個 Promise，resolve 出「存在資料庫裡的值」，或是找不到時的 fallback。
+   */
   async function getSetting(key,fallback){
     var db=await open();
     return new Promise(function(resolve,reject){
       var tx=db.transaction('settings','readonly');
       var req=tx.objectStore('settings').get(key);
       req.onsuccess=function(){
+        // 要先確認真的有存過「value」這個屬性，不然萬一資料庫裡只有空物件，
+        // 直接讀 req.result.value 可能會誤判成「值是 undefined」而不是「真的沒存過」
         if(req.result&&Object.prototype.hasOwnProperty.call(req.result,'value'))resolve(req.result.value);
         else resolve(fallback);
       };
       req.onerror=function(){reject(req.error||new Error('Read setting failed'))};
     });
   }
+
+  /**
+   * 把一筆「設定」資料寫入（或覆蓋）資料庫。
+   * 什麼時候被呼叫：使用者修改任何設定的時候（例如改預算、改分類預算、新增消費心情標籤…）。
+   * 參數 key：設定名稱。
+   * 參數 value：要存的值（可以是數字、字串、物件、陣列，IndexedDB 都能直接存）。
+   * 回傳：一個 Promise，寫入完成後 resolve，沒有回傳值。
+   */
   async function setSetting(key,value){
     var db=await open();
     var tx=db.transaction('settings','readwrite');
+    // put 會「新增或覆蓋」：如果這個 key 原本就存在，就會直接蓋掉舊值
     tx.objectStore('settings').put({key:key,value:value});
     await txDone(tx);
   }
+
+  /**
+   * 檢查資料庫裡「到底有沒有存過任何資料」（花費紀錄或設定，只要有一筆就算有）。
+   * 什麼時候被呼叫：App 第一次開機時（ensureInitialIndexedDBSeed），用來判斷「這是全新使用者」還是「已經有資料的使用者」，
+   *               如果是全新使用者才會塞入預設的範例資料。
+   * 參數：無
+   * 回傳：一個 Promise，resolve 出 true（資料庫裡至少有一筆資料）或 false（資料庫是全空的）。
+   */
   async function hasAnyData(){
     var db=await open();
     var tx=db.transaction(['expenses','settings'],'readonly');
@@ -1918,76 +1997,136 @@ const ReflowDB=(function(){
     var stCount=await new Promise(function(resolve,reject){stReq.onsuccess=function(){resolve(Number(stReq.result)||0)};stReq.onerror=function(){reject(stReq.error||new Error('Count settings failed'))};});
     return exCount>0||stCount>0;
   }
+  // 把對外公開的方法整理成一個物件回傳，外部就用 ReflowDB.getSetting(...)、ReflowDB.setSetting(...) 這樣呼叫
   return{open:open,getAllExpenses:getAllExpenses,replaceExpenses:replaceExpenses,getSetting:getSetting,setSetting:setSetting,hasAnyData:hasAnyData};
 })();
+/**
+ * 把使用者「以前」存在 localStorage 裡的舊資料，搬到現在的 IndexedDB 裡（只會搬一次）。
+ * 什麼時候被呼叫：每次 App 啟動時（在 initializeReflowData 裡），都會先呼叫這個函數檢查一次，
+ *               確保即使是從舊版本升級上來的使用者，資料也不會不見。
+ * 參數：無
+ * 回傳：一個 Promise，resolve 出 true（代表這次真的搬了資料）或 false（代表本來就沒有舊資料要搬，沒事可做）。
+ */
 async function migrateLocalStorageToIndexedDB(){
+  // 下面這三段的寫法都一樣：先讀 localStorage 裡的舊設定字串、try/catch 解析 JSON、
+  // 確認解析出來的型態正確（是物件而不是陣列）才寫進 IndexedDB，最後把舊的 localStorage 資料刪掉，
+  // 避免重複搬移、也避免舊資料一直佔用空間。
+
+  // 搬「分類預算」設定
   var rawCatBudgets=localStorage.getItem('cat_budgets_v1');
   if(rawCatBudgets!=null){
     try{var parsedCB=JSON.parse(rawCatBudgets);if(parsedCB&&typeof parsedCB==='object'&&!Array.isArray(parsedCB))await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.catBudgets,parsedCB);}catch(_){}
     localStorage.removeItem('cat_budgets_v1');
   }
+  // 搬「分類緩衝金額」設定
   var rawCatBuffers=localStorage.getItem('catBuffers');
   if(rawCatBuffers!=null){
     try{var parsedCBuf=JSON.parse(rawCatBuffers);if(parsedCBuf&&typeof parsedCBuf==='object'&&!Array.isArray(parsedCBuf))await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.catBuffers,parsedCBuf);}catch(_){}
     localStorage.removeItem('catBuffers');
   }
+  // 搬「記帳週期 / Comfort Zone」設定
   var rawCycleConf=localStorage.getItem('cycle_config_v1');
   if(rawCycleConf!=null){
     try{var parsedCC=JSON.parse(rawCycleConf);if(parsedCC&&typeof parsedCC==='object')await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.cycleConfig,parsedCC);}catch(_){}
     localStorage.removeItem('cycle_config_v1');
   }
+
+  // 接下來處理「更舊版本」留下的資料（花費紀錄、分類清單、特殊事件、總預算）。
+  // 先檢查這四個 key 裡，只要有任何一個還存在 localStorage，就代表這個使用者是從很舊的版本升級上來的。
   var legacyKeys=['expenses','cats_v2','special_events_v1','budget_v2'];
   var hasLegacy=legacyKeys.some(function(k){return localStorage.getItem(k)!=null;});
-  if(!hasLegacy)return false;
+  if(!hasLegacy)return false; // 完全沒有舊資料，不用做任何事，直接結束
+
+  // 搬「花費紀錄」：要特別小心，如果 JSON 壞掉或格式不是陣列，就用空陣列代替，避免整個 App 因此壞掉
   var migratedExpenses=[];
   try{migratedExpenses=JSON.parse(localStorage.getItem('expenses')||'[]')||[];}catch(_){migratedExpenses=[]}
   if(!Array.isArray(migratedExpenses))migratedExpenses=[];
   await ReflowDB.replaceExpenses(migratedExpenses);
+
+  // 搬「分類清單」：如果解析失敗，就退回去用系統內建的預設分類（DEFAULT_CATS）
   var rawCats=localStorage.getItem('cats_v2');
   if(rawCats){
     try{await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.cats,JSON.parse(rawCats)||JSON.parse(JSON.stringify(DEFAULT_CATS)));}catch(_){await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.cats,JSON.parse(JSON.stringify(DEFAULT_CATS)));}
   }
+  // 搬「特殊事件」：解析失敗就用空陣列代替
   var rawEvents=localStorage.getItem('special_events_v1');
   if(rawEvents){
     try{await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.specialEvents,JSON.parse(rawEvents)||[]);}catch(_){await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.specialEvents,[]);}
   }
+  // 搬「總預算」：舊版本存的是純數字字串，要用 parseInt 轉成數字，轉失敗就用 17000 當預設值
   var rawBudget=localStorage.getItem('budget_v2');
   if(rawBudget!=null){
     var legacyBudget=parseInt(rawBudget,10);
     await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.budget,Number.isFinite(legacyBudget)?legacyBudget:17000);
   }
+  // 全部搬完之後，把這些舊版的 localStorage 資料清掉，避免下次開機又被誤判成「還有舊資料」
   legacyKeys.forEach(function(k){localStorage.removeItem(k);});
   return true;
 }
+
+/**
+ * 確保資料庫「不是空的」：如果是全新安裝、從來沒存過任何資料的使用者，就塞入內建的範例資料。
+ * 什麼時候被呼叫：App 啟動流程中，搬移舊資料（migrateLocalStorageToIndexedDB）之後，
+ *               如果不是要顯示 demo 模式，就會呼叫這個函數確認資料庫有東西可以顯示。
+ * 參數：無
+ * 回傳：一個 Promise，沒有回傳值；如果資料庫已經有資料，會直接結束什麼都不做。
+ */
 async function ensureInitialIndexedDBSeed(){
   var hasDbData=await ReflowDB.hasAnyData();
-  if(hasDbData)return;
+  if(hasDbData)return; // 已經有資料了（不管是使用者自己存的，還是剛搬移過來的），不需要塞範例資料
+  // 完全是空的資料庫，代表是第一次使用，塞入內建的範例花費紀錄跟預設分類，讓畫面不會是一片空白
   await ReflowDB.replaceExpenses(JSON.parse(JSON.stringify(INITIAL_EXPS)));
   await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.cats,JSON.parse(JSON.stringify(DEFAULT_CATS)));
 }
+
+/**
+ * 把 IndexedDB 裡所有的資料，讀出來放進 App 的記憶體變數裡（cats、expenses、budget…）。
+ * 這個函數做的事情就是「把資料庫內容變成畫面可以直接使用的資料」。
+ * 什麼時候被呼叫：App 啟動流程的最後一步（initializeReflowData 裡），確保資料都搬移、塞種子資料完畢之後才讀取，
+ *               讀完之後 renderHome()、renderRec() 等畫面渲染函數才能正確顯示內容。
+ * 參數：無
+ * 回傳：一個 Promise，沒有回傳值，但執行完之後全域變數（cats、expenses、budget…）都會被更新成資料庫裡的最新內容。
+ */
 async function loadAppStateFromIndexedDB(){
+  // 讀分類清單：如果資料庫裡沒有存過（loadedCats 是空的），就用內建的預設分類
   var loadedCats=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.cats,null);
   hadCatsV2Stored=Array.isArray(loadedCats)&&loadedCats.length>0;
   cats=hadCatsV2Stored?loadedCats:JSON.parse(JSON.stringify(DEFAULT_CATS));
+  // 讀全部花費紀錄：如果資料庫是空的，就先用內建範例資料頂著，避免畫面整個空白
   var loadedExpenses=await ReflowDB.getAllExpenses();
   expenses=Array.isArray(loadedExpenses)?loadedExpenses:[];
   if(!expenses.length)expenses=JSON.parse(JSON.stringify(INITIAL_EXPS));
+  // 讀總預算，沒存過就用 17000 當預設值
   var loadedBudget=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.budget,17000);
   setBudget(loadedBudget);
+  // 讀特殊事件清單，沒存過就用空陣列
   var loadedEvents=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.specialEvents,[]);
   specialEvents=Array.isArray(loadedEvents)?loadedEvents:[];
+  // 讀分類預算／分類緩衝：這兩個用 undefined 判斷「沒存過」，要先確認型態正確才覆蓋掉目前的值，
+  // 這樣即使資料庫裡存的格式不對，也不會把記憶體裡原本正常的資料弄壞
   var savedCatBudgets=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.catBudgets);
   if(savedCatBudgets&&typeof savedCatBudgets==='object'&&!Array.isArray(savedCatBudgets))catBudgets=savedCatBudgets;
   var savedCatBuffers=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.catBuffers);
   if(savedCatBuffers&&typeof savedCatBuffers==='object'&&!Array.isArray(savedCatBuffers))catBuffers=savedCatBuffers;
+  // 讀記帳週期設定：用 Object.assign 跟目前的預設值「合併」，而不是整個覆蓋掉，
+  // 這樣以後新增新的設定欄位時，舊使用者存的資料裡沒有那個欄位也不會出問題（會自動補上預設值）
   var savedCycleConfig=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.cycleConfig);
   if(savedCycleConfig&&typeof savedCycleConfig==='object')cycleConfig=Object.assign({},cycleConfig,savedCycleConfig);
-  if(!Array.isArray(cycleConfig.projectHistory))cycleConfig.projectHistory=[];
+  if(!Array.isArray(cycleConfig.projectHistory))cycleConfig.projectHistory=[]; // 保險：確保這個欄位一定是陣列
 }
 
+/**
+ * 載入「展示用的 Demo 資料」，把記憶體狀態跟 IndexedDB 都換成 demo 的內容。
+ * 什麼時候被呼叫：只有在 window.TIDE_DEMO.ENABLED 是 true 的情況下（也就是用特殊網址或設定開啟 demo 模式時）才會用到，
+ *               一般使用者平常使用 App 不會走到這裡。
+ * 參數：無
+ * 回傳：一個 Promise，resolve 出 true（代表 demo 模式有開啟、已經套用）或 false（沒有開啟 demo，什麼都沒做）。
+ */
 async function applyTideDemoData(){
   var d=window.TIDE_DEMO;
-  if(!d||!d.ENABLED)return false;
+  if(!d||!d.ENABLED)return false; // 沒有開啟 demo 模式，直接結束
+  // 用 JSON.parse(JSON.stringify(...)) 是一種簡單的「深拷貝」寫法，
+  // 確保複製出來的是全新的物件/陣列，修改它不會影響到原始的 demo 資料來源
   expenses=JSON.parse(JSON.stringify(d.expenses||[]));
   setBudget(Number(d.budget)||17000);
   catBudgets=JSON.parse(JSON.stringify(d.catBudgets||{}));
@@ -1995,12 +2134,13 @@ async function applyTideDemoData(){
   specialEvents=[];
   balanceSnapshots=[];
   catBuffers={};
+  // 把記憶體裡剛剛設好的 demo 資料，同步寫回 IndexedDB，這樣重新整理頁面後 demo 資料還是在
   await ReflowDB.replaceExpenses(expenses);
   await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.budget,budget);
   await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.cats,JSON.parse(JSON.stringify(DEFAULT_CATS)));
   await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.specialEvents,[]);
   saveCatBudgets();
-  const demoYm=d.month||'2026-11';
+  const demoYm=d.month||'2026-11'; // demo 資料預設要顯示的月份
   saveCycleConfig();
   enforceCoreCategories();
   setGlobalMonth(demoYm,{syncViewDate:true});
@@ -2009,18 +2149,41 @@ async function applyTideDemoData(){
   syncAllMonthNavigatorUITexts();
   return true;
 }
+
+/**
+ * App 開機時，跟 IndexedDB 有關的「整套初始化流程」的總指揮，按照固定順序執行每一步。
+ * 什麼時候被呼叫：App 一啟動，在 initApp() 裡最先被呼叫的就是這個函數，
+ *               之後 renderHome()、renderRec() 等畫面渲染都要等它執行完才能拿到正確的資料。
+ * 參數：無
+ * 回傳：一個 Promise，沒有回傳值；執行完之後資料庫已經就緒、App 需要的全域變數也都載入好了。
+ *
+ * 執行順序很重要，不能亂調換：
+ *   1. 先確保資料庫連線開好（open）
+ *   2. 把舊版 localStorage 的資料搬進來（migrateLocalStorageToIndexedDB）
+ *   3. 如果有 demo 模組就載入，並且判斷要不要走 demo 模式（走的話直接套用 demo 資料、流程到此結束）
+ *   4. 不是 demo 模式的話，確保資料庫不是空的（ensureInitialIndexedDBSeed，全新使用者會被塞範例資料）
+ *   5. 最後才把資料庫內容讀進記憶體變數（loadAppStateFromIndexedDB），讓畫面可以開始渲染
+ */
 async function initializeReflowData(){
   await ReflowDB.open();
   await migrateLocalStorageToIndexedDB();
   if(typeof loadTideDemoModule==='function')await loadTideDemoModule();
   if(window.TIDE_DEMO&&window.TIDE_DEMO.ENABLED){
     await applyTideDemoData();
-    return;
+    return; // demo 模式已經把資料準備好了，不需要再執行下面「載入真實資料」的步驟
   }
   await ensureInitialIndexedDBSeed();
   await loadAppStateFromIndexedDB();
 }
+// cats：目前所有「分類」的清單（例如 Food、Transit、Shopping…），是整個 App 共用的全域變數。
+// 一開始先給一份預設分類當保底值，等 loadAppStateFromIndexedDB() 執行完之後，
+// 會被換成「使用者實際存在資料庫裡的分類清單」（如果有的話）。
+// 在哪裡被修改：renameCat、setCatMistSwatch、新增/刪除分類等操作都會改這個變數，改完後要記得呼叫 saveCats() 寫回資料庫。
 let cats=JSON.parse(JSON.stringify(DEFAULT_CATS));
+// expenses：目前所有「花費紀錄」的陣列，是整個 App 最核心的資料，首頁、明細頁、統計頁都是讀這個變數來畫面顯示。
+// 一開始是空陣列，等 loadAppStateFromIndexedDB() 執行完之後，會被換成資料庫裡讀出來的真實紀錄。
+// 在哪裡被修改：新增/編輯/刪除花費（saveExp、deleteExp）、AI 匯入結果套用時都會修改這個陣列，
+//             修改完之後一定要呼叫 saveExpenses() 把最新內容寫回 IndexedDB，否則重新整理頁面後會消失。
 let expenses=[];
 async function normalizeExpenseIds(){
   var changed=false,base=Date.now(),i=0;
@@ -2272,63 +2435,6 @@ function migrateProjectsFromLegacy(){
 migrateProjectsFromLegacy();
 syncAutoEventBuffer();
 let selCat=cats[0]?.id||'c1',editingId=null;
-const DEFAULT_MOOD_TAGS=['✨ Treat','🤝 Social','🏡 Necessity','🌍 Adventure','💭 Spontaneous'];
-let selMood=null,moodTags=null;
-async function ensureMoodTagsLoaded(){
-  if(moodTags)return moodTags;
-  let custom=[];
-  try{custom=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.spendingMoods,[]);}catch(_){custom=[];}
-  if(!Array.isArray(custom))custom=[];
-  moodTags=DEFAULT_MOOD_TAGS.concat(custom.filter(function(t){return typeof t==='string'&&t&&DEFAULT_MOOD_TAGS.indexOf(t)===-1;}));
-  return moodTags;
-}
-function getCustomMoodTags(){
-  var list=moodTags||DEFAULT_MOOD_TAGS;
-  return list.filter(function(t){return DEFAULT_MOOD_TAGS.indexOf(t)===-1;});
-}
-async function addMoodTag(tag){
-  tag=String(tag||'').trim().slice(0,20);
-  if(!tag)return false;
-  await ensureMoodTagsLoaded();
-  if(moodTags.indexOf(tag)!==-1)return false;
-  var custom=getCustomMoodTags();
-  custom.push(tag);
-  await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.spendingMoods,custom);
-  moodTags=DEFAULT_MOOD_TAGS.concat(custom);
-  refreshMoodTagUI();
-  return true;
-}
-async function deleteMoodTag(tag){
-  if(DEFAULT_MOOD_TAGS.indexOf(tag)!==-1)return false;
-  await ensureMoodTagsLoaded();
-  var custom=getCustomMoodTags().filter(function(t){return t!==tag;});
-  await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.spendingMoods,custom);
-  moodTags=DEFAULT_MOOD_TAGS.concat(custom);
-  if(selMood===tag)selMood=null;
-  refreshMoodTagUI();
-  return true;
-}
-function refreshMoodTagUI(){
-  renderWhyTags();
-  if(window.TideUI&&typeof window.TideUI.renderMoodsSection==='function')window.TideUI.renderMoodsSection();
-}
-function renderWhyTags(){
-  var container=document.getElementById('why-tags');
-  if(!container)return;
-  var list=moodTags||DEFAULT_MOOD_TAGS;
-  container.innerHTML=list.map(function(tag){
-    var isOn=tag===selMood;
-    return'<div class="chip mood-chip'+(isOn?' on':'')+'" data-mood="'+escapePhAttr(tag)+'">'+escapePhText(tag)+'</div>';
-  }).join('');
-  if(!container.dataset.delegateBound){
-    container.dataset.delegateBound='1';
-    container.addEventListener('click',function(e){
-      var chip=e.target.closest('[data-mood]');
-      if(chip)pickMood(chip.getAttribute('data-mood'));
-    });
-  }
-}
-function pickMood(tag){selMood=(selMood===tag)?null:tag;renderWhyTags();}
 let analysisTrendChart=null,analysisMonthlyTrendChart=null,analysisCumulativeChart=null,ovTodayChart=null,ovWeekChart=null,ovRdWeekChart=null,homeCatChart=null;
 let analysisTrendRange=6;
 let analysisCatTrendRange=6;
@@ -2517,8 +2623,16 @@ function migrateMealShopCatColorsIfNeeded(){
   }
   localStorage.setItem(k,'1');
 }
+/**
+ * 把記憶體裡目前的 expenses 陣列，整批寫回 IndexedDB，確保資料庫跟畫面看到的資料一致。
+ * 什麼時候被呼叫：任何會改動花費紀錄的操作之後都要呼叫，例如新增一筆支出（saveExp）、刪除一筆支出（deleteExp）、
+ *               AI 匯入結果套用之後等等——只要 expenses 陣列的內容變了，就要呼叫這個函數存檔。
+ * 參數：無（直接讀取全域變數 expenses）
+ * 回傳：一個 Promise，寫入完成後 resolve，沒有回傳值。
+ */
 async function saveExpenses(){
   await ReflowDB.replaceExpenses(expenses);
+  // 如果使用者目前正停留在首頁，順便重新渲染一次首頁，讓畫面立刻反映最新的資料（不用使用者手動刷新）
   if(document.getElementById('s-home')&&document.getElementById('s-home').classList.contains('active'))renderHome();
 }
 function normalizeISODate(ds){
@@ -2584,7 +2698,7 @@ function exportTransactionsToCSV(data,balances){
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
   a.href=url;
-  a.download='Reflow_v.2_財務資料_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.download='Reflow_財務資料_'+new Date().toISOString().slice(0,10)+'.csv';
   a.style.display='none';
   document.body.appendChild(a);
   a.click();
@@ -3735,8 +3849,7 @@ function recMonthlyListItemHTML(e){
   const dateLbl=recShortDateLbl(e.date,e);
   const payTag=`<span class="tag tag-rec-pay">${escapePhText(payMethodLabel(pay))}</span>`;
   const dateHtml=dateLbl?`<span class="rec-item-date">${escapePhText(dateLbl)}</span>`:'';
-  const moodHtml=e.mood?`<div class="li-mood">${escapePhText(e.mood)}</div>`:'';
-  return`<div class="rec-item" ${expenseRowDataAttr(e.id)}><div class="li-dot" style="background:${c.bg}"></div><div class="li-info"><div class="li-name">${e.name||'—'}</div><div class="li-meta"><span class="tag" style="background:${c.bg};color:${c.text}">${escapePhText(cat)}</span>${payTag}${dateHtml}</div>${moodHtml}</div><div class="li-amt">${fmt(e.amt||0)}</div></div>`;
+  return`<div class="rec-item" ${expenseRowDataAttr(e.id)}><div class="li-dot" style="background:${c.bg}"></div><div class="li-info"><div class="li-name">${e.name||'—'}</div><div class="li-meta"><span class="tag" style="background:${c.bg};color:${c.text}">${escapePhText(cat)}</span>${payTag}${dateHtml}</div></div><div class="li-amt">${fmt(e.amt||0)}</div></div>`;
 }
 function recItemHTML(e,isRecMonthlyList){
   if(isRecMonthlyList)return recMonthlyListItemHTML(e);
@@ -5001,7 +5114,6 @@ function bindAiTagEditDelegation(){
     var chip=e.target.closest('.tag-chip[data-tag-name]');
     if(!chip||!container.contains(chip))return;
     var tagName=chip.getAttribute('data-tag-name');
-    console.log('Tag clicked: ',tagName);
     openEditTagModal(tagName);
   });
 }
@@ -5592,7 +5704,7 @@ function initExpenseRowClickDelegation(){
   }
   document.addEventListener('click',activateRow,true);
 }
-async function openModal(){editingId=null;setModalTitle('新增支出');document.getElementById('del-btn').style.display='none';document.getElementById('f-name').value='';document.getElementById('f-amt').value='';document.getElementById('f-date').value=viewDate;syncPayMethodPillsUi('手動輸入');if(!cats.find(c=>c.id===selCat))selCat=cats[0]?.id;renderChips();selMood=null;await ensureMoodTagsLoaded();renderWhyTags();showEditExpenseOverlay();}
+function openModal(){editingId=null;setModalTitle('新增支出');document.getElementById('del-btn').style.display='none';document.getElementById('f-name').value='';document.getElementById('f-amt').value='';document.getElementById('f-date').value=viewDate;syncPayMethodPillsUi('手動輸入');if(!cats.find(c=>c.id===selCat))selCat=cats[0]?.id;renderChips();showEditExpenseOverlay();}
 function findExpenseById(id){return expenses.find(function(x){return String(x.id)===String(id);});}
 async function openEdit(id){
   var e=findExpenseById(id);
@@ -5607,9 +5719,6 @@ async function openEdit(id){
   const matchCat=cats.find(c=>c.name===e.cat);
   selCat=matchCat?matchCat.id:cats[0]?.id;
   renderChips();
-  selMood=e.mood||null;
-  await ensureMoodTagsLoaded();
-  renderWhyTags();
   showEditExpenseOverlay();
 }
 function pickCat(id){selCat=id;renderChips()}
@@ -5625,8 +5734,8 @@ async function saveExp(){
   let catName=cat?.name||'Other';
   const autoCat=autoTagCategoryForMerchant(name);
   if(autoCat)catName=autoCat;
-  if(editingId!=null){const e=findExpenseById(editingId);if(e){e.name=name;e.amt=amt;e.date=date;e.cat=catName;e.pay=pay;e.mood=selMood||null;if(!e.createdAt)e.createdAt=new Date().toISOString();}}
-  else{expenses.push({id:Date.now(),name,amt,date,cat:catName,pay,mood:selMood||null,createdAt:new Date().toISOString()})}
+  if(editingId!=null){const e=findExpenseById(editingId);if(e){e.name=name;e.amt=amt;e.date=date;e.cat=catName;e.pay=pay;if(!e.createdAt)e.createdAt=new Date().toISOString();}}
+  else{expenses.push({id:Date.now(),name,amt,date,cat:catName,pay,createdAt:new Date().toISOString()})}
   await saveExpenses();
   if(wasEdit){closeModal();await refreshCurrentScreen();return}
   const newEntry=expenses[expenses.length-1];
