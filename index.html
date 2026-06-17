@@ -1637,7 +1637,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
       <span style="width:44px;flex-shrink:0" aria-hidden="true"></span>
     </div>
     <div class="event-ov-list-wrap" id="event-proj-list"></div>
-    <button type="button" id="fab-add-event" class="fab-dark-flat" onclick="openProjectModal()" aria-label="Add Event">+</button>
+    <button type="button" id="fab-add-event" class="fab-dark-flat" onclick="openProjectRecordModal()" aria-label="Add Event">+</button>
   </div>
 </div>
 
@@ -5070,7 +5070,7 @@ function saveEventNew(){
   saveProjects();
   preferHomeMonthForEvent(newEv);
   closeEventWizardFully();
-  renderProjectHistoryContent();
+  renderEventList();
   renderSet();
   refreshHomepageFromEvents(curMonth);
   renderUnalloc();
@@ -5088,9 +5088,6 @@ function saveEventEdit(){
   p.buffer=f.amt;
   p.startDate=f.sd;
   p.endDate=f.ed;
-  delete p.totalBuffer;
-  delete p.categoryWeights;
-  delete p.categoryAllocations;
   preferHomeMonthForEvent(p);
   closeEditEventModal();
   finishEventEditSync();
@@ -5104,15 +5101,11 @@ function deleteEventEdit(){
     finishEventEditSync();
   });
 }
-function renderProjectHistoryContent(){renderEventList()}
 function openEventList(){
   renderEventList();
   openOverlayEl(document.getElementById('ov-event-list'));
 }
 function closeEventList(){closeOverlayEl(document.getElementById('ov-event-list'))}
-function openProjectModal(){openProjectRecordModal()}
-function openProjectHistory(){openEventList()}
-function closeProjectHistory(){closeEventList()}
 
 let aiCtxEditOldName='';
 function saveAiContextTags(){ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.aiContextTags,aiContextTags).catch(function(e){console.error('saveAiContextTags failed',e);})}
