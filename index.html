@@ -1768,18 +1768,13 @@ const CAT_COLOR_MAP=(function(){
 const CORE_CATEGORY_NAMES=['Food','Transit','Shopping','Entertain','Health','Other'];
 const DEFAULT_CATEGORY_ORDER=['Food','Transit','Shopping','Entertain','Health','Other'];
 const CATEGORY_ORDER_STORAGE_KEY='category_order_v1';
+var _categoryOrderCache=null;
 function loadCategoryOrderIds(){
-  try{
-    var raw=localStorage.getItem(CATEGORY_ORDER_STORAGE_KEY);
-    if(!raw)return null;
-    var parsed=JSON.parse(raw);
-    return Array.isArray(parsed)?parsed:null;
-  }catch(_){return null;}
+  return Array.isArray(_categoryOrderCache)?_categoryOrderCache:null;
 }
 function saveCategoryOrderFromCats(){
-  try{
-    localStorage.setItem(CATEGORY_ORDER_STORAGE_KEY,JSON.stringify(cats.map(function(c){return c.id;})));
-  }catch(_){}
+  _categoryOrderCache=cats.map(function(c){return c.id;});
+  ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.categoryOrder,_categoryOrderCache).catch(function(e){console.error('saveCategoryOrderFromCats failed',e);});
 }
 function applyCategoryOrderIds(orderIds){
   if(!orderIds||!orderIds.length||!Array.isArray(cats)||!cats.length)return;
@@ -1854,7 +1849,11 @@ const REFLOW_SETTINGS_KEYS={
   balanceSnapshots:'balance_snapshots_v1', // 餘額快照紀錄
   catBudgets:'cat_budgets_v1', // 每個分類各自的預算
   catBuffers:'cat_buffers_v1', // 每個分類各自的緩衝金額
-  cycleConfig:'cycle_config_v2' // 記帳週期、Comfort Zone 模式等設定
+  cycleConfig:'cycle_config_v2', // 記帳週期、Comfort Zone 模式等設定
+  categoryOrder:'category_order_v1', // 使用者自訂的分類排序
+  aiContextTags:'ai_context_tags', // AI 匯入上下文標籤
+  aiFilterPref:'ai_filter_pref', // AI 匯入篩選偏好
+  onboardingDone:'reflow_onboarding_done' // 新手引導是否已完成
 };
 /**
  * ReflowDB：整個 App 跟 IndexedDB 溝通的「總開關」。
@@ -2030,6 +2029,30 @@ async function migrateLocalStorageToIndexedDB(){
     try{var parsedCC=JSON.parse(rawCycleConf);if(parsedCC&&typeof parsedCC==='object')await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.cycleConfig,parsedCC);}catch(_){}
     localStorage.removeItem('cycle_config_v1');
   }
+  // 搬「分類排序」設定
+  var rawCategoryOrder=localStorage.getItem('category_order_v1');
+  if(rawCategoryOrder!=null){
+    try{var parsedCO=JSON.parse(rawCategoryOrder);if(Array.isArray(parsedCO))await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.categoryOrder,parsedCO);}catch(_){}
+    localStorage.removeItem('category_order_v1');
+  }
+  // 搬「AI 上下文標籤」設定
+  var rawAiContextTags=localStorage.getItem('ai_context_tags');
+  if(rawAiContextTags!=null){
+    try{var parsedACT=JSON.parse(rawAiContextTags);if(Array.isArray(parsedACT))await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.aiContextTags,parsedACT);}catch(_){}
+    localStorage.removeItem('ai_context_tags');
+  }
+  // 搬「AI 篩選偏好」設定
+  var rawAiFilterPref=localStorage.getItem('aiFilterPref');
+  if(rawAiFilterPref!=null){
+    await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.aiFilterPref,rawAiFilterPref);
+    localStorage.removeItem('aiFilterPref');
+  }
+  // 搬「新手引導完成旗標」設定
+  var rawOnboardingDone=localStorage.getItem('reflow_onboarding_done');
+  if(rawOnboardingDone!=null){
+    await ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.onboardingDone,rawOnboardingDone);
+    localStorage.removeItem('reflow_onboarding_done');
+  }
 
   // 接下來處理「更舊版本」留下的資料（花費紀錄、分類清單、特殊事件、總預算）。
   // 先檢查這四個 key 裡，只要有任何一個還存在 localStorage，就代表這個使用者是從很舊的版本升級上來的。
@@ -2113,6 +2136,23 @@ async function loadAppStateFromIndexedDB(){
   var savedCycleConfig=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.cycleConfig);
   if(savedCycleConfig&&typeof savedCycleConfig==='object')cycleConfig=Object.assign({},cycleConfig,savedCycleConfig);
   if(!Array.isArray(cycleConfig.projectHistory))cycleConfig.projectHistory=[]; // 保險：確保這個欄位一定是陣列
+  // 讀分類排序
+  var savedCategoryOrder=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.categoryOrder,null);
+  _categoryOrderCache=Array.isArray(savedCategoryOrder)?savedCategoryOrder:null;
+  // 讀 AI 上下文標籤
+  var savedAiContextTags=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.aiContextTags,null);
+  if(Array.isArray(savedAiContextTags)&&savedAiContextTags.length){
+    var strip=['Apple Pay','Line Pay'];
+    aiContextTags=savedAiContextTags.filter(function(t){return strip.indexOf(t)<0;});
+    var missing=DEFAULT_AI_CONTEXT_TAGS.filter(function(t){return aiContextTags.indexOf(t)<0;});
+    if(missing.length)aiContextTags=missing.concat(aiContextTags);
+  }
+  // 讀 AI 篩選偏好
+  var savedAiFilterPref=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.aiFilterPref,null);
+  if(savedAiFilterPref==='auto_hide'||savedAiFilterPref==='show_all'||savedAiFilterPref==='ask')_aiFilterPrefCache=savedAiFilterPref;
+  // 讀新手引導完成旗標
+  var savedOnboardingDone=await ReflowDB.getSetting(REFLOW_SETTINGS_KEYS.onboardingDone,null);
+  _onboardingDoneCache=!!savedOnboardingDone;
 }
 
 /**
@@ -2445,20 +2485,12 @@ window.openCatIdx=null;
 const DEFAULT_AI_CONTEXT_TAGS=['App截圖','每月帳單'];
 let aiContextTags=[];
 (function loadAiContextTagsInit(){
-  try{var raw=localStorage.getItem('ai_context_tags');if(raw)aiContextTags=JSON.parse(raw);}catch(_){aiContextTags=[]}
-  if(!Array.isArray(aiContextTags)||!aiContextTags.length){
-    aiContextTags=DEFAULT_AI_CONTEXT_TAGS.slice();
-  }else{
-    var strip=['Apple Pay','Line Pay'];
-    aiContextTags=aiContextTags.filter(function(t){return strip.indexOf(t)<0});
-    var missing=DEFAULT_AI_CONTEXT_TAGS.filter(function(t){return aiContextTags.indexOf(t)<0});
-    if(missing.length)aiContextTags=missing.concat(aiContextTags);
-  }
-  localStorage.setItem('ai_context_tags',JSON.stringify(aiContextTags));
+  aiContextTags=DEFAULT_AI_CONTEXT_TAGS.slice();
   setTimeout(function(){
     try{refreshImportContextChips();}catch(_){}
   },0);
 })();
+var _onboardingDoneCache=false;
 let activePage='home';
 var AppState={
   import:{abortCtrl:null,parseTimer:null,previewRows:null,pendingFile:null,scanLottie:null,lottieInstance:null},
@@ -3277,7 +3309,8 @@ function openOnboarding(){
   obBindSwipe();
 }
 function closeOnboarding(){
-  localStorage.setItem('reflow_onboarding_done','1');
+  _onboardingDoneCache=true;
+  ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.onboardingDone,'1').catch(function(e){console.error('closeOnboarding failed',e);});
   var ov=document.getElementById('onboarding-overlay');
   if(ov&&ov.classList.contains('open')){ov.classList.remove('open');unlockBodyScroll();}
 }
@@ -5082,7 +5115,7 @@ function openProjectHistory(){openEventList()}
 function closeProjectHistory(){closeEventList()}
 
 let aiCtxEditOldName='';
-function saveAiContextTags(){localStorage.setItem('ai_context_tags',JSON.stringify(aiContextTags))}
+function saveAiContextTags(){ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.aiContextTags,aiContextTags).catch(function(e){console.error('saveAiContextTags failed',e);})}
 function getAiContextTags(){return aiContextTags.slice()}
 function refreshImportContextChips(){
   var wrap=document.getElementById('import-ctx-chips');
@@ -5217,18 +5250,20 @@ function renderSet(){
   const ap=getAiFilterPref();
   document.querySelectorAll('.ai-pref-pill').forEach(b=>b.classList.toggle('on',b.getAttribute('data-val')===ap));
 }
+var _aiFilterPrefCache='ask';
 function getAiFilterPref(){
-  const v=localStorage.getItem('aiFilterPref');
-  return(v==='auto_hide'||v==='show_all')?v:'ask';
+  return(_aiFilterPrefCache==='auto_hide'||_aiFilterPrefCache==='show_all')?_aiFilterPrefCache:'ask';
 }
 function setAiFilterPref(val){
   if(val!=='ask'&&val!=='auto_hide'&&val!=='show_all')return;
-  localStorage.setItem('aiFilterPref',val);
+  _aiFilterPrefCache=val;
+  ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.aiFilterPref,val).catch(function(e){console.error('setAiFilterPref failed',e);});
   document.querySelectorAll('.ai-pref-pill').forEach(b=>b.classList.toggle('on',b.getAttribute('data-val')===val));
 }
 function onImportRememberPrefChecked(checked){
   if(checked){
-    localStorage.setItem('aiFilterPref','auto_hide');
+    _aiFilterPrefCache='auto_hide';
+    ReflowDB.setSetting(REFLOW_SETTINGS_KEYS.aiFilterPref,'auto_hide').catch(function(e){console.error('onImportRememberPrefChecked failed',e);});
     document.querySelectorAll('.ai-pref-pill').forEach(b=>b.classList.toggle('on',b.getAttribute('data-val')==='auto_hide'));
   }
 }
@@ -5830,7 +5865,7 @@ async function expenseTrackerWindowLoad(){
   syncNavIcons('home');
   activePage='home';
   syncFabVisibility();
-  if(!localStorage.getItem('reflow_onboarding_done'))setTimeout(openOnboarding,400);
+  if(!_onboardingDoneCache)setTimeout(openOnboarding,400);
 }
 attachSwipe(document.getElementById('s-home'));
 attachSwipe(document.getElementById('rec-daily'));
