@@ -1000,10 +1000,12 @@ window.TideUI = (function () {
     const mask = opts.mask;
     const spentTxt = mask ? '$＊＊＊' : opts.spentTxt;
     const avgTxt = mask ? '$＊＊＊' : opts.avgTxt;
+    const vsLine = opts.hasPrev && !mask
+      ? '<div class="tide-pulse-hero-vs" style="font-size:11px;color:' +
+        (opts.onPace ? '#8AAF9C' : '#C4A09A') +
+        ';margin-top:2px">' + opts.vsTxt + ' vs last month</div>'
+      : '';
     return (
-      '<div class="donut-title tide-pulse-hero-title">' +
-      '<span class="tide-pulse-sec-lbl">SPENT SO FAR</span>' +
-      '</div>' +
       '<div class="tide-pulse-hero-card tide-pulse-hero-card--card">' +
       '<div class="tide-pulse-hero-top">' +
       '<div class="tide-pulse-hero-copy">' +
@@ -1013,11 +1015,9 @@ window.TideUI = (function () {
       '<div class="tide-pulse-hero-avg">' +
       avgTxt +
       '<span> avg / day</span></div>' +
+      vsLine +
       '</div></div>' +
-      '<div class="tide-pulse-chart-wrap stat-trend-chart-wrap">' +
-      '<canvas id="analysis-cumulative-chart" aria-label="Cumulative spend"></canvas>' +
-      '<div id="cumulative-popup"></div>' +
-      '</div></div>'
+      '</div>'
     );
   }
 
@@ -1260,6 +1260,7 @@ window.TideUI = (function () {
       avgTxt: typeof fmt === 'function' ? fmt(avg) : '$0',
       vsTxt: vsTxt,
       onPace: onPace,
+      hasPrev: prev > 0,
     });
 
     const pad = stat.querySelector('.scr-pad');
@@ -1269,20 +1270,8 @@ window.TideUI = (function () {
       ? cardScope.querySelectorAll('.donut-card:not(#tide-pulse-hero)')
       : [];
     const streamCard = cards[0];
-    const cumCard = cards[1];
-    const heatCard = cards[2];
-    if (cardScope && streamCard) cardScope.insertBefore(heroWrap, streamCard.nextElementSibling);
-
-    if (cumCard && cumCard.id !== 'tide-pulse-hero') {
-      cumCard.classList.add('tide-pulse-hidden');
-      cumCard.querySelectorAll('#analysis-cumulative-chart, #cumulative-popup').forEach(function (el) {
-        el.remove();
-      });
-    }
-
-    if (typeof renderAnalysisCumulativeChart === 'function') {
-      renderAnalysisCumulativeChart();
-    }
+    const heatCard = cards[1];
+    if (cardScope && streamCard) cardScope.insertBefore(heroWrap, streamCard);
 
     if (streamCard) {
       streamCard.classList.add('tide-pulse-section');

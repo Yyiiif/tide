@@ -322,7 +322,6 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
   from{opacity:0;transform:scale(0.95);}
   to{opacity:1;transform:scale(1);}
 }
-#cumulative-popup{position:absolute;background:#FFFFFF;border:0.5px solid #E8E8E5;border-radius:10px;padding:10px 12px;font-size:12px;color:#37352F;box-shadow:0 4px 12px rgba(0,0,0,0.08);z-index:100;min-width:140px;display:none;pointer-events:none;animation:popupAppear 0.15s ease-out}
 .stat-trend-leg:empty{display:none}
 .stat-trend-leg{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;margin-bottom:10px}
 .stat-trend-leg-item{display:inline-flex;align-items:baseline;gap:4px;font-size:11px;color:var(--t2);max-width:100%}
@@ -1249,10 +1248,6 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
         <div class="donut-title" id="analysis-cat-breakdown-title"><span>本月分類</span></div>
         <div id="analysis-cat-bar" style="height:12px;border-radius:6px;display:flex;overflow:hidden;margin:10px 0 8px"></div>
         <div id="analysis-cat-legend" style="display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px"></div>
-      </div>
-      <div class="donut-card">
-        <div class="donut-title">當月累積花多少</div>
-        <div class="stat-trend-chart-wrap"><canvas id="analysis-cumulative-chart"></canvas><div id="cumulative-popup"></div></div>
       </div>
       <div class="donut-card">
         <div class="donut-title">消費密度</div>
@@ -2478,7 +2473,7 @@ function migrateProjectsFromLegacy(){
 migrateProjectsFromLegacy();
 syncAutoEventBuffer();
 let selCat=cats[0]?.id||'c1',editingId=null;
-let analysisTrendChart=null,analysisMonthlyTrendChart=null,analysisCumulativeChart=null,ovTodayChart=null,ovWeekChart=null,ovRdWeekChart=null,homeCatChart=null;
+let analysisTrendChart=null,analysisMonthlyTrendChart=null,ovTodayChart=null,ovWeekChart=null,ovRdWeekChart=null,homeCatChart=null;
 let analysisTrendRange=6;
 let analysisCatTrendRange=6;
 let analysisTrendCat='all';
@@ -2498,7 +2493,7 @@ let activePage='home';
 var AppState={
   import:{abortCtrl:null,parseTimer:null,previewRows:null,pendingFile:null,scanLottie:null,lottieInstance:null},
   csv:{pendingRows:null},
-  chart:{cumulativeMeta:null,popupDayIdx:null,popupDocBound:null},
+  chart:{},
   expenseRowClickBound:false
 };
 var __overlayLockDepth=0;
@@ -4083,7 +4078,6 @@ function renderStat(){
   const moEl=document.getElementById('stat-month-lbl');
   if(moEl)moEl.textContent=mlbl(curMonth);
   renderAnalysisCatBreakdown();
-  renderAnalysisCumulativeChart();
   renderAnalysisHeatmapStrip();
   if(typeof refreshLongTermTrendCharts==='function')refreshLongTermTrendCharts();
 }
@@ -4340,260 +4334,6 @@ function trendNiceYAxisMax(raw){
   if(m<=10000)return Math.ceil(m/1000)*1000;
   if(m<=50000)return Math.ceil(m/5000)*5000;
   return Math.ceil(m/10000)*10000;
-}
-function closeCumulativePopup(){
-  const pop=document.getElementById('cumulative-popup');
-  if(pop){pop.style.display='none';pop.style.pointerEvents='none';}
-  AppState.chart.popupDayIdx=null;
-}
-function flashCumulativeMarkerDot(chart,dayIdx){
-  if(!chart)return;
-  const ds=chart.data.datasets[1];
-  if(!ds)return;
-  const origBg=ds.pointBackgroundColor;
-  ds.pointBackgroundColor=function(ctx){return ctx.dataIndex===dayIdx?'#7A8894':'#9CA8B4';};
-  chart.update('none');
-  window.setTimeout(function(){
-    if(!analysisCumulativeChart||analysisCumulativeChart!==chart)return;
-    ds.pointBackgroundColor=origBg;
-    chart.update('none');
-  },220);
-}
-function getCumulativeChartPointPixel(chart,dayIdx){
-  if(!chart)return null;
-  const lineMeta=chart.getDatasetMeta(0);
-  const pt=lineMeta&&lineMeta.data[dayIdx];
-  if(pt&&typeof pt.x==='number'&&typeof pt.y==='number'&&!pt.skip)return{x:pt.x,y:pt.y};
-  const xScale=chart.scales.x;
-  const yScale=chart.scales.y;
-  const lineData=chart.data.datasets[0]&&chart.data.datasets[0].data;
-  if(!xScale||!yScale||!lineData)return null;
-  const yVal=Number(lineData[dayIdx]);
-  if(!Number.isFinite(yVal))return null;
-  const x=xScale.getPixelForValue(dayIdx);
-  const y=yScale.getPixelForValue(yVal);
-  if(!Number.isFinite(x)||!Number.isFinite(y))return null;
-  return{x:x,y:y};
-}
-function findCumulativeMarkerHitAtEvent(chart,meta,evt){
-  if(!chart||!meta)return null;
-  if(!Chart.helpers||!Chart.helpers.getRelativePosition)return null;
-  const pos=Chart.helpers.getRelativePosition(evt,chart);
-  const lastIdx=typeof meta.lastIdx==='number'?meta.lastIdx:-1;
-  const dayIndices=meta.accelerationDays?meta.accelerationDays.slice():[];
-  if(meta.lastIsEndpoint&&lastIdx>=0&&dayIndices.indexOf(lastIdx)<0)dayIndices.push(lastIdx);
-  if(!dayIndices.length)return null;
-  let bestIdx=null,bestDist=Infinity;
-  dayIndices.forEach(function(dayIdx){
-    const pt=getCumulativeChartPointPixel(chart,dayIdx);
-    if(!pt)return;
-    const dist=Math.hypot(pt.x-pos.x,pt.y-pos.y);
-    const maxDist=dayIdx===lastIdx?56:36;
-    if(dist<=maxDist&&dist<bestDist){bestDist=dist;bestIdx=dayIdx;}
-  });
-  return bestIdx!=null?{index:bestIdx,datasetIndex:1}:null;
-}
-function showCumulativePopupForDay(dayIdx,evt,y,m){
-  const pop=document.getElementById('cumulative-popup');
-  const wrap=document.querySelector('#s-stat .stat-trend-chart-wrap');
-  if(!pop||!wrap)return;
-  const dayNum=dayIdx+1;
-  const ds=y+'-'+String(m).padStart(2,'0')+'-'+String(dayNum).padStart(2,'0');
-  const dayExpenses=expenses.filter(function(e){return String(e.date).slice(0,10)===ds;});
-  const total=dayExpenses.reduce(function(s,e){return s+(Number(e.amt)||0);},0);
-  const cm={};
-  dayExpenses.forEach(function(e){
-    const c=e.cat||'Other';
-    cm[c]=(cm[c]||0)+(Number(e.amt)||0);
-  });
-  const topCats=Object.entries(cm).sort(function(a,b){return b[1]-a[1];}).slice(0,2);
-  const catRows=topCats.map(function(entry){
-    const col=catColors(entry[0]);
-    return'<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px"><span class="tag" style="background:'+col.bg+';color:'+col.text+'">'+escapePhText(entry[0])+'</span><span style="font-variant-numeric:tabular-nums">'+fmt(entry[1])+'</span></div>';
-  }).join('');
-  pop.innerHTML='<button type="button" onclick="closeCumulativePopup()" aria-label="關閉" style="position:absolute;top:6px;right:6px;border:none;background:none;color:#ABABAB;font-size:16px;line-height:1;cursor:pointer;padding:0">×</button><div style="font-weight:600;padding-right:16px">'+m+'/'+dayNum+'</div><div style="margin-top:4px;font-weight:500">'+fmt(total)+'</div>'+catRows;
-  const rect=wrap.getBoundingClientRect();
-  const x=evt.clientX-rect.left;
-  const yPos=evt.clientY-rect.top;
-  pop.style.animation='none';
-  void pop.offsetWidth;
-  pop.style.animation='';
-  pop.style.display='block';
-  pop.style.pointerEvents='auto';
-  pop.style.left=Math.max(0,Math.min(x,rect.width-(pop.offsetWidth||140)))+'px';
-  pop.style.top=Math.max(0,yPos-8)+'px';
-  AppState.chart.popupDayIdx=dayIdx;
-}
-function analysisCumulativeMarkerValueLabelsPlugin(){
-  return{id:'analysisCumulativeMarkerValueLabels',afterDatasetsDraw:function(chart){
-    if(chart.config.type!=='line')return;
-    var lineData=chart.data.datasets[0]&&chart.data.datasets[0].data;
-    var markerData=chart.data.datasets[1]&&chart.data.datasets[1].data;
-    if(!lineData)return;
-    var chartMeta=AppState.chart.cumulativeMeta;
-    var indices=chartMeta&&chartMeta.accelerationDays?chartMeta.accelerationDays.slice():[];
-    if(chartMeta&&chartMeta.lastIsEndpoint&&typeof chartMeta.lastIdx==='number'&&indices.indexOf(chartMeta.lastIdx)<0)indices.push(chartMeta.lastIdx);
-    var ctx=chart.ctx;
-    ctx.save();
-    ctx.font=tideChartCanvasFont(500,10);
-    ctx.fillStyle='#C0C4CC';
-    ctx.textAlign='center';
-    ctx.textBaseline='bottom';
-    indices.sort(function(a,b){return a-b;});
-    indices.forEach(function(i){
-      var raw=markerData&&markerData[i]!=null?markerData[i]:lineData[i];
-      if(raw==null)return;
-      var v=Number(raw)||0;
-      if(!(v>0))return;
-      var pt=getCumulativeChartPointPixel(chart,i);
-      if(!pt)return;
-      ctx.fillText('$'+Math.round(v).toLocaleString(),pt.x,pt.y-10);
-    });
-    ctx.restore();
-  }};
-}
-function renderAnalysisCumulativeChart(){
-  const canvas=document.getElementById('analysis-cumulative-chart');
-  if(!canvas)return;
-  if(analysisCumulativeChart){analysisCumulativeChart.destroy();analysisCumulativeChart=null}
-  closeCumulativePopup();
-  const parts=String(curMonth||'').split('-').map(Number);
-  if(parts.length<2||!Number.isFinite(parts[0])||!Number.isFinite(parts[1]))return;
-  const y=parts[0],m=parts[1];
-  const lastDay=new Date(y,m,0).getDate();
-  const td=today();
-  const isCurrentMonth=curMonth===td.slice(0,7);
-  const maxDay=isCurrentMonth?Math.min(lastDay,parseInt(td.slice(8,10),10)||lastDay):lastDay;
-  if(!(maxDay>0))return;
-  const byDay={};
-  expenses.filter(function(e){return e.date&&e.date.startsWith(curMonth);}).forEach(function(e){
-    const d=parseInt(String(e.date).slice(8,10),10);
-    if(!Number.isFinite(d)||d<1||d>maxDay)return;
-    byDay[d]=(byDay[d]||0)+(Number(e.amt)||0);
-  });
-  const labels=[],data=[],dailySpending=[];
-  let running=0;
-  for(let d=1;d<=maxDay;d++){
-    const dayAmt=byDay[d]||0;
-    dailySpending.push(dayAmt);
-    running+=dayAmt;
-    labels.push(String(d));
-    data.push(running);
-  }
-  const accelCandidates=[];
-  for(let idx=3;idx<dailySpending.length;idx++){
-    const rollingAvg=(dailySpending[idx-3]+dailySpending[idx-2]+dailySpending[idx-1])/3;
-    const dayAmt=dailySpending[idx];
-    if(dayAmt>=500&&rollingAvg>=200&&dayAmt>2.5*rollingAvg){
-      const score=rollingAvg>0?dayAmt/rollingAvg:dayAmt;
-      accelCandidates.push({idx:idx,score:score});
-    }
-  }
-  accelCandidates.sort(function(a,b){return b.score-a.score;});
-  const accelerationDays=[];
-  for(var ci=0;ci<accelCandidates.length&&accelerationDays.length<5;ci++){
-    var candIdx=accelCandidates[ci].idx;
-    if(accelerationDays.every(function(picked){return Math.abs(candIdx-picked)>=5;}))accelerationDays.push(candIdx);
-  }
-  const markerData=labels.map(function(_,idx){return accelerationDays.indexOf(idx)>=0?data[idx]:null;});
-  const rawMax=Math.max.apply(null,data.concat([0]));
-  const yMax=trendNiceYAxisMax(rawMax*1.25);
-  function cumulativeAreaGradient(chart){
-    const area=chart.chartArea;
-    if(!area)return'rgba(138, 170, 191, 0.35)';
-    const g=chart.ctx.createLinearGradient(0,area.top,0,area.bottom);
-    g.addColorStop(0,'rgba(138, 170, 191, 0.45)');
-    g.addColorStop(0.55,'rgba(138, 170, 191, 0.14)');
-    g.addColorStop(1,'rgba(138, 170, 191, 0)');
-    return g;
-  }
-  analysisCumulativeChart=new Chart(canvas,{
-    type:'line',
-    data:{labels:labels,datasets:[{
-      data:data,
-      borderColor:'#9CA8B4',
-      borderWidth:1.5,
-      fill:true,
-      backgroundColor:function(ctx){return cumulativeAreaGradient(ctx.chart);},
-      pointRadius:function(ctx){
-        if(accelerationDays.indexOf(ctx.dataIndex)>=0)return 0;
-        return ctx.dataIndex===data.length-1?2.5:0;
-      },
-      pointHoverRadius:function(ctx){
-        if(accelerationDays.indexOf(ctx.dataIndex)>=0)return 0;
-        return ctx.dataIndex===data.length-1?4:0;
-      },
-      pointBackgroundColor:'#9CA8B4',
-      pointBorderColor:'#9CA8B4',
-      tension:0
-    },{
-      data:markerData,
-      borderWidth:0,
-      showLine:false,
-      clip:false,
-      order:2,
-      pointRadius:function(ctx){return accelerationDays.indexOf(ctx.dataIndex)>=0?2.5:0;},
-      pointHoverRadius:function(ctx){return accelerationDays.indexOf(ctx.dataIndex)>=0?4:0;},
-      pointBackgroundColor:'#9CA8B4',
-      pointBorderColor:'#9CA8B4',
-      pointBorderWidth:1.5
-    }]},
-    options:(function(){
-      var dur=getReflowDurationMs(canvas);
-      var ease='easeOutQuart';
-      if(typeof Chart!=='undefined'&&Chart.helpers&&Chart.helpers.easing&&Chart.helpers.easing.effects&&Chart.helpers.easing.effects.reflow){
-        ease='reflow';
-      }
-      return{
-        responsive:true,
-        maintainAspectRatio:false,
-        layout:{padding:{right:24,top:20}},
-        animation:{duration:dur,easing:ease},
-        animations:{
-          x:{duration:dur,easing:ease},
-          y:{duration:dur,easing:ease},
-          radius:{duration:dur,easing:ease,from:0}
-        },
-        transitions:{resize:{animation:{duration:0}}},
-        plugins:{legend:{display:false},tooltip:{enabled:false}},
-        scales:{
-          x:{offset:true,grid:{display:false},ticks:{font:chartTickFont(10),color:'#C0C4CC'}},
-          y:{
-            beginAtZero:true,
-            max:yMax,
-            grid:{display:false},
-            ticks:{font:chartTickFont(10),color:'#C0C4CC',callback:function(v){return Math.round(Number(v)||0).toLocaleString();}}
-          }
-        }
-      };
-    })(),
-    plugins:[analysisCumulativeMarkerValueLabelsPlugin()]
-  });
-  AppState.chart.cumulativeMeta={y:y,m:m,accelerationDays:accelerationDays,lastIdx:data.length-1,lastIsEndpoint:accelerationDays.indexOf(data.length-1)<0};
-  if(!canvas.dataset.cumulativeClickBound){
-    canvas.dataset.cumulativeClickBound='1';
-    canvas.addEventListener('click',function(evt){
-      const chart=analysisCumulativeChart;
-      const meta=AppState.chart.cumulativeMeta;
-      if(!chart||!meta)return;
-      var markerHit=findCumulativeMarkerHitAtEvent(chart,meta,evt);
-      if(!markerHit)return;
-      evt.stopPropagation();
-      var pop=document.getElementById('cumulative-popup');
-      if(pop&&pop.style.display!=='none'&&AppState.chart.popupDayIdx!=null&&AppState.chart.popupDayIdx!==markerHit.index)closeCumulativePopup();
-      flashCumulativeMarkerDot(chart,markerHit.index);
-      showCumulativePopupForDay(markerHit.index,evt,meta.y,meta.m);
-    });
-  }
-  if(!AppState.chart.popupDocBound){
-    AppState.chart.popupDocBound=true;
-    document.addEventListener('click',function(e){
-      const pop=document.getElementById('cumulative-popup');
-      if(!pop||pop.style.display==='none')return;
-      if(pop.contains(e.target))return;
-      closeCumulativePopup();
-    });
-  }
 }
 function refreshAfterCatChange(){
   if(typeof window.rebuildTideCatMap==='function')window.rebuildTideCatMap();
