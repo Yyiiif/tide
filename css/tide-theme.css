@@ -942,12 +942,11 @@ body.tide-ui .tide-pulse-stream-host {
 body.tide-ui #analysis-cat-legend {
   display: flex !important;
   flex-direction: row;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   align-items: center;
   gap: 6px 10px;
   min-width: 0;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  margin-bottom: 4px;
 }
 body.tide-ui #analysis-cat-legend .leg-row {
   display: inline-flex;
@@ -1512,17 +1511,6 @@ body.tide-ui #s-set .scr-pad {
 }
 body.tide-ui #s-set.scr.active {
   min-height: 0;
-}
-body.tide-ui .tide-screen-header .tide-me-month-lbl,
-body.tide-ui .tide-me-month-lbl {
-  margin-left: auto;
-  flex-shrink: 0;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 2.2px;
-  color: var(--tide-ash);
-  text-transform: uppercase;
-  font-variant-numeric: tabular-nums;
 }
 .tide-me-profile-wrap {
   padding: 8px 22px 4px;
@@ -2253,6 +2241,9 @@ body.tide-ui #ov-edit-expense .tide-edit-drop-panel {
   border-radius: 22px 22px 0 0 !important;
   padding: 10px 22px calc(28px + env(safe-area-inset-bottom)) !important;
   max-height: 92vh !important;
+  max-width: 100vw;
+  overflow-y: auto;
+  overflow-x: hidden;
   background: var(--tide-surf) !important;
   box-shadow: 0 -8px 28px -10px rgba(14, 15, 18, 0.25) !important;
   border: none !important;

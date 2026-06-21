@@ -335,7 +335,7 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
 .donut-wrap{display:flex;align-items:center;gap:14px}
 .leg-table{flex:1;display:flex;flex-direction:column;gap:6px}
 .leg-row{display:flex;align-items:center;justify-content:space-between}
-#analysis-cat-legend{display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;gap:6px 10px;min-width:0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+#analysis-cat-legend{display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px 10px;min-width:0;margin-bottom:4px}
 #analysis-cat-legend .leg-row.leg-row--inline{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;white-space:nowrap}
 #analysis-cat-legend .leg-row.leg-row--inline .leg-pct{min-width:0;text-align:left}
 .leg-l{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t2)}
@@ -684,7 +684,8 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
 #ov-export-csv .export-csv-overlay-status{display:none;text-align:center;margin-bottom:2px;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;font-size:13px;font-weight:400;color:#ABABAB;line-height:1.3;opacity:0;transition:opacity 0.2s ease}
 #ov-edit-event.event-edit-sheet,#ov-event-edit.event-edit-sheet{z-index:5200}
 #ov-tag-edit.tag-edit-sheet{z-index:6000}
-#comfort-zone-overlay .modal,#add-event-overlay .modal,#ov-edit-expense .modal,#ov-export-csv .modal,#ov-tag-edit .tag-edit-panel,#ov-edit-event .event-edit-panel,#ov-event-edit .event-edit-panel{width:100%;background:#FFFFFF;border-radius:16px 16px 0 0;display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden;box-shadow:none!important;color:#37352F}
+#comfort-zone-overlay .modal,#add-event-overlay .modal,#ov-edit-expense .modal,#ov-export-csv .modal,#ov-tag-edit .tag-edit-panel,#ov-edit-event .event-edit-panel,#ov-event-edit .event-edit-panel{width:100%;max-width:100vw;background:#FFFFFF;border-radius:16px 16px 0 0;display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden;box-shadow:none!important;color:#37352F}
+#ov-edit-expense .modal{overflow-y:auto;overflow-x:hidden}
 #add-event-overlay .modal{padding:20px 24px calc(20px + env(safe-area-inset-bottom));max-height:85dvh}
 #add-event-overlay input,#ov-edit-event input{background:var(--bg2);border-radius:6px;box-shadow:none!important}
 #add-event-overlay .modal-title,#ov-edit-event .modal-title{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif!important;font-size:15px;font-weight:500;line-height:normal;color:var(--t1);margin-bottom:14px}
@@ -1247,7 +1248,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
       <div class="donut-card">
         <div class="donut-title" id="analysis-cat-breakdown-title"><span>本月分類</span></div>
         <div id="analysis-cat-bar" style="height:12px;border-radius:6px;display:flex;overflow:hidden;margin:10px 0 8px"></div>
-        <div id="analysis-cat-legend" style="display:flex;flex-wrap:nowrap;align-items:center;gap:6px 10px;overflow-x:auto;-webkit-overflow-scrolling:touch"></div>
+        <div id="analysis-cat-legend" style="display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px"></div>
       </div>
       <div class="donut-card">
         <div class="donut-title">當月累積花多少</div>
@@ -2630,8 +2631,6 @@ function applyGlobalMonthChange(){
   renderRec();
   renderStat();
   if(typeof renderUnalloc==='function')renderUnalloc();
-  const setEl=document.getElementById('s-set');
-  if(setEl&&setEl.classList.contains('active')&&typeof renderSet==='function')renderSet();
 }
 function shiftGlobalMonth(delta){
   const parts=String(curMonth||'').split('-').map(Number);

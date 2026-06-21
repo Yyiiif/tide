@@ -1288,8 +1288,14 @@ window.TideUI = (function () {
       streamCard.classList.add('tide-pulse-section');
       const title = document.getElementById('analysis-cat-breakdown-title');
       if (title) {
-        const n =
-          typeof getCoreCatsOrdered === 'function' ? getCoreCatsOrdered().length : 6;
+        const spendByCat = {};
+        monthRows.forEach(function (e) {
+          const c = typeof normalizeCoreCatName === 'function'
+            ? normalizeCoreCatName(e.cat || 'Other')
+            : (e.cat || 'Other');
+          spendByCat[c] = (spendByCat[c] || 0) + (Number(e.amt) || 0);
+        });
+        const n = Object.keys(spendByCat).filter(function (k) { return spendByCat[k] > 0; }).length;
         title.innerHTML =
           '<span class="tide-pulse-sec-lbl">BY STREAM</span>' +
           '<span class="tide-pulse-sec-meta">' +
@@ -1661,15 +1667,8 @@ window.TideUI = (function () {
       top.insertBefore(tag, top.firstChild);
     }
     tag.textContent = 'BASE';
-    let monthLbl = top.querySelector('.tide-me-month-lbl');
-    if (!monthLbl) {
-      monthLbl = document.createElement('span');
-      monthLbl.className = 'tide-me-month-lbl';
-      top.appendChild(monthLbl);
-    }
-    if (typeof mlbl === 'function' && typeof curMonth !== 'undefined') {
-      monthLbl.textContent = mlbl(curMonth);
-    }
+    const oldMonthLbl = top.querySelector('.tide-me-month-lbl');
+    if (oldMonthLbl) oldMonthLbl.remove();
   }
 
   function resolveMeBlock(blockId, findFn) {
@@ -1883,8 +1882,9 @@ window.TideUI = (function () {
       eventsSec.className = 'tide-me-block';
       let activeEvents = [];
       if (typeof specialEvents !== 'undefined') {
+        const todayStr = typeof today === 'function' ? today() : new Date().toISOString().slice(0, 10);
         activeEvents = specialEvents.filter(function (p) {
-          return !p.archived;
+          return !p.archived && typeof projectCoversDate === 'function' && projectCoversDate(p, todayStr);
         });
       }
       const eventNames = activeEvents
