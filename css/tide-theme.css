@@ -798,69 +798,6 @@ body.tide-ui .tide-pulse-sec-meta {
   text-transform: none;
 }
 
-/* FLOW SURGE */
-body.tide-ui .tide-flow-surge-cards {
-  background: var(--tide-surf);
-  border: 0.5px solid #E9E9E7;
-  border-radius: 14px;
-  overflow: hidden;
-}
-body.tide-ui .tide-flow-surge-empty {
-  font-size: 12px;
-  color: #B0B3C0;
-  padding: 14px 16px;
-}
-body.tide-ui .tide-flow-surge-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px 16px;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-}
-body.tide-ui .tide-flow-surge-card:active {
-  background: var(--tide-chip, rgba(14, 15, 18, 0.04));
-}
-body.tide-ui .tide-flow-surge-card + .tide-flow-surge-card {
-  border-top: 0.5px solid #E9E9E7;
-}
-body.tide-ui .tide-flow-surge-card-bar {
-  width: 3px;
-  height: 44px;
-  border-radius: 2px;
-  background: linear-gradient(180deg, #445060 0%, #8898A8 45%, #C8D0D8 100%);
-  flex-shrink: 0;
-}
-body.tide-ui .tide-flow-surge-card-main {
-  flex: 1;
-  min-width: 0;
-}
-body.tide-ui .tide-flow-surge-card-date {
-  font-size: 12px;
-  font-weight: 600;
-  color: #44474F;
-}
-body.tide-ui .tide-flow-surge-card-detail {
-  font-size: 11px;
-  color: #9CA0A8;
-  margin-top: 2px;
-}
-body.tide-ui .tide-flow-surge-card-stat {
-  text-align: right;
-  flex-shrink: 0;
-}
-body.tide-ui .tide-flow-surge-card-amt {
-  font-size: 14px;
-  font-weight: 500;
-  color: #44474F;
-  font-variant-numeric: tabular-nums;
-}
-body.tide-ui .tide-flow-surge-card-days {
-  font-size: 10px;
-  color: #B0B3C0;
-  margin-top: 2px;
-}
-
 /* BY STREAM — soft fade (Flow) */
 body.tide-ui #s-stat #analysis-cat-bar.tide-stream-chart--enter,
 body.tide-ui #s-stat #analysis-cat-legend.tide-stream-legend--enter {

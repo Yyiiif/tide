@@ -1109,6 +1109,11 @@ window.TideUI = (function () {
         ? curMonth
         : y + '-' + String(mo).padStart(2, '0');
     const maxDaily = Math.max(0, ...(daily || []));
+    const surgeTotal = (daily || []).reduce(function (s, v) {
+      return s + (Number(v) || 0);
+    }, 0);
+    const surgeAvg = meta.lastDay > 0 ? surgeTotal / meta.lastDay : 0;
+    const surgeThreshold = surgeAvg * 1.5;
     const first = new Date(y, mo - 1, 1);
     const offset = (first.getDay() + 6) % 7;
     const cells = [];
@@ -1143,18 +1148,24 @@ window.TideUI = (function () {
           cell.amt > 0 && !isFuture
             ? ' onclick="openHeatmapDayOv(\'' + ds + '\')" role="button" tabindex="0"'
             : '';
+        const isSurge = !isFuture && cell.amt > 0 && surgeThreshold > 0 && cell.amt > surgeThreshold;
+        const surgeDot = isSurge
+          ? '<span style="position:absolute;left:50%;bottom:1px;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:#fff"></span>'
+          : '';
         bars +=
           '<div class="' +
           cls +
           '"' +
           click +
-          ' style="height:' +
+          ' style="position:relative;height:' +
           barH +
           'px;background:' +
           bg +
           '" title="' +
           (cell.amt > 0 ? String(Math.round(cell.amt)) : '') +
-          '"></div>';
+          '">' +
+          surgeDot +
+          '</div>';
       }
       colsHtml +=
         '<div class="tide-pulse-heat-col">' +
@@ -1171,13 +1182,27 @@ window.TideUI = (function () {
         '<span class="tide-pulse-heat-leg-swatch" style="background:' + color + '"></span>'
       );
     }).join('');
+
+    const monAbbrRaw = MONTH_SHORT[mo - 1] || '';
+    const monAbbr = monAbbrRaw ? monAbbrRaw.charAt(0) + monAbbrRaw.slice(1).toLowerCase() : '';
+    const surgeDays = [];
+    for (let di = 0; di < (daily || []).length; di++) {
+      if (di > todayIdx) continue;
+      const dAmt = Number(daily[di]) || 0;
+      if (surgeThreshold > 0 && dAmt > surgeThreshold) surgeDays.push(monAbbr + ' ' + (di + 1));
+    }
+    const surgeSummary = surgeDays.length
+      ? '<div style="font-size:11px;color:#9CA0A8;padding:6px 0">High spend: ' + surgeDays.join(', ') + '</div>'
+      : '';
+
     return (
       '<div class="tide-pulse-heat-bars">' +
       colsHtml +
       '</div>' +
       '<div class="tide-pulse-heat-legend"><span>LESS</span>' +
       legend +
-      '<span>MORE</span></div>'
+      '<span>MORE</span></div>' +
+      surgeSummary
     );
   }
 
