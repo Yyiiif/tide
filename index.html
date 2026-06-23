@@ -1593,6 +1593,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
     </div>
     <div class="cat-ov-stats">
       <div id="cat-ov-sub" class="cat-ov-sub"></div>
+      <div id="cat-ov-meta" class="cat-ov-meta"></div>
       <div id="cat-ov-bar" class="cat-ov-bar"></div>
     </div>
     <div class="cat-ov-scroll" id="cat-ov-scroll">
@@ -3794,6 +3795,24 @@ function openCatOv(catName){
       }
     }
     barEl.innerHTML=barHtml;
+  }
+  const metaEl=document.getElementById('cat-ov-meta');
+  if(metaEl){
+    let metaHtml='';
+    const monthTotal=window.ReflowCalc&&typeof ReflowCalc.monthSpentTotal==='function'?ReflowCalc.monthSpentTotal(curMonth):0;
+    if(monthTotal>0){
+      const pct=Math.round(spent/monthTotal*100);
+      metaHtml+='<div style="font-size:12px;color:#9CA0A8">'+pct+'% of this month</div>';
+    }
+    const prevMonth=window.ReflowCalc&&typeof ReflowCalc.prevCalendarMonth==='function'?ReflowCalc.prevCalendarMonth(curMonth):'';
+    const prevSpent=prevMonth&&window.ReflowCalc&&typeof ReflowCalc.catSpent==='function'?ReflowCalc.catSpent(catName,prevMonth):0;
+    if(prevSpent>0){
+      const diff=spent-prevSpent;
+      if(diff>0)metaHtml+='<div style="font-size:12px;color:#C4A09A">+'+formatAmount(diff)+' vs last month</div>';
+      else if(diff<0)metaHtml+='<div style="font-size:12px;color:#8AAF9C">-'+formatAmount(Math.abs(diff))+' vs last month</div>';
+    }
+    metaEl.innerHTML=metaHtml;
+    metaEl.style.cssText=metaHtml?'display:flex;flex-direction:column;gap:2px;margin:0 0 4px':'';
   }
   const list=document.getElementById('cat-ov-list');
   if(list)list.innerHTML=catRowsForCat.length?catRowsForCat.map(function(x){return recItemHTML(x);}).join(''):getEmptyStateHTML('這個月沒有'+catName+'的花費',false);
