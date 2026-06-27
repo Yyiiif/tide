@@ -1255,6 +1255,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
       </div>
       </div>
       <div id="trend-view-panel" style="display:none">
+        <div id="trend-context-line" style="font-size:11px;color:#9CA0A8;padding:4px 0 12px 0">Your spending over the last 6 months</div>
         <div class="donut-card tide-pulse-section">
           <div class="donut-title stat-trend-head">
             <span class="tide-pulse-sec-lbl">CATEGORY TREND</span>
@@ -4384,8 +4385,14 @@ function statMonthsForTrend(){
   }
   return out;
 }
+function syncTrendContextLine(){
+  var n=Math.max(analysisCatTrendRange,analysisTrendRange);
+  var el=document.getElementById('trend-context-line');
+  if(el)el.textContent='Your spending over the last '+n+' months';
+}
 function setAnalysisCatTrendRange(months,el){
   analysisCatTrendRange=months===12?12:6;
+  syncTrendContextLine();
   var tg=document.getElementById('analysis-stat-trend-range-toggle');
   if(tg)tg.querySelectorAll('.stat-trend-pill').forEach(function(b){b.classList.remove('on')});
   if(el)el.classList.add('on');
@@ -4493,6 +4500,7 @@ function monthTrendAmount(m,cat){
 }
 function setAnalysisTrendRange(months,el){
   analysisTrendRange=months===12?12:6;
+  syncTrendContextLine();
   var tg=document.getElementById('analysis-monthly-range-toggle');
   if(tg)tg.querySelectorAll('.stat-trend-pill').forEach(function(b){b.classList.remove('on')});
   if(el)el.classList.add('on');
@@ -4753,7 +4761,7 @@ async function initApp(){
       document.getElementById('flow-view-panel').style.display = mode === 'flow' ? '' : 'none';
       document.getElementById('trend-view-panel').style.display = mode === 'trend' ? '' : 'none';
       var panel=document.getElementById(mode==='trend'?'trend-view-panel':'flow-view-panel');
-      if(mode==='trend'&&typeof refreshLongTermTrendCharts==='function')refreshLongTermTrendCharts();
+      if(mode==='trend'){if(typeof syncTrendContextLine==='function')syncTrendContextLine();if(typeof refreshLongTermTrendCharts==='function')refreshLongTermTrendCharts();}
       if(typeof scrollContentToPanelTop==='function'){
         scrollContentToPanelTop(panel);
         if(mode==='trend')requestAnimationFrame(function(){requestAnimationFrame(function(){scrollContentToPanelTop(panel);});});
