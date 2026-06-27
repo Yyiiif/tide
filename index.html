@@ -322,6 +322,7 @@ body:has(#ov-long-term-trend.open) .bnav,body:has(#ov-long-term-trend.open) .glo
   from{opacity:0;transform:scale(0.95);}
   to{opacity:1;transform:scale(1);}
 }
+.trend-chart-popup{position:absolute;background:#FFFFFF;border:0.5px solid #E8E8E5;border-radius:10px;padding:10px 12px;font-size:12px;color:#37352F;box-shadow:0 4px 12px rgba(0,0,0,0.08);z-index:100;min-width:140px;display:none;pointer-events:none;animation:popupAppear 0.15s ease-out}
 .stat-trend-leg:empty{display:none}
 .stat-trend-leg{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;margin-bottom:10px}
 .stat-trend-leg-item{display:inline-flex;align-items:baseline;gap:4px;font-size:11px;color:var(--t2);max-width:100%}
@@ -1265,7 +1266,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
               <button type="button" class="stat-trend-pill on" onclick="setAnalysisCatTrendRange(6,this)">6M</button>
               <button type="button" class="stat-trend-pill" onclick="setAnalysisCatTrendRange(12,this)">12M</button>
             </div>
-            <div class="stat-trend-chart-wrap tide-pulse-chart-wrap"><canvas id="analysis-stat-trend-chart"></canvas></div>
+            <div class="stat-trend-chart-wrap tide-pulse-chart-wrap" style="position:relative"><canvas id="analysis-stat-trend-chart"></canvas><div id="cat-trend-popup" class="trend-chart-popup"></div></div>
             <div class="stat-trend-leg" id="analysis-stat-trend-leg"></div>
           </div>
         </div>
@@ -1278,7 +1279,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
               <button type="button" class="stat-trend-pill on" onclick="setAnalysisTrendRange(6,this)">6M</button>
               <button type="button" class="stat-trend-pill" onclick="setAnalysisTrendRange(12,this)">12M</button>
             </div>
-            <div class="stat-trend-chart-wrap tide-pulse-chart-wrap"><canvas id="analysis-monthly-trend-chart" aria-label="Monthly spend trend"></canvas></div>
+            <div class="stat-trend-chart-wrap tide-pulse-chart-wrap" style="position:relative"><canvas id="analysis-monthly-trend-chart" aria-label="Monthly spend trend"></canvas><div id="monthly-trend-popup" class="trend-chart-popup"></div></div>
             <div class="analysis-trend-cat-filters" id="analysis-monthly-trend-cats" role="group" aria-label="Trend stream filter"></div>
           </div>
         </div>
@@ -4414,7 +4415,42 @@ function trendMistColor(cat){
   try{if(typeof catColors==='function')return catColors(cat).mid;}catch(_){}
   return TREND_MIST[cat]||TREND_MIST['Other'];
 }
+function closeTrendPopup(id){
+  var pop=document.getElementById(id);
+  if(pop){pop.style.display='none';pop.style.pointerEvents='none';}
+}
+function showTrendPopup(id,html,evt,canvas){
+  closeTrendPopup('cat-trend-popup');
+  closeTrendPopup('monthly-trend-popup');
+  var pop=document.getElementById(id);
+  if(!pop)return;
+  var wrap=canvas.closest('.stat-trend-chart-wrap');
+  if(!wrap)return;
+  pop.innerHTML=html;
+  var rect=wrap.getBoundingClientRect();
+  var x=evt.clientX-rect.left;
+  var yPos=evt.clientY-rect.top;
+  pop.style.animation='none';
+  void pop.offsetWidth;
+  pop.style.animation='';
+  pop.style.display='block';
+  pop.style.pointerEvents='auto';
+  pop.style.left=Math.max(0,Math.min(x,rect.width-(pop.offsetWidth||140)))+'px';
+  pop.style.top=Math.max(0,yPos-8)+'px';
+}
+if(!window._trendPopupDocBound){
+  window._trendPopupDocBound=true;
+  document.addEventListener('click',function(e){
+    ['cat-trend-popup','monthly-trend-popup'].forEach(function(id){
+      var pop=document.getElementById(id);
+      if(!pop||pop.style.display==='none')return;
+      if(pop.contains(e.target))return;
+      closeTrendPopup(id);
+    });
+  });
+}
 function renderAnalysisStatTrendChart(){
+  closeTrendPopup('cat-trend-popup');
   const canvas=document.getElementById('analysis-stat-trend-chart');
   const legEl=document.getElementById('analysis-stat-trend-leg');
   if(!canvas||!legEl)return;
@@ -4429,7 +4465,7 @@ function renderAnalysisStatTrendChart(){
   const baseOpts={
     responsive:true,
     maintainAspectRatio:false,
-    plugins:{legend:{display:false}},
+    plugins:{legend:{display:false},tooltip:{enabled:false}},
     scales:{
       x:{stacked:true,grid:{display:false},ticks:{font:chartTickFont(11),color:'#787774'}},
       y:{
@@ -4474,6 +4510,33 @@ function renderAnalysisStatTrendChart(){
     };
   });
   analysisTrendChart=new Chart(canvas,{type:'bar',data:{labels,datasets:datasets},options:baseOpts});
+  if(!canvas.dataset.trendClickBound){
+    canvas.dataset.trendClickBound='1';
+    canvas.addEventListener('click',function(evt){
+      var chart=analysisTrendChart;
+      if(!chart)return;
+      var els=chart.getElementsAtEventForMode(evt,'index',{intersect:false},false);
+      if(!els||!els.length)return;
+      var idx=els[0].index;
+      var ms=statMonthsForTrend();
+      var ym=ms[idx];
+      if(!ym)return;
+      evt.stopPropagation();
+      var rows=[];
+      (chart.data.datasets||[]).forEach(function(ds){
+        var v=Number(ds.data[idx])||0;
+        if(v>0)rows.push({cat:ds.label,amt:v});
+      });
+      var total=rows.reduce(function(s,r){return s+r.amt},0);
+      var html='<div style="font-weight:600;margin-bottom:6px">'+chart.data.labels[idx]+'</div>';
+      rows.forEach(function(r){
+        var col=catColors(r.cat).mid;
+        html+='<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px"><span style="display:inline-flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:50%;background:'+col+';flex-shrink:0"></span>'+escapePhText(r.cat)+'</span><span style="font-variant-numeric:tabular-nums">'+fmt(r.amt)+'</span></div>';
+      });
+      if(rows.length>1)html+='<div style="display:flex;justify-content:space-between;margin-top:6px;padding-top:4px;border-top:0.5px solid #E8E8E5;font-weight:500"><span>Total</span><span style="font-variant-numeric:tabular-nums">'+fmt(total)+'</span></div>';
+      showTrendPopup('cat-trend-popup',html,evt,canvas);
+    });
+  }
 }
 function statMonthsForMonthlyTrend(range){
   var n=range===12?12:6;
@@ -4634,7 +4697,7 @@ function getAnalysisTrendLineMotionOptions(yMax){
       show:{animations:{y:{duration:dur,easing:'reflow'},radius:{duration:dur,easing:'reflow',from:0}}},
       hide:{animations:{y:{duration:dur,easing:'reflow'},radius:{duration:dur,easing:'reflow'}}}
     },
-    plugins:{legend:{display:false}},
+    plugins:{legend:{display:false},tooltip:{enabled:false}},
     scales:{
       x:{grid:{display:false},ticks:{font:chartTickFont(11),color:'#787774'}},
       y:{beginAtZero:true,max:yMax,grid:{color:'#EFEFED'},ticks:{font:chartTickFont(10),color:'#ABABAB',callback:function(v){return Math.round(Number(v)).toLocaleString()}}}
@@ -4673,6 +4736,7 @@ function computeAnalysisMonthlyTrendPayload(months){
   return{labels:labels,series:series,label:label,color:color,yMax:yMax};
 }
 function renderAnalysisMonthlyTrendChart(){
+  closeTrendPopup('monthly-trend-popup');
   var canvas=document.getElementById('analysis-monthly-trend-chart');
   var catsEl=document.getElementById('analysis-monthly-trend-cats');
   if(!canvas||!catsEl)return;
@@ -4688,6 +4752,31 @@ function renderAnalysisMonthlyTrendChart(){
     options:getAnalysisTrendLineMotionOptions(payload.yMax),
     plugins:[analysisMonthlyTrendValueLabelsPlugin()]
   });
+  if(!canvas.dataset.trendClickBound){
+    canvas.dataset.trendClickBound='1';
+    canvas.addEventListener('click',function(evt){
+      var chart=analysisMonthlyTrendChart;
+      if(!chart)return;
+      var els=chart.getElementsAtEventForMode(evt,'nearest',{intersect:false},false);
+      if(!els||!els.length)return;
+      var idx=els[0].index;
+      var ms=statMonthsForMonthlyTrend(analysisTrendRange);
+      var ym=ms[idx];
+      if(!ym)return;
+      evt.stopPropagation();
+      var val=Number(chart.data.datasets[0].data[idx])||0;
+      var prevVal=idx>0?Number(chart.data.datasets[0].data[idx-1])||0:0;
+      var html='<div style="font-weight:600;margin-bottom:4px">'+chart.data.labels[idx]+'</div>';
+      html+='<div style="font-weight:500;font-variant-numeric:tabular-nums">'+fmt(val)+'</div>';
+      if(idx>0&&prevVal>0){
+        var pct=((val-prevVal)/prevVal*100);
+        var sign=pct>0?'+':pct<0?'−':'';
+        var color=pct<=0?'#8AAF9C':'#C4A09A';
+        html+='<div style="font-size:11px;color:'+color+';margin-top:2px">'+sign+Math.abs(pct).toFixed(1)+'% vs prev month</div>';
+      }
+      showTrendPopup('monthly-trend-popup',html,evt,canvas);
+    });
+  }
 }
 
 
