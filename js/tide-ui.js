@@ -1085,18 +1085,18 @@ window.TideUI = (function () {
     '#445060', // level 4 — very high
   ];
 
-  function pulseHeatLevel(amt, maxDaily) {
+  function pulseHeatLevel(amt, scale) {
     if (!amt || amt <= 0) return 0;
-    const ratio = maxDaily > 0 ? amt / maxDaily : 0;
-    if (ratio <= 0.3) return 1;
-    if (ratio <= 0.55) return 2;
-    if (ratio <= 0.75) return 3;
+    const ratio = scale > 0 ? Math.min(1, amt / scale) : 0;
+    if (ratio < 0.2) return 1;
+    if (ratio < 0.4) return 2;
+    if (ratio < 0.6) return 3;
     return 4;
   }
 
-  function pulseHeatBarBg(amt, maxDaily, isFuture) {
+  function pulseHeatBarBg(amt, scale, isFuture) {
     if (isFuture && (!amt || amt <= 0)) return PULSE_COLORS[0];
-    return PULSE_COLORS[pulseHeatLevel(amt, maxDaily)];
+    return PULSE_COLORS[pulseHeatLevel(amt, scale)];
   }
 
   function pulseHeatmapMarkup(daily, todayIdx, meta) {
@@ -1109,6 +1109,9 @@ window.TideUI = (function () {
         ? curMonth
         : y + '-' + String(mo).padStart(2, '0');
     const maxDaily = Math.max(0, ...(daily || []));
+    const positiveDays = (daily || []).filter(function (v) { return v > 0; }).slice().sort(function (a, b) { return a - b; });
+    const median = positiveDays.length > 0 ? positiveDays[Math.floor(positiveDays.length / 2)] : maxDaily;
+    const scale = Math.max(median * 3, maxDaily * 0.5);
     const surgeTotal = (daily || []).reduce(function (s, v) {
       return s + (Number(v) || 0);
     }, 0);
@@ -1142,30 +1145,24 @@ window.TideUI = (function () {
         if (cell.amt > 0 && maxDaily > 0) {
           barH = Math.max(4, Math.min(40, Math.round((cell.amt / maxDaily) * 40)));
         }
-        const bg = pulseHeatBarBg(cell.amt, maxDaily, isFuture);
+        const bg = pulseHeatBarBg(cell.amt, scale, isFuture);
         const cls = 'tide-pulse-heat-bar' + (isFuture ? ' tide-pulse-heat-bar--future' : '');
-        const click =
-          cell.amt > 0 && !isFuture
-            ? ' onclick="openHeatmapDayOv(\'' + ds + '\')" role="button" tabindex="0"'
-            : '';
-        const isSurge = !isFuture && cell.amt > 0 && surgeThreshold > 0 && cell.amt > surgeThreshold;
-        const surgeDot = isSurge
-          ? '<span style="position:absolute;left:50%;bottom:1px;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:#fff"></span>'
+        const isClickable = cell.amt > 0 && !isFuture;
+        const clickAttr = isClickable
+          ? ' data-day="' + cell.day + '" data-ds="' + ds + '" role="button" tabindex="0"'
           : '';
         bars +=
           '<div class="' +
           cls +
           '"' +
-          click +
-          ' style="position:relative;height:' +
+          clickAttr +
+          ' style="height:' +
           barH +
           'px;background:' +
           bg +
           '" title="' +
           (cell.amt > 0 ? String(Math.round(cell.amt)) : '') +
-          '">' +
-          surgeDot +
-          '</div>';
+          '"></div>';
       }
       colsHtml +=
         '<div class="tide-pulse-heat-col">' +
@@ -1332,6 +1329,21 @@ window.TideUI = (function () {
       if (strip) {
         strip.className = 'tide-pulse-heat-host';
         strip.innerHTML = pulseHeatmapMarkup(daily, meta.todayIdx, meta);
+        if (!strip.dataset.pulseTapBound) {
+          strip.dataset.pulseTapBound = '1';
+          strip.addEventListener('click', function (e) {
+            var bar = e.target.closest('.tide-pulse-heat-bar[data-ds]');
+            if (!bar) return;
+            e.stopPropagation();
+            var ds = bar.getAttribute('data-ds');
+            if (!ds) return;
+            strip.querySelectorAll('.pulse-cell-selected').forEach(function (el) {
+              el.classList.remove('pulse-cell-selected');
+            });
+            bar.classList.add('pulse-cell-selected');
+            if (typeof openHeatmapDayOv === 'function') openHeatmapDayOv(ds);
+          });
+        }
       }
     }
   }

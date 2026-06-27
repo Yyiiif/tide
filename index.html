@@ -1611,7 +1611,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
       <div class="cat-ov-handle-row"><span class="cat-ov-handle" aria-hidden="true"></span></div>
       <div class="cat-ov-title-row">
         <span class="ov-title" id="heatmap-day-title"></span>
-        <button type="button" class="cat-ov-close" onclick="closeHeatmapDayOv()" aria-label="關閉"><i class="ti ti-x"></i></button>
+        <button type="button" class="cat-ov-close" onclick="closeHeatmapDayOv()" aria-label="Close"><i class="ti ti-x"></i></button>
       </div>
     </div>
     <div class="cat-ov-stats" id="heatmap-day-stats"></div>
@@ -3759,8 +3759,8 @@ function openCatOv(catName){
   const bg=document.getElementById('cat-ov');if(!bg)return;
   const safeName=n=>(n==null||n===''?'Other':String(n));
   const safeCol=n=>{try{return catColors(safeName(n))}catch(e){return{bg:'#F1F1EF',text:'#787774',mid:'#A3A29F'}}};
-  const t=document.getElementById('cat-ov-title');if(t)t.textContent=catName;
   const catKey=normalizeCoreCatName(catName);
+  const t=document.getElementById('cat-ov-title');if(t)t.textContent=catKey;
   const catPeriod=monthDateRange(curMonth);
   const catRowsForCat=expenses.filter(function(e){
     if(!e||!e.date||normalizeCoreCatName(e.cat)!==catKey)return false;
@@ -3790,10 +3790,10 @@ function openCatOv(catName){
       if(spent>catBudgetNum){
         const wBudget=Math.min(100,(catBudgetNum/spent)*100);
         const wOver=Math.max(0,((spent-catBudgetNum)/spent)*100);
-        barHtml=`<div style="display:flex;gap:0;height:8px;border-radius:4px;overflow:hidden;width:100%"><div style="flex:0 0 ${wBudget}%;min-width:0;background:${catMid}"></div><div style="flex:0 0 ${wOver}%;min-width:0;background:${darkMid}"></div></div>`;
+        barHtml=`<div style="display:flex;gap:0;height:4px;border-radius:2px;overflow:hidden;width:100%"><div style="flex:0 0 ${wBudget}%;min-width:0;background:linear-gradient(to right,${catMid}66,${catMid})"></div><div style="flex:0 0 ${wOver}%;min-width:0;background:linear-gradient(to right,${darkMid}66,${darkMid})"></div></div>`;
       }else{
         const wSpent=Math.min(100,(spent/catBudgetNum)*100);
-        barHtml=`<div style="display:flex;gap:0;height:8px;border-radius:4px;overflow:hidden;width:100%"><div style="flex:0 0 ${wSpent}%;min-width:0;background:${catMid}"></div></div>`;
+        barHtml=`<div style="display:flex;gap:0;height:4px;border-radius:2px;overflow:hidden;width:100%"><div style="flex:0 0 ${wSpent}%;min-width:0;background:linear-gradient(to right,${catMid}66,${catMid})"></div></div>`;
       }
     }
     barEl.innerHTML=barHtml;
@@ -3817,7 +3817,7 @@ function openCatOv(catName){
     metaEl.style.cssText=metaHtml?'display:flex;flex-direction:column;gap:2px;margin:0 0 4px':'';
   }
   const list=document.getElementById('cat-ov-list');
-  if(list)list.innerHTML=catRowsForCat.length?catRowsForCat.map(function(x){return recItemHTML(x);}).join(''):getEmptyStateHTML('這個月沒有'+catName+'的花費',false);
+  if(list)list.innerHTML=catRowsForCat.length?catRowsForCat.map(function(x){return recItemHTML(x);}).join(''):getEmptyStateHTML('No '+catKey+' spend this month',false);
   const scroll=document.getElementById('cat-ov-scroll');
   if(scroll)scroll.scrollTop=0;
   setCatOvSnap(false);
@@ -3894,7 +3894,7 @@ function recShortDateLbl(dateStr,e){
 }
 function recMonthlyListItemHTML(e){
   const c=catColors(e.cat||'Other');
-  const cat=e.cat||'Other';
+  const cat=normalizeCoreCatName(e.cat||'Other');
   const pay=e.pay||'';
   const dateLbl=recShortDateLbl(e.date,e);
   const payTag=`<span class="tag tag-rec-pay">${escapePhText(payMethodLabel(pay))}</span>`;
@@ -3908,7 +3908,8 @@ function recItemHTML(e,isRecMonthlyList){
   var payTag=`<span class="tag tag-rec-pay">${payInner}</span>`;
   const dateLbl=recShortDateLbl(e.date,e);
   const dateHtml=dateLbl?`<span class="rec-item-date">${escapePhText(dateLbl)}</span>`:'';
-  return`<div class="rec-item" ${expenseRowDataAttr(e.id)}><div class="li-dot" style="background:${c.bg}"></div><div class="li-info"><div class="li-name">${e.name||'—'}</div><div class="li-meta"><span class="tag" style="background:${c.bg};color:${c.text}">${e.cat||'Other'}</span>${payTag}${dateHtml}</div></div><div class="li-amt">${fmt(e.amt||0)}</div></div>`;
+  const catDisplay=normalizeCoreCatName(e.cat||'Other');
+  return`<div class="rec-item" ${expenseRowDataAttr(e.id)}><div class="li-dot" style="background:${c.bg}"></div><div class="li-info"><div class="li-name">${e.name||'—'}</div><div class="li-meta"><span class="tag" style="background:${c.bg};color:${c.text}">${catDisplay}</span>${payTag}${dateHtml}</div></div><div class="li-amt">${fmt(e.amt||0)}</div></div>`;
 }
 function recCatViewItemHTML(e){return recMonthlyListItemHTML(e);}
 
@@ -4190,6 +4191,9 @@ function renderAnalysisHeatmapStrip(){
     daily.push({day:d,amt:amt});
     if(amt>maxDaily)maxDaily=amt;
   }
+  var positiveDays=daily.filter(function(r){return r.amt>0}).map(function(r){return r.amt}).sort(function(a,b){return a-b});
+  var median=positiveDays.length>0?positiveDays[Math.floor(positiveDays.length/2)]:maxDaily;
+  var scale=Math.max(median*3,maxDaily*0.5);
   var heads=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
   var first=new Date(y,mo-1,1);
   var offset=(first.getDay()+6)%7;
@@ -4210,14 +4214,14 @@ function renderAnalysisHeatmapStrip(){
         continue;
       }
       var ds=y+'-'+String(mo).padStart(2,'0')+'-'+String(cell.day).padStart(2,'0');
-      var ratio=maxDaily>0?cell.amt/maxDaily:0;
+      var ratio=scale>0?Math.min(1,cell.amt/scale):0;
       var barH=4;
       if(cell.amt>0&&maxDaily>0)barH=Math.max(4,Math.min(40,Math.round((cell.amt/maxDaily)*40)));
       var bg='#F1F1EF';
       if(cell.amt>0){
-        if(ratio<=0.3)bg='#D6D5D2';
-        else if(ratio<=0.55)bg='#ABABAB';
-        else if(ratio<=0.75)bg='#787774';
+        if(ratio<0.2)bg='#D6D5D2';
+        else if(ratio<0.4)bg='#ABABAB';
+        else if(ratio<0.6)bg='#787774';
         else bg='#37352F';
       }
       var barClick=cell.amt>0?' onclick="openHeatmapDayOv(\''+ds+'\')" style="width:100%;border-radius:2px;height:'+barH+'px;background:'+bg+';cursor:pointer"':' style="width:100%;border-radius:2px;height:'+barH+'px;background:'+bg+'"';
@@ -4263,6 +4267,7 @@ function closeHeatmapDayOv(e){
   const bg=document.getElementById('heatmap-day-ov');
   closeOverlayEl(bg);
   setHeatmapDayOvSnap(false);
+  document.querySelectorAll('.pulse-cell-selected').forEach(function(el){el.classList.remove('pulse-cell-selected');});
 }
 function openExpenseDetailOv(startDate,endDate){
   var start=String(startDate||'').slice(0,10);
@@ -4279,35 +4284,36 @@ function openExpenseDetailOv(startDate,endDate){
   var total=rangeExpenses.reduce(function(s,e){return s+(Number(e.amt)||0);},0);
   var titleEl=document.getElementById('heatmap-day-title');
   if(titleEl){
+    var monNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var wdNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     if(start===end){
       var parts=start.split('-').map(Number);
       var dObj=new Date(start+'T12:00:00');
-      var wdLabels=['週日','週一','週二','週三','週四','週五','週六'];
-      titleEl.textContent=(parts[1]||0)+'月'+(parts[2]||0)+'日 '+wdLabels[dObj.getDay()];
+      titleEl.textContent=monNames[(parts[1]||1)-1]+' '+(parts[2]||0)+', '+wdNames[dObj.getDay()];
     }else{
       var p1=start.split('-').map(Number);
       var p2=end.split('-').map(Number);
-      titleEl.textContent=(p1[1]||0)+'月'+(p1[2]||0)+'日 – '+(p2[2]||0)+'日';
+      titleEl.textContent=monNames[(p1[1]||1)-1]+' '+(p1[2]||0)+' – '+(p2[2]||0);
     }
   }
   var cm={};
   rangeExpenses.forEach(function(e){
-    var c=e.cat||'Other';
+    var c=normalizeCoreCatName(e.cat||'Other');
     cm[c]=(cm[c]||0)+(Number(e.amt)||0);
   });
   var catRows=Object.entries(cm).sort(function(a,b){return b[1]-a[1];});
   var barSegs=catRows.map(function(entry){
     var mid=catColors(entry[0]).mid;
     var pct=total>0?(entry[1]/total)*100:0;
-    return'<div style="flex:0 0 '+pct+'%;min-width:0;height:100%;background:'+mid+'"></div>';
+    return'<div style="flex:0 0 '+pct+'%;min-width:0;height:100%;background:linear-gradient(to right,'+mid+'66,'+mid+')"></div>';
   }).join('');
-  var catBarHtml='<div style="display:flex;width:100%;height:8px;border-radius:4px;overflow:hidden;margin-bottom:16px">'+barSegs+'</div>';
+  var catBarHtml='<div style="display:flex;width:100%;height:4px;border-radius:2px;overflow:hidden;margin-bottom:16px">'+barSegs+'</div>';
   var legItems=catRows.map(function(entry){
     var mid=catColors(entry[0]).mid;
     return'<div style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:3px;background:'+mid+';flex-shrink:0"></span><span>'+escapePhText(entry[0])+'</span><span style="color:#787774">'+fmt(entry[1])+'</span></div>';
   }).join('');
-  var totalLbl=start===end?'當日合計':'期間合計';
-  var catLegHtml='<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><div style="display:flex;flex-wrap:wrap;gap:8px;font-size:12px;color:#37352F">'+legItems+'</div><div style="font-size:12px;color:#787774;font-weight:500;flex-shrink:0;margin-left:auto">'+totalLbl+'：'+fmt(total)+'</div></div>';
+  var totalLbl='Total';
+  var catLegHtml='<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap"><div style="display:flex;flex-wrap:wrap;gap:8px;font-size:12px;color:#37352F">'+legItems+'</div><div style="font-size:12px;color:#787774;font-weight:500;flex-shrink:0;margin-left:auto">'+totalLbl+': '+fmt(total)+'</div></div>';
   var statsEl=document.getElementById('heatmap-day-stats');
   if(statsEl)statsEl.innerHTML=catBarHtml+catLegHtml;
   var listHtml=rangeExpenses.slice().sort(function(a,b){
@@ -4317,7 +4323,7 @@ function openExpenseDetailOv(startDate,endDate){
   }).map(function(x){return recItemHTML(x);}).join('');
   var scrollEl=document.getElementById('heatmap-day-scroll');
   if(scrollEl){
-    var listBody=start===end?'<div>'+listHtml+'</div>':'<div class="sec-lbl">花多少明細</div><div>'+listHtml+'</div>';
+    var listBody=start===end?'<div>'+listHtml+'</div>':'<div class="sec-lbl">Spending details</div><div>'+listHtml+'</div>';
     scrollEl.innerHTML=listBody;
     scrollEl.scrollTop=0;
   }

@@ -1002,6 +1002,15 @@ body.tide-ui .tide-pulse-heat-bar {
   box-sizing: border-box;
   -webkit-tap-highlight-color: transparent;
 }
+body.tide-ui .tide-pulse-heat-bar[role="button"]:active {
+  border: 1px solid #44474F;
+  margin: -1px;
+  opacity: 0.85;
+}
+body.tide-ui .tide-pulse-heat-bar.pulse-cell-selected {
+  border: 1px solid rgba(68,71,79,0.3);
+  margin: -1px;
+}
 body.tide-ui .tide-pulse-heat-bar--pad {
   visibility: hidden;
   pointer-events: none;
