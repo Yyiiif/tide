@@ -1256,7 +1256,6 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
       </div>
       </div>
       <div id="trend-view-panel" style="display:none">
-        <div id="trend-context-line" style="font-size:11px;color:#9CA0A8;padding:4px 0 12px 0">Your spending over the last 6 months</div>
         <div class="donut-card tide-pulse-section">
           <div class="donut-title stat-trend-head">
             <span class="tide-pulse-sec-lbl">CATEGORY TREND</span>
@@ -1590,7 +1589,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
       <div class="cat-ov-handle-row"><span class="cat-ov-handle" aria-hidden="true"></span></div>
       <div class="cat-ov-title-row">
         <span class="ov-title" id="cat-ov-title"></span>
-        <button type="button" class="cat-ov-close" onclick="closeCatOv()" aria-label="關閉"><i class="ti ti-x"></i></button>
+        <button type="button" class="cat-ov-close" onclick="closeCatOv()" aria-label="Close"><i class="ti ti-x"></i></button>
       </div>
     </div>
     <div class="cat-ov-stats">
@@ -1599,7 +1598,7 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
       <div id="cat-ov-bar" class="cat-ov-bar"></div>
     </div>
     <div class="cat-ov-scroll" id="cat-ov-scroll">
-      <div class="sec-lbl">花多少明細</div>
+      <div class="sec-lbl">Entries</div>
       <div id="cat-ov-list"></div>
     </div>
   </div>
@@ -3773,48 +3772,38 @@ function openCatOv(catName){
   const catBufNum=getCatBufferNum(catName);
   const sub=document.getElementById('cat-ov-sub');
   if(sub){
-    if(hasCatBudget){
-      let subTxt=formatAmount(spent)+' / '+formatAmount(catBudgetNum);
-      if(catBufNum>0)subTxt+=' (+'+formatAmount(catBufNum)+')';
-      sub.textContent=subTxt;
-    }else{
-      sub.textContent=formatAmount(spent);
+    sub.innerHTML=`<div style="font-size:28px;font-weight:600;color:#37352F;letter-spacing:-0.02em;margin-bottom:8px">${formatAmount(spent)}</div>`;
+  }
+  const metaEl=document.getElementById('cat-ov-meta');
+  if(metaEl){
+    const monthTotal=window.ReflowCalc&&typeof ReflowCalc.monthSpentTotal==='function'?ReflowCalc.monthSpentTotal(curMonth):0;
+    const prevMonth=window.ReflowCalc&&typeof ReflowCalc.prevCalendarMonth==='function'?ReflowCalc.prevCalendarMonth(curMonth):'';
+    const prevSpent=prevMonth&&window.ReflowCalc&&typeof ReflowCalc.catSpent==='function'?ReflowCalc.catSpent(catName,prevMonth):0;
+    let pills='';
+    if(prevSpent>0){
+      const diff=spent-prevSpent;
+      const up=diff>0;
+      const arrow=up?'↑':'↓';
+      const pillBg=up?'#F5EDEA':'#EAF3EA';
+      const pillColor=up?'#9A6B5E':'#5E8F6B';
+      pills+=`<span style="background:${pillBg};color:${pillColor};font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500">${arrow} ${formatAmount(Math.abs(diff))} vs last month</span>`;
     }
+    if(monthTotal>0){
+      const pct=Math.round(spent/monthTotal*100);
+      pills+=`<span style="font-size:11px;color:#9CA0A8">${pct}% of total</span>`;
+    }
+    metaEl.innerHTML=pills?`<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">${pills}</div>`:'';
+    metaEl.style.cssText=pills?'margin:0 0 8px':'';
   }
   const barEl=document.getElementById('cat-ov-bar');
   if(barEl){
     const catMid=safeCol(catName).mid;
-    const darkMid=`color-mix(in srgb, ${catMid} 60%, #000)`;
     let barHtml='';
     if(spent>0&&catBudgetNum>0){
-      if(spent>catBudgetNum){
-        const wBudget=Math.min(100,(catBudgetNum/spent)*100);
-        const wOver=Math.max(0,((spent-catBudgetNum)/spent)*100);
-        barHtml=`<div style="display:flex;gap:0;height:4px;border-radius:2px;overflow:hidden;width:100%"><div style="flex:0 0 ${wBudget}%;min-width:0;background:linear-gradient(to right,${catMid}66,${catMid})"></div><div style="flex:0 0 ${wOver}%;min-width:0;background:linear-gradient(to right,${darkMid}66,${darkMid})"></div></div>`;
-      }else{
-        const wSpent=Math.min(100,(spent/catBudgetNum)*100);
-        barHtml=`<div style="display:flex;gap:0;height:4px;border-radius:2px;overflow:hidden;width:100%"><div style="flex:0 0 ${wSpent}%;min-width:0;background:linear-gradient(to right,${catMid}66,${catMid})"></div></div>`;
-      }
+      const wSpent=Math.min(100,(spent/catBudgetNum)*100);
+      barHtml=`<div style="height:3px;border-radius:2px;overflow:hidden;width:100%;background:var(--tide-hair,#F1F1EF)"><div style="width:${wSpent}%;height:100%;background:linear-gradient(to right,${catMid},${catMid}99);border-radius:2px"></div></div>`;
     }
     barEl.innerHTML=barHtml;
-  }
-  const metaEl=document.getElementById('cat-ov-meta');
-  if(metaEl){
-    let metaHtml='';
-    const monthTotal=window.ReflowCalc&&typeof ReflowCalc.monthSpentTotal==='function'?ReflowCalc.monthSpentTotal(curMonth):0;
-    if(monthTotal>0){
-      const pct=Math.round(spent/monthTotal*100);
-      metaHtml+='<div style="font-size:12px;color:#9CA0A8">'+pct+'% of this month</div>';
-    }
-    const prevMonth=window.ReflowCalc&&typeof ReflowCalc.prevCalendarMonth==='function'?ReflowCalc.prevCalendarMonth(curMonth):'';
-    const prevSpent=prevMonth&&window.ReflowCalc&&typeof ReflowCalc.catSpent==='function'?ReflowCalc.catSpent(catName,prevMonth):0;
-    if(prevSpent>0){
-      const diff=spent-prevSpent;
-      if(diff>0)metaHtml+='<div style="font-size:12px;color:#C4A09A">+'+formatAmount(diff)+' vs last month</div>';
-      else if(diff<0)metaHtml+='<div style="font-size:12px;color:#8AAF9C">-'+formatAmount(Math.abs(diff))+' vs last month</div>';
-    }
-    metaEl.innerHTML=metaHtml;
-    metaEl.style.cssText=metaHtml?'display:flex;flex-direction:column;gap:2px;margin:0 0 4px':'';
   }
   const list=document.getElementById('cat-ov-list');
   if(list)list.innerHTML=catRowsForCat.length?catRowsForCat.map(function(x){return recItemHTML(x);}).join(''):getEmptyStateHTML('No '+catKey+' spend this month',false);

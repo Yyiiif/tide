@@ -1000,23 +1000,22 @@ window.TideUI = (function () {
     const mask = opts.mask;
     const spentTxt = mask ? '$＊＊＊' : opts.spentTxt;
     const avgTxt = mask ? '$＊＊＊' : opts.avgTxt;
-    const vsLine = opts.hasPrev && !mask
-      ? '<div class="tide-pulse-hero-vs" style="font-size:11px;color:' +
-        (opts.onPace ? '#8AAF9C' : '#C4A09A') +
-        ';margin-top:2px">' + opts.vsTxt + ' vs last month</div>'
-      : '';
+    var vsSpan = '';
+    if (opts.hasPrev && !mask) {
+      const up = opts.vsPct > 0;
+      const arrow = up ? '↑' : '↓';
+      const color = up ? '#C4A09A' : '#8AAF9C';
+      vsSpan = '<span style="font-size:13px;font-weight:500;color:' + color + '">' +
+        arrow + ' ' + Math.abs(opts.vsPct).toFixed(1) + '%</span>';
+    }
     return (
-      '<div class="tide-pulse-hero-card tide-pulse-hero-card--card">' +
-      '<div class="tide-pulse-hero-top">' +
-      '<div class="tide-pulse-hero-copy">' +
-      '<div class="tide-pulse-hero-amt">' +
-      spentTxt +
+      '<div style="padding:8px 0 20px 0;text-align:center">' +
+      '<div style="display:flex;align-items:baseline;gap:12px;margin-bottom:4px;justify-content:center">' +
+      '<span style="font-size:26px;font-weight:600;color:#37352F;letter-spacing:-0.02em">' +
+      spentTxt + '</span>' +
+      vsSpan +
       '</div>' +
-      '<div class="tide-pulse-hero-avg">' +
-      avgTxt +
-      '<span> avg / day</span></div>' +
-      vsLine +
-      '</div></div>' +
+      '<div style="font-size:12px;color:#9CA0A8">' + avgTxt + ' avg per day</div>' +
       '</div>'
     );
   }
@@ -1271,17 +1270,16 @@ window.TideUI = (function () {
     if (!heroWrap) {
       heroWrap = document.createElement('div');
       heroWrap.id = 'tide-pulse-hero';
-      heroWrap.className = 'tide-pulse-hero-wrap donut-card tide-pulse-section';
+      heroWrap.className = 'tide-pulse-hero-wrap tide-pulse-section';
     } else {
-      heroWrap.className = 'tide-pulse-hero-wrap donut-card tide-pulse-section';
+      heroWrap.className = 'tide-pulse-hero-wrap tide-pulse-section';
     }
     heroWrap.classList.remove('tide-pulse-hidden');
     heroWrap.innerHTML = pulseHeroMarkup({
       mask: mask,
       spentTxt: typeof fmt === 'function' ? fmt(monthTotal) : '$0',
       avgTxt: typeof fmt === 'function' ? fmt(avg) : '$0',
-      vsTxt: vsTxt,
-      onPace: onPace,
+      vsPct: vsPct,
       hasPrev: prev > 0,
     });
 
