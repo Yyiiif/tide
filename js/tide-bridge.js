@@ -727,6 +727,57 @@
     fadeInByStreamChart(barEl, legEl);
   }
 
+  function paintByStreamDonut(active, monthTotal) {
+    var el = document.getElementById('analysis-stream-donut');
+    if (!el) return;
+    if (!(monthTotal > 0) || !active.length) { el.innerHTML = ''; return; }
+    var R = 48, SW = 14, CX = 80, CY = 80, C = 2 * Math.PI * R;
+    var defs = '', segs = '', offset = 0;
+    active.forEach(function (row, i) {
+      var pct = row.amt / monthTotal;
+      var dash = pct * C;
+      var gap = C - dash;
+      var color = row.color || '#9CA0A8';
+      var gid = 'dg_' + i;
+      var cat = row.cat;
+      var pctDisp = Math.round(pct * 100);
+      var safe = String(cat).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      defs += '<linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0%" stop-color="' + color + '" stop-opacity="1"/>' +
+        '<stop offset="100%" stop-color="' + color + '" stop-opacity="0.5"/>' +
+        '</linearGradient>';
+      segs += '<circle cx="' + CX + '" cy="' + CY + '" r="' + R + '" fill="none"' +
+        ' stroke="url(#' + gid + ')" stroke-width="' + SW + '"' +
+        ' stroke-dasharray="' + dash.toFixed(2) + ' ' + gap.toFixed(2) + '"' +
+        ' stroke-dashoffset="' + (-(offset * C)).toFixed(2) + '"' +
+        ' style="cursor:pointer;transform-origin:' + CX + 'px ' + CY + 'px;transform:rotate(-90deg)"' +
+        ' onclick="openCatOv(\'' + safe + '\')" />';
+      offset += pct;
+    });
+    var fmtFn = typeof fmt === 'function' ? fmt : function(n) { return '$' + Math.round(n); };
+    var totalTxt = fmtFn(monthTotal);
+    var leg = active.filter(function(r){ return r.amt > 0; }).map(function(row){
+      var pctDisp = Math.round(row.amt / monthTotal * 100);
+      var safe = String(row.cat).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      var label = typeof catLabel === 'function' ? catLabel(row.cat) : row.cat;
+      return '<button type="button" class="tide-pulse-legend-item" onclick="openCatOv(\'' + safe + '\')">' +
+        '<span class="tide-pulse-legend-dot" style="background:' + row.color + '"></span>' +
+        '<span class="tide-pulse-legend-name">' + label + '</span>' +
+        '<span style="font-size:10px;color:#9CA0A8;margin-left:2px">' + pctDisp + '%</span>' +
+        '</button>';
+    }).join('');
+    el.innerHTML =
+      '<div style="font-size:9px;color:#9CA0A8;text-align:center;margin-bottom:8px;letter-spacing:0.04em;text-transform:uppercase">Donut view (preview)</div>' +
+      '<div style="display:flex;justify-content:center">' +
+      '<svg width="160" height="160" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg">' +
+      '<defs>' + defs + '</defs>' +
+      segs +
+      '<text x="' + CX + '" y="' + (CY - 4) + '" text-anchor="middle" font-size="15" font-weight="600" fill="#37352F" font-family="Inter,-apple-system,sans-serif">' + totalTxt + '</text>' +
+      '<text x="' + CX + '" y="' + (CY + 13) + '" text-anchor="middle" font-size="9" fill="#9CA0A8" font-family="Inter,-apple-system,sans-serif">this month</text>' +
+      '</svg></div>' +
+      (leg ? '<div class="tide-pulse-stream-legend" style="justify-content:center;margin-top:8px">' + leg + '</div>' : '');
+  }
+
   function renderByStreamWaveChart() {
     const barEl = document.getElementById('analysis-cat-bar');
     const legEl = document.getElementById('analysis-cat-legend');
@@ -747,11 +798,13 @@
       legEl.innerHTML = '';
       legEl.classList.remove('tide-stream-legend--enter', 'tide-stream-legend--ready', 'tide-stream-legend--exit');
       barEl.classList.remove('tide-stream-chart--enter', 'tide-stream-chart--ready', 'tide-stream-chart--exit');
+      paintByStreamDonut([], 0);
       return;
     }
 
     function paint() {
       paintByStreamWaveChart(barEl, legEl, active, monthTotal);
+      paintByStreamDonut(active, monthTotal);
     }
 
     if (barEl.classList.contains('tide-stream-chart--ready') && barEl.querySelector('svg')) {
