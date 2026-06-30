@@ -798,36 +798,7 @@ body.tide-ui .tide-pulse-sec-meta {
   text-transform: none;
 }
 
-/* BY STREAM — soft fade (Flow) */
-body.tide-ui #s-stat #analysis-cat-bar.tide-stream-chart--enter,
-body.tide-ui #s-stat #analysis-cat-legend.tide-stream-legend--enter {
-  opacity: 0;
-}
-body.tide-ui #s-stat #analysis-cat-bar.tide-stream-chart--exit {
-  opacity: 0;
-  transition: opacity calc(var(--flow-motion-duration, 0.9s) * 0.5) var(--tide-ease-out, ease-out);
-}
-body.tide-ui #s-stat #analysis-cat-bar.tide-stream-chart--ready {
-  opacity: 1;
-  transition: opacity var(--flow-motion-duration, 0.9s) var(--flow-motion-ease, var(--tide-ease-spring, cubic-bezier(0.22, 1, 0.36, 1)));
-}
-body.tide-ui #s-stat #analysis-cat-legend.tide-stream-legend--exit {
-  opacity: 0;
-  transition: opacity calc(var(--flow-motion-duration, 0.9s) * 0.4) var(--tide-ease-out, ease-out);
-}
-body.tide-ui #s-stat #analysis-cat-legend.tide-stream-legend--ready {
-  opacity: 1;
-  transition: opacity var(--flow-motion-duration, 0.9s) var(--flow-motion-ease, var(--tide-ease-spring, cubic-bezier(0.22, 1, 0.36, 1)));
-  transition-delay: 200ms;
-}
 @media (prefers-reduced-motion: reduce) {
-  body.tide-ui #s-stat #analysis-cat-bar.tide-stream-chart--ready,
-  body.tide-ui #s-stat #analysis-cat-bar.tide-stream-chart--exit,
-  body.tide-ui #s-stat #analysis-cat-legend.tide-stream-legend--ready,
-  body.tide-ui #s-stat #analysis-cat-legend.tide-stream-legend--exit {
-    transition: none;
-    opacity: 1;
-  }
   body.tide-ui .tide-hero-wave-a,
   body.tide-ui .tide-hero-wave-b,
   body.tide-ui .tide-hero-wave-c,
@@ -845,42 +816,6 @@ body.tide-ui .tide-pulse-stream-host {
   border-radius: 0 !important;
   display: block !important;
   overflow: visible !important;
-}
-body.tide-ui #analysis-cat-legend {
-  display: flex !important;
-  flex-direction: row;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px 10px;
-  min-width: 0;
-  margin-bottom: 4px;
-}
-body.tide-ui #analysis-cat-legend .leg-row {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  flex: 0 0 auto;
-  white-space: nowrap;
-}
-body.tide-ui #analysis-cat-legend .leg-l {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-  font-size: 12px;
-  color: var(--tide-muted, #787774);
-}
-body.tide-ui #analysis-cat-legend .leg-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 3px;
-  flex-shrink: 0;
-}
-body.tide-ui #analysis-cat-legend .leg-pct {
-  font-size: 11px;
-  color: var(--tide-muted, #9ca0a8);
-  font-variant-numeric: tabular-nums;
-  flex-shrink: 0;
 }
 body.tide-ui .tide-pulse-stack-bar {
   display: flex;
