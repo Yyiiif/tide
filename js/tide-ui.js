@@ -1529,6 +1529,7 @@ window.TideUI = (function () {
       COMFORT: 'Comfort Zone',
       DATA: '資料',
       LANGUAGE: '語言',
+      IMPORT: '匯入',
     };
     const loc = window.TideI18n ? TideI18n.getLocale() : 'en';
     const text = loc === 'zh-TW' ? zhMap[label] || label : label;
@@ -1759,6 +1760,9 @@ window.TideUI = (function () {
     });
     const localeSec = document.getElementById('locale-section');
     const guideSec = document.getElementById('guide-section');
+    const invoiceImportSec = resolveMeBlock('tide-me-invoice-import-block', function () {
+      return document.getElementById('invoice-import-section');
+    });
     let exportWrap = pad.querySelector('.set-export-wrap');
 
     if (exportWrap && !pad.querySelector('.tide-me-data-block')) {
@@ -1777,6 +1781,7 @@ window.TideUI = (function () {
       streamsSec,
       localeSec,
       guideSec,
+      invoiceImportSec,
       dataBlock,
     ].filter(Boolean);
     order.forEach(function (el) {
@@ -1982,6 +1987,21 @@ window.TideUI = (function () {
           icon: false,
           label: 'How to use Reflow',
           onclick: 'openOnboarding()',
+          divider: false,
+        }) +
+        '</div>';
+    }
+
+    if (invoiceImportSec) {
+      invoiceImportSec.className = 'tide-me-block';
+      invoiceImportSec.innerHTML =
+        meSecHdr('IMPORT') +
+        '<div class="tide-me-card">' +
+        meRowHtml({
+          icon: false,
+          label: 'Import invoice CSV',
+          sub: 'From 財政部電子發票平台',
+          onclick: 'openInvoiceCsvImport()',
           divider: false,
         }) +
         '</div>';

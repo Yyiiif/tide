@@ -858,6 +858,8 @@ body:has(#ov-input-hub.open) #ov-input-hub .input-hub-list-wrap{padding-bottom:c
 .import-item-txt{display:block;font-size:14px;font-weight:400;color:#37352F;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .import-item-meta-row{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:4px}
 .import-item-row .tag{flex-shrink:0;margin:0}
+.import-item-hint{font-size:11px;color:#B8762A;line-height:1.3;flex-shrink:0}
+.import-item-note{font-size:11px;color:#9CA0A8;line-height:1.3;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .import-item-row.import-item--transferAsk{background:#FEF9E7;border-color:#E8D96A}
 .import-item-q{width:22px;flex-shrink:0;text-align:center;font-size:15px;font-weight:600;color:#787774;line-height:1}
 .import-item-chk{width:18px;height:18px;flex-shrink:0;accent-color:#37352F;margin:0}
@@ -1404,6 +1406,16 @@ input:focus,select:focus{border-color:var(--t2);background:var(--card)}
           </div>
         </div>
       </div>
+      <div class="set-section event-buffer-card" id="invoice-import-section">
+        <div class="event-buffer-tap" role="button" tabindex="0" onclick="openInvoiceCsvImport()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openInvoiceCsvImport()}">
+          <span class="event-buffer-chevron" aria-hidden="true"><i class="ti ti-chevron-right"></i></span>
+          <div class="event-buffer-title-row" style="gap:8px">
+            <span class="event-buffer-title-txt">Import invoice CSV</span>
+          </div>
+        </div>
+        <div class="event-buffer-toggle-note">From 財政部電子發票平台</div>
+      </div>
+      <input type="file" id="invoice-csv-input" class="ai-file-hidden" accept=".csv,text/csv" onchange="onInvoiceCsvFileSelected(event)">
       <div class="set-export-wrap">
         <button type="button" class="export-csv-btn" id="stat-export-csv" onclick="openCsvDataOverlay()"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" height="18" width="18" aria-hidden="true"><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" stroke-width="2"></path><path d="m7 9 5 -5 5 5" stroke-width="2"></path><path d="m12 4 0 12" stroke-width="2"></path></svg><span>CSV資料</span></button>
       </div>
@@ -5289,6 +5301,250 @@ function normalizeGeminiImportRows(raw){
     return{date,name,label:name,amt,mappedCat,isPotentialTransfer};
   }).filter(it=>it.amt>0||it.name!=='—');
 }
+const INVOICE_CSV_HEADER_NAMES={
+  date:'發票日期',
+  invoiceNo:'發票號碼',
+  amt:'發票金額',
+  allowance:'折讓',
+  sellerId:'賣方統一編號',
+  sellerName:'賣方名稱',
+  itemName:'消費明細_品名'
+};
+const INVOICE_CSV_REQUIRED_COLS=['invoiceNo','date','amt','sellerName'];
+const INVOICE_SELLER_ID_CAT={
+  '27230814':'Food',      // 全家便利商店
+  '84896109':'Food',      // 統一超商
+  '42526317':'Entertain', // Apple
+  '76310526':'Entertain', // Adobe
+  '93645420':'Health'     // 柏文健康事業（World Gym）
+};
+const INVOICE_NOTE_MAX_LEN=60;
+function normalizeInvoiceCsvCell(s){
+  return String(s==null?'':s).trim();
+}
+function splitInvoiceCsvLines(text){
+  return String(text||'').replace(/^\uFEFF/,'').split(/\r?\n/).filter(function(l){return l.trim()!==''});
+}
+function parseInvoiceCsvLine(line){
+  var out=[],cur='',inQ=false;
+  for(var i=0;i<line.length;i++){
+    var ch=line[i];
+    if(inQ){
+      if(ch==='"'&&line[i+1]==='"'){cur+='"';i++;}
+      else if(ch==='"')inQ=false;
+      else cur+=ch;
+    }else{
+      if(ch==='"')inQ=true;
+      else if(ch===','){out.push(cur);cur='';}
+      else cur+=ch;
+    }
+  }
+  out.push(cur);
+  return out;
+}
+async function readInvoiceCsvText(file){
+  const buf=await file.arrayBuffer();
+  const bytes=new Uint8Array(buf);
+  let text='';
+  try{text=new TextDecoder('utf-8').decode(bytes)}catch(_){text=''}
+  if(!text||text.indexOf('\uFFFD')>=0){
+    try{text=new TextDecoder('big5').decode(bytes)}catch(_){}
+  }
+  return text;
+}
+function findInvoiceCsvHeaderRow(rows){
+  const scanLimit=Math.min(rows.length,20);
+  for(let r=0;r<scanLimit;r++){
+    const cells=rows[r].map(normalizeInvoiceCsvCell);
+    const hasAll=INVOICE_CSV_REQUIRED_COLS.every(function(key){
+      return cells.indexOf(INVOICE_CSV_HEADER_NAMES[key])!==-1;
+    });
+    if(hasAll)return r;
+  }
+  return -1;
+}
+function mapInvoiceCsvColumns(headerCells){
+  const colIdx={};
+  Object.keys(INVOICE_CSV_HEADER_NAMES).forEach(function(key){
+    const i=headerCells.indexOf(INVOICE_CSV_HEADER_NAMES[key]);
+    if(i>=0)colIdx[key]=i;
+  });
+  return colIdx;
+}
+/** YYYYMMDD (or 7-digit ROC YYYMMDD) → YYYY-MM-DD; year 100–200 is treated as ROC. */
+function parseInvoiceCsvDate(raw){
+  const s=normalizeInvoiceCsvCell(raw).replace(/[^\d]/g,'');
+  let y,mo,d;
+  if(s.length===8){y=parseInt(s.slice(0,4),10);mo=parseInt(s.slice(4,6),10);d=parseInt(s.slice(6,8),10);}
+  else if(s.length===7){y=parseInt(s.slice(0,3),10);mo=parseInt(s.slice(3,5),10);d=parseInt(s.slice(5,7),10);}
+  else return '';
+  if(y>=100&&y<=200)y+=1911;
+  if(!(y>1911&&y<3000))return '';
+  if(!(mo>=1&&mo<=12))return '';
+  if(!(d>=1&&d<=31))return '';
+  return y+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+}
+/** Signed — discount rows are negative and must stay in the invoice sum. */
+function parseInvoiceCsvAmt(raw){
+  const s=normalizeInvoiceCsvCell(raw).replace(/[^\d.\-]/g,'');
+  if(!s||s==='-'||s==='.')return NaN;
+  const n=parseFloat(s);
+  return isFinite(n)?n:NaN;
+}
+const INVOICE_TW_CITY='(?:臺北|台北|新北|桃園|臺中|台中|臺南|台南|高雄|基隆|新竹|嘉義|苗栗|彰化|南投|雲林|屏東|宜蘭|花蓮|臺東|台東|澎湖|金門|連江)';
+// Branch-location patterns, most specific first. Matched against the text BEFORE
+// 分公司 and anchored to its end, so a loose quantifier can never start mid-name
+// and swallow part of the merchant itself.
+const INVOICE_BRANCH_PREFIX_RES=[
+  new RegExp(INVOICE_TW_CITY+'[市縣](?:[\\u4e00-\\u9fa5]{1,3}[區鄉鎮])?(?:第[0-9A-Za-z]{1,6})?$'),
+  new RegExp('[\\u4e00-\\u9fa5]{2}[區鄉鎮](?:第[0-9A-Za-z]{1,6})?$'),
+  new RegExp('[\\u4e00-\\u9fa5]{3}[區鄉鎮](?:第[0-9A-Za-z]{1,6})?$'),
+  new RegExp('[\\u4e00-\\u9fa5][區鄉鎮](?:第[0-9A-Za-z]{1,6})?$'),
+  /第[0-9A-Za-z]{1,6}$/,
+  /[\u4e00-\u9fa5]{2}$/
+];
+function stripInvoiceBranchSuffix(s){
+  if(!/分公司$/.test(s))return s;
+  const head=s.slice(0,-3);
+  for(let i=0;i<INVOICE_BRANCH_PREFIX_RES.length;i++){
+    const m=head.match(INVOICE_BRANCH_PREFIX_RES[i]);
+    if(m&&m.index>0)return head.slice(0,m.index);
+  }
+  return head;
+}
+/** 全家便利商店股份有限公司試院分公司 → 全家便利商店 */
+function cleanInvoiceSellerName(raw){
+  const orig=normalizeInvoiceCsvCell(raw);
+  let s=orig;
+  s=s.split('股份有限公司').join('');
+  s=s.split('有限公司').join('');
+  s=stripInvoiceBranchSuffix(s);
+  s=s.split('公司').join('');
+  s=s.trim();
+  return s||orig;
+}
+function invoiceCatForSeller(sellerId,cleanName){
+  const byId=INVOICE_SELLER_ID_CAT[normalizeInvoiceCsvCell(sellerId)];
+  if(byId)return byId;
+  const auto=(typeof autoTagCategoryForMerchant==='function')?autoTagCategoryForMerchant(cleanName):null;
+  return auto||'Other';
+}
+function buildInvoiceNote(items){
+  const joined=(items||[]).join(', ');
+  if(joined.length<=INVOICE_NOTE_MAX_LEN)return joined;
+  return joined.slice(0,INVOICE_NOTE_MAX_LEN-1)+'…';
+}
+/** One CSV row = one line item; group them into one record per 發票號碼. */
+function aggregateInvoiceCsvRows(rows,colIdx,headerLen){
+  const order=[];
+  const groups={};
+  for(let r=0;r<rows.length;r++){
+    let cells=rows[r];
+    if(!cells||cells.length<4)continue;
+    // 品名 is the last column and may contain commas — rejoin any overflow fields.
+    if(colIdx.itemName!=null&&cells.length>headerLen){
+      cells=cells.slice(0,colIdx.itemName).concat([cells.slice(colIdx.itemName).join(',')]);
+    }
+    const invoiceNo=normalizeInvoiceCsvCell(cells[colIdx.invoiceNo]);
+    if(!invoiceNo)continue;
+    let g=groups[invoiceNo];
+    if(!g){
+      g={invoiceNo:invoiceNo,total:0,date:'',sellerName:'',sellerId:'',hasAllowance:false,items:[]};
+      groups[invoiceNo]=g;
+      order.push(invoiceNo);
+    }
+    const amt=parseInvoiceCsvAmt(cells[colIdx.amt]);
+    if(isFinite(amt))g.total+=amt;
+    if(!g.date){
+      const d=parseInvoiceCsvDate(cells[colIdx.date]);
+      if(d)g.date=d;
+    }
+    if(!g.sellerName){
+      const n=normalizeInvoiceCsvCell(cells[colIdx.sellerName]);
+      if(n)g.sellerName=n;
+    }
+    if(!g.sellerId&&colIdx.sellerId!=null){
+      const sid=normalizeInvoiceCsvCell(cells[colIdx.sellerId]);
+      if(sid)g.sellerId=sid;
+    }
+    if(colIdx.allowance!=null&&normalizeInvoiceCsvCell(cells[colIdx.allowance])==='是')g.hasAllowance=true;
+    if(colIdx.itemName!=null&&isFinite(amt)&&amt>0){
+      const item=normalizeInvoiceCsvCell(cells[colIdx.itemName]);
+      if(item)g.items.push(item);
+    }
+  }
+  return order.map(function(no){return groups[no]});
+}
+async function parseAndPreviewInvoiceCsv(file){
+  try{
+    const text=await readInvoiceCsvText(file);
+    const rows=splitInvoiceCsvLines(text).map(parseInvoiceCsvLine);
+    const headerIdx=findInvoiceCsvHeaderRow(rows);
+    if(headerIdx<0){showToast('Could not read this CSV format','error');return}
+    const headerCells=rows[headerIdx].map(normalizeInvoiceCsvCell);
+    const colIdx=mapInvoiceCsvColumns(headerCells);
+    const missing=INVOICE_CSV_REQUIRED_COLS.some(function(key){return colIdx[key]==null});
+    if(missing){showToast('Could not read this CSV format','error');return}
+    const groups=aggregateInvoiceCsvRows(rows.slice(headerIdx+1),colIdx,headerCells.length);
+    const baseTs=Date.now();
+    const createdAtIso=new Date().toISOString();
+    const parsedRows=[];
+    groups.forEach(function(g){
+      if(!(g.total>0))return;
+      const name=cleanInvoiceSellerName(g.sellerName)||'—';
+      parsedRows.push({
+        id:baseTs+parsedRows.length,
+        date:g.date||today(),
+        name:name,
+        label:name,
+        amt:g.total,
+        mappedCat:invoiceCatForSeller(g.sellerId,name),
+        isPotentialTransfer:false,
+        hasAllowance:g.hasAllowance,
+        note:buildInvoiceNote(g.items),
+        pay:'Invoice',
+        invoiceNo:g.invoiceNo,
+        sellerId:g.sellerId,
+        createdAt:createdAtIso
+      });
+    });
+    const existingInvoiceNos=new Set(
+      (Array.isArray(expenses)?expenses:[]).filter(function(e){return e&&e.invoiceNo}).map(function(e){return e.invoiceNo})
+    );
+    let droppedCount=0;
+    const dedupedRows=parsedRows.filter(function(row){
+      if(row.invoiceNo&&existingInvoiceNos.has(row.invoiceNo)){droppedCount++;return false}
+      return true;
+    });
+    const sheet=document.getElementById('import-sheet');
+    if(!sheet)return;
+    openOverlayEl(sheet);
+    renderImportParseResults(dedupedRows);
+    if(droppedCount>0){
+      const b=document.getElementById('import-sheet-body');
+      if(b){
+        const note=document.createElement('div');
+        note.textContent=droppedCount+' already imported';
+        note.setAttribute('style','font-size:11px;color:#9CA0A8;text-align:center;padding:10px 20px 0');
+        b.insertBefore(note,b.firstChild);
+      }
+    }
+  }catch(err){
+    showToast('Could not read this file','error');
+    closeImportSheet();
+  }
+}
+function openInvoiceCsvImport(){
+  const inp=document.getElementById('invoice-csv-input');
+  if(inp)inp.click();
+}
+function onInvoiceCsvFileSelected(e){
+  const f=e.target&&e.target.files&&e.target.files[0];
+  const inp=document.getElementById('invoice-csv-input');
+  if(inp)inp.value='';
+  if(!f)return;
+  parseAndPreviewInvoiceCsv(f);
+}
 function importParseErrorToastArgs(err){
   const errMsg=String(err&&err.message||'');
   if((err&&err.status===401)||/API\s*401\b/.test(errMsg)){
@@ -5390,11 +5646,17 @@ async function confirmAndSaveImport(){
     let cat=it.mappedCat||'Other';
     const autoCat=autoTagCategoryForMerchant(it.name);
     if(autoCat)cat=autoCat;
-    var payImp='手動輸入';
-    var cts=typeof currentSelectedContext==='string'?currentSelectedContext.trim():'';
-    if(cts==='App截圖')payImp='App截圖';
-    else if(cts==='每月帳單')payImp='每月帳單';
-    expenses.push({id:base+idx,name:it.name,amt:it.amt,date:it.date,cat,pay:payImp,createdAt});
+    var payImp=it.pay||'手動輸入';
+    if(!it.pay){
+      var cts=typeof currentSelectedContext==='string'?currentSelectedContext.trim():'';
+      if(cts==='App截圖')payImp='App截圖';
+      else if(cts==='每月帳單')payImp='每月帳單';
+    }
+    var newExp={id:base+idx,name:it.name,amt:it.amt,date:it.date,cat,pay:payImp,createdAt};
+    if(it.invoiceNo)newExp.invoiceNo=it.invoiceNo;
+    if(it.sellerId)newExp.sellerId=it.sellerId;
+    if(it.note)newExp.note=it.note;
+    expenses.push(newExp);
     added++;
     if(it.date&&it.date.slice(0,7)!==curMonth){crossCount++;if(!crossMonth)crossMonth=it.date.slice(0,7);}
   });
@@ -5434,14 +5696,20 @@ function renderImportParseResults(items){
   let html='<div class="import-done-title import-done-title--parse-complete">解析完成</div><div class="import-items"><div class="import-select-all-row"><input type="checkbox" id="import-select-all-master" class="import-item-chk" checked aria-label="全選" onchange="onImportSelectAllMasterChange()"></div>';
   filtered.forEach((it,idx)=>{
     const askHighlight=(pref==='ask'&&it.isPotentialTransfer);
-    const rowClass='import-item-row'+(askHighlight?' import-item--transferAsk':'');
-    const qPart=askHighlight?'<span class="import-item-q" title="可能為轉帳／存入">?</span>':'<span class="import-item-q" aria-hidden="true"></span>';
+    const allowanceFlag=!!it.hasAllowance;
+    const flagRow=askHighlight||allowanceFlag;
+    const rowClass='import-item-row'+(flagRow?' import-item--transferAsk':'');
+    const qTitle=allowanceFlag?'可能已折讓，金額待確認':'可能為轉帳／存入';
+    const qPart=flagRow?`<span class="import-item-q" title="${qTitle}">?</span>`:'<span class="import-item-q" aria-hidden="true"></span>';
     const label=it.label||it.name||it.description||it.merchant||'—';
     const amt=parseImportItemAmt(it);
     var catNm=String(it.mappedCat||'Other');
     var ccol=catColors(catNm);
-    const chkAttr=askHighlight?'':'checked';
-    html+=`<label class="${rowClass}"><input type="checkbox" class="import-row-sel import-item-chk" data-i="${idx}" ${chkAttr} onchange="updateImportMasterSelectAppearance()">${qPart}<span class="import-item-main"><span class="import-item-txt">${escImportTxt(label)}</span><span class="import-item-meta-row"><span class="tag" style="background:${ccol.bg};color:${ccol.text}">${escImportTxt(catNm)}</span></span></span><span class="import-item-amt">$${amt.toLocaleString('zh-TW',{maximumFractionDigits:0})}</span></label>`;
+    const chkAttr=flagRow?'':'checked';
+    let metaExtra='';
+    if(allowanceFlag)metaExtra+='<span class="import-item-hint">可能已折讓，金額待確認</span>';
+    if(it.note)metaExtra+=`<span class="import-item-note">${escImportTxt(it.note)}</span>`;
+    html+=`<label class="${rowClass}"><input type="checkbox" class="import-row-sel import-item-chk" data-i="${idx}" ${chkAttr} onchange="updateImportMasterSelectAppearance()">${qPart}<span class="import-item-main"><span class="import-item-txt">${escImportTxt(label)}</span><span class="import-item-meta-row"><span class="tag" style="background:${ccol.bg};color:${ccol.text}">${escImportTxt(catNm)}</span>${metaExtra}</span></span><span class="import-item-amt">$${amt.toLocaleString('zh-TW',{maximumFractionDigits:0})}</span></label>`;
   });
   html+='</div>';
   if(pref==='ask'&&arr.some(x=>x.isPotentialTransfer)){
