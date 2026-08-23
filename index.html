@@ -3620,13 +3620,32 @@ function navTo(target){
   if(target==='personal')renderSet();
 }
 function showPage(pageId){navTo(pageId==='stat'?'analysis':pageId)}
+const NAV_DOUBLE_TAP_MS=350;
+let lastNavTapAt=0;
+let lastNavTapId='';
+/** Double-tap on a month-aware tab jumps the global month back to the real current month. */
+function resetToCurrentMonthFromNav(){
+  const nowIso=new Date().toISOString().slice(0,10);
+  if(curMonth===nowIso.slice(0,7))return;
+  setViewDate(nowIso);
+  showToast('Back to this month','info');
+}
+function handleBottomNavTap(navId,target){
+  // First tap always navigates immediately; the second tap is what resets the month.
+  navTo(target);
+  const now=Date.now();
+  const isDouble=(lastNavTapId===navId&&(now-lastNavTapAt)<=NAV_DOUBLE_TAP_MS);
+  lastNavTapId=isDouble?'':navId;
+  lastNavTapAt=isDouble?0:now;
+  if(isDouble&&target!=='personal')resetToCurrentMonthFromNav();
+}
 function bindBottomNavClickHandlers(){
   const pairs=[['n-home','home'],['n-stat','analysis'],['n-rec','detail'],['n-set','personal']];
   pairs.forEach(function(pair){
     const el=document.getElementById(pair[0]);
     if(!el||el.dataset.navBound==='1')return;
     el.dataset.navBound='1';
-    el.addEventListener('click',function(){navTo(pair[1]);});
+    el.addEventListener('click',function(){handleBottomNavTap(pair[0],pair[1]);});
   });
 }
 function shiftMonth(d){shiftGlobalMonth(d)}
