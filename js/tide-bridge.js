@@ -58,6 +58,37 @@
   const STREAM_MIN_BAND = 6;
   const STREAM_BAND_SCALE = 0.9;
   const STREAM_BAND_GAP = 4;
+  /** Left gutter reserved for inline band labels; waves start here instead of x=0. */
+  const STREAM_LABEL_W = 56;
+  /** Categories under this share of the month are legend-only, no inline label. */
+  const STREAM_LABEL_MIN_PCT = 1;
+  /** Vertical extent a rendered label pair occupies either side of its band centre. */
+  const STREAM_LABEL_BLOCK_UP = 11;
+  const STREAM_LABEL_BLOCK_DOWN = 13;
+  /** Readable ink for each band colour (Shopping / Food / Transit / Entertain / Health / Other). */
+  const STREAM_LABEL_DARK = {
+    '#8AAF9C': '#5E8870',
+    '#C4A09A': '#9C6E62',
+    '#8AAABF': '#5E7E96',
+    '#A898C4': '#7A6296',
+    '#C49AB0': '#9C6E82',
+    '#A4A8A8': '#767A7A',
+  };
+  function mixHexWithBlack(hex, amount) {
+    const m = String(hex == null ? '' : hex).trim().replace(/^#/, '');
+    if (!/^[0-9a-fA-F]{6}$/.test(m)) return '#767A7A';
+    const f = 1 - amount;
+    const ch = function (i) {
+      const v = Math.round(parseInt(m.slice(i, i + 2), 16) * f);
+      return Math.max(0, Math.min(255, v)).toString(16).padStart(2, '0');
+    };
+    return '#' + ch(0) + ch(2) + ch(4);
+  }
+  /** Known band colours get a hand-tuned shade; anything else (user-made category) is mixed 25% with black. */
+  function streamLabelInk(color) {
+    const key = String(color == null ? '' : color).trim().toUpperCase();
+    return STREAM_LABEL_DARK[key] || mixHexWithBlack(color, 0.25);
+  }
 
   function flowMotionDurationMs() {
     try {
@@ -559,7 +590,9 @@
   }
 
   function streamBandWavePath(topY, bottomY, amp, seed) {
-    const w = STREAM_SVG_W;
+    // Wave maths stays in local coords 0..w, then shifts right by the label gutter.
+    const xOff = STREAM_LABEL_W;
+    const w = STREAM_SVG_W - STREAM_LABEL_W;
     const cycles = 1.28 + 0.1 * Math.sin(seed * 0.75);
     const phase = seed * 0.95;
     const k = (cycles * Math.PI * 2) / w;
@@ -574,7 +607,7 @@
     const segs = Math.max(8, Math.round(cycles * 4));
     const segW = w / segs;
     const cp = segW / 3;
-    let d = 'M0,' + yAt(0).toFixed(2);
+    let d = 'M' + xOff.toFixed(2) + ',' + yAt(0).toFixed(2);
     for (let i = 0; i < segs; i++) {
       const x0 = i * segW;
       const x1 = i === segs - 1 ? w : (i + 1) * segW;
@@ -582,25 +615,38 @@
       const y1 = yAt(x1);
       d +=
         ' C' +
-        (x0 + cp).toFixed(2) +
+        (xOff + x0 + cp).toFixed(2) +
         ',' +
         (y0 + dyAt(x0) * cp).toFixed(2) +
         ' ' +
-        (x1 - cp).toFixed(2) +
+        (xOff + x1 - cp).toFixed(2) +
         ',' +
         (y1 - dyAt(x1) * cp).toFixed(2) +
         ' ' +
-        x1.toFixed(2) +
+        (xOff + x1).toFixed(2) +
         ',' +
         y1.toFixed(2);
     }
-    return d + ' L' + w + ',' + bottomY.toFixed(2) + ' L0,' + bottomY.toFixed(2) + ' Z';
+    return (
+      d +
+      ' L' +
+      STREAM_SVG_W +
+      ',' +
+      bottomY.toFixed(2) +
+      ' L' +
+      xOff.toFixed(2) +
+      ',' +
+      bottomY.toFixed(2) +
+      ' Z'
+    );
   }
 
   function paintByStreamWaveChart(barEl, legEl, active, monthTotal) {
     const heights = streamBandHeights(active, monthTotal);
     let defs = '';
     let paths = '';
+    let labels = '';
+    const labelCandidates = [];
     let cursorY = 0;
 
     active.forEach(function (row, i) {
@@ -676,9 +722,55 @@
         '" fill="transparent" pointer-events="all"/>' +
         '</g>';
 
+      // Inline label candidate — gated on true share, but displays the legend's rounded pct.
+      if (pctFrac * 100 >= STREAM_LABEL_MIN_PCT) {
+        const rawLabel = typeof catLabel === 'function' ? catLabel(row.cat) : row.cat;
+        const safeLabel =
+          typeof escapePhText === 'function' ? escapePhText(rawLabel) : rawLabel;
+        labelCandidates.push({
+          share: pctFrac,
+          pct: pctDisplay,
+          cy: topY + bandH / 2,
+          ink: streamLabelInk(color),
+          name: String(safeLabel).toUpperCase(),
+        });
+      }
+
       cursorY = bottomY + (i < active.length - 1 ? STREAM_BAND_GAP : 0);
       row.pctDisplay = pctDisplay;
     });
+
+    // Largest share wins: a label is dropped when its block would overlap one already placed.
+    const placedBlocks = [];
+    labelCandidates
+      .slice()
+      .sort(function (a, b) {
+        return b.share - a.share;
+      })
+      .forEach(function (c) {
+        const top = c.cy - STREAM_LABEL_BLOCK_UP;
+        const bottom = c.cy + STREAM_LABEL_BLOCK_DOWN;
+        const clash = placedBlocks.some(function (b) {
+          return top < b.bottom && bottom > b.top;
+        });
+        if (clash) return;
+        placedBlocks.push({ top: top, bottom: bottom });
+        labels +=
+          '<text x="0" y="' +
+          (c.cy - 3).toFixed(2) +
+          '" font-size="8" letter-spacing="0.08em" fill="' +
+          c.ink +
+          '" opacity="0.75">' +
+          c.name +
+          '</text>' +
+          '<text x="0" y="' +
+          (c.cy + 9).toFixed(2) +
+          '" font-size="12" font-weight="600" fill="' +
+          c.ink +
+          '">' +
+          c.pct +
+          '<tspan font-size="8" font-weight="400" opacity="0.6">%</tspan></text>';
+      });
 
     barEl.style.height = 'auto';
     barEl.style.borderRadius = '0';
@@ -698,6 +790,7 @@
       defs +
       '</defs>' +
       paths +
+      labels +
       '</svg>';
 
     legEl.innerHTML = active
